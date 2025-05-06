@@ -1,0 +1,28 @@
+﻿@page
+@model UniNest.Pages.ListingsModel
+@{
+    ViewData["Title"] = "Accommodation Listings";
+}
+
+<h2>Accommodation Listings</h2>
+
+@if (Model.Accommodations.Count == 0)
+{
+    <p>No accommodations found.</p>
+}
+else
+{
+    <div class="listing-grid">
+        @foreach (var item in Model.Accommodations)
+        {
+            <div class="listing-card">
+                <h3>@item.Title</h3>
+                <p>@item.Description</p>
+                <p><strong>Rent:</strong> £@item.MonthlyRent</p>
+                <p><strong>Max Occupants:</strong> @item.MaxOccupants</p>
+                <p><strong>Available:</strong> @(item.IsAvailable ? "Yes" : "No")</p>
+                <p><strong>University:</strong> @item.UniversityName</p>
+            </div>
+        }
+    </div>
+}

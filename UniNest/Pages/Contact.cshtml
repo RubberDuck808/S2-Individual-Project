@@ -1,0 +1,63 @@
+﻿@page
+@model IndexModel
+@{
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="globals.css" />
+        <link rel="stylesheet" href="style.css" />
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <div class="full-width-breakout">
+            <div class="contact-banner">
+                <img src="/images/ContactRectangle.png" alt="Contact Banner" class="contact-image" />
+                <div class="content-wrapper">
+                    <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                        <div class="contact-form">
+                            <h3 class="form-title">Contact Us</h3>
+                            <form method="post">
+                                <div class="form-group">
+                                    <label for="name">Name</label>
+                                    <input type="text" id="name" name="name" class="form-control" placeholder="Write your name here" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">Email</label>
+                                    <input type="email" id="email" name="email" class="form-control" placeholder="Write your email here" required>
+                                </div>
+                                <div class="form-group" id="message-group">
+                                    <label for="message">Message</label>
+                                    <textarea id="message" name="message" class="form-control" rows="4" placeholder="Write your message here" required></textarea>
+                                </div>
+                            </form>
+                        </div>
+                        <button type="submit" class="btn">Send</button>
+                    </div>
+
+                    <div class="visit">
+                        <h3>Visit Us</h3>
+                        <div class="visit-address">
+                            <p>
+                                UniNest Office Address<br>
+                                Building R10<br>
+                                Rachelsmolen 1<br>
+                                5612 MA Eindhoven
+                            </p>
+                        </div>
+                        <a href="https://maps.app.goo.gl/EEcZkJqQR6NcY4A77" target="_blank" class="btn google-maps-btn">Google Maps</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="questions-content">
+            <h3>Questions about a specific house, apartment, or shared accommodation?</h3>
+            <p>Landlords, property managers, and individuals listing shared accommodations use UniNest to offer their properties. Each listing includes the contact details of the landlord, agency, or individual renting out the space.</p>
+            <p>For questions about a specific listing—whether it's a rental, sublet, or roommate opportunity—please contact the listed person directly. They have the most up-to-date information about the accommodation.</p>
+            <p>Check out our <a href="/faq">Frequently Asked Questions</a> here. If you can't find the answer to your question, feel free to contact our helpdesk at <a href="mailto:helpdesk@uninest.nl">helpdesk@uninest.nl</a>. We're happy to assist you!</p>
+        </div>
+    </body>
+    </html>
+}
