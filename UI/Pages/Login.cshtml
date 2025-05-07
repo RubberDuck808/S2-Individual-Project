@@ -1,0 +1,51 @@
+﻿@page
+@model UI.Pages.LoginModel
+@{
+    ViewData["Title"] = "Landlord Login";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div style="color: red;">@Model.ErrorMessage</div>
+}
+
+<h2>Login</h2>
+<form method="post">
+    <div>
+        <label for="Email">Email:</label>
+        <input type="email" id="Email" name="Email" required>
+    </div>
+    <br />
+    <div>
+        <label for="Password">Password:</label>
+        <input type="password" id="Password" name="Password" required>
+    </div>
+    <br />
+    <button type="submit">Login</button>
+</form>
+
+<br />
+<hr />
+<br />
+
+<h2>Register</h2>
+<form method="post" asp-page-handler="Register">
+    <div>
+        <label for="RegisterEmail">Email:</label>
+        <input type="email" id="RegisterEmail" name="RegisterEmail" required>
+    </div>
+    <br />
+    <div>
+        <label for="RegisterPassword">Password:</label>
+        <input type="password" id="RegisterPassword" name="RegisterPassword" required>
+    </div>
+    <br />
+    <div>
+        <label for="ConfirmPassword">Confirm Password:</label>
+        <input type="password" id="ConfirmPassword" name="ConfirmPassword" required>
+    </div>
+    <br />
+    <button type="submit">Register</button>
+</form>

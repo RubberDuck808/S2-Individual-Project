@@ -1,0 +1,19 @@
+﻿@page
+@model UI.Pages.LandlordModel
+
+<h2>✅ Verified Landlords</h2>
+<ul>
+    @foreach (var l in Model.VerifiedLandlords)
+    {
+        <li>@l.DisplayName - @l.Email</li>
+    }
+</ul>
+
+<h2>❌ Unverified Landlords</h2>
+<ul>
+    @foreach (var l in Model.UnverifiedLandlords)
+    {
+        <li>@l.DisplayName - @l.Email</li>
+    }
+</ul>
+
