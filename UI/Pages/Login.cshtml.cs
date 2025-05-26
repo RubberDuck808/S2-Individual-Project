@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
 
 namespace UI.Pages
 {
@@ -11,18 +12,29 @@ namespace UI.Pages
         private readonly SignInManager<IdentityUser> _signInManager;
 
         [BindProperty]
+        [Required]
+        [EmailAddress]
         public string Email { get; set; }
 
         [BindProperty]
+        [Required]
+        [DataType(DataType.Password)]
         public string Password { get; set; }
 
         [BindProperty]
+        [Required]
+        [EmailAddress]
         public string RegisterEmail { get; set; }
 
         [BindProperty]
+        [Required]
+        [DataType(DataType.Password)]
         public string RegisterPassword { get; set; }
 
         [BindProperty]
+        [Required]
+        [DataType(DataType.Password)]
+        [Compare(nameof(RegisterPassword), ErrorMessage = "Passwords do not match.")]
         public string ConfirmPassword { get; set; }
 
         public string ErrorMessage { get; set; }

@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using DAL.Entities;
+using DAL.Models;
 using BLL.DTOs.Landlord;
 
 namespace BLL.MappingProfiles
@@ -8,8 +8,16 @@ namespace BLL.MappingProfiles
     {
         public LandlordProfile()
         {
-            CreateMap<Landlord, LandlordDto>()
-                .ReverseMap(); 
+            // General-purpose DTO
+            CreateMap<Landlord, LandlordDto>().ReverseMap();
+
+            // Public/basic view
+            CreateMap<Landlord, LandlordBasicDto>();
+
+            // Admin/full view
+            CreateMap<Landlord, LandlordAdminDto>();
+            CreateMap<LandlordUpdateDto, Landlord>();
+
         }
     }
 }

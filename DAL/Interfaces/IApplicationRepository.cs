@@ -1,10 +1,10 @@
-﻿using DAL.Entities;
+﻿//using DAL.Models;
 
-namespace DAL.Interfaces
-{
-    public interface IApplicationRepository : IRepository<Application>
-    {
-        Task<IEnumerable<Application>> GetByStudentAsync(int studentId);
-        Task<IEnumerable<Application>> GetByLandlordIdAsync(int landlordId);
-    }
-}
+//namespace DAL.Interfaces
+//{
+//    public interface IApplicationRepository : IRepository<Application>
+//    {
+//        Task<IEnumerable<Application>> GetByStudentAsync(int studentId);
+//        Task<IEnumerable<Application>> GetByLandlordIdAsync(int landlordId);
+//    }
+//}

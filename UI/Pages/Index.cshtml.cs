@@ -1,17 +1,18 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using DAL.Data;
+using Microsoft.Data.SqlClient;
+using System;
+using System.Threading.Tasks;
 
-
-namespace UI.Pages // Add this namespace declaration
+namespace UI.Pages
 {
     public class IndexModel : PageModel
     {
-        private readonly AppDbContext _context;
+        private readonly string _connectionString;
 
-        public IndexModel(AppDbContext context)
+        public IndexModel(IConfiguration config)
         {
-            _context = context;
+            _connectionString = config.GetValue<string>("UNINEST_CONNECTION_STRING")
+                ?? throw new Exception("Connection string not found.");
         }
 
         public bool IsDatabaseConnected { get; private set; }
@@ -20,7 +21,8 @@ namespace UI.Pages // Add this namespace declaration
         {
             try
             {
-                await _context.Database.CanConnectAsync();
+                using var conn = new SqlConnection(_connectionString);
+                await conn.OpenAsync();
                 IsDatabaseConnected = true;
             }
             catch

@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using BLL.DTOs.Landlord;
 using BLL.Exceptions;
 using BLL.Interfaces;
-using DAL.Entities;
+using DAL.Models;
 using DAL.Interfaces;
 
 namespace BLL.Services
@@ -99,15 +99,74 @@ namespace BLL.Services
             if (landlord == null)
                 throw new NotFoundException($"Landlord with ID {landlordId} not found");
 
-            _mapper.Map(updateDto, landlord);
+            // Only update if the field has a new value
+            if (!string.IsNullOrWhiteSpace(updateDto.Name))
+                landlord.Name = updateDto.Name;
+
+            if (!string.IsNullOrWhiteSpace(updateDto.Email))
+                landlord.Email = updateDto.Email;
+
+            if (!string.IsNullOrWhiteSpace(updateDto.PhoneNumber))
+                landlord.PhoneNumber = updateDto.PhoneNumber;
+
+            if (!string.IsNullOrWhiteSpace(updateDto.CompanyName))
+                landlord.CompanyName = updateDto.CompanyName;
+
+            if (!string.IsNullOrWhiteSpace(updateDto.TaxIdentificationNumber))
+                landlord.TaxIdentificationNumber = updateDto.TaxIdentificationNumber;
+
+            landlord.UpdatedAt = DateTime.UtcNow;
+
             await _landlordRepo.UpdateAsync(landlord);
         }
+
 
         public async Task<IEnumerable<LandlordDto>> GetAllAsync()
         {
             var landlords = await _landlordRepo.GetAllAsync();
             return _mapper.Map<IEnumerable<LandlordDto>>(landlords);
         }
+
+        public async Task UpdateVerificationStatusAsync(int landlordId, LandlordVerificationDto dto)
+        {
+            try
+            {
+                var landlord = await _landlordRepo.GetByIdAsync(landlordId);
+                if (landlord == null)
+                    throw new NotFoundException($"Landlord with ID {landlordId} not found");
+
+                landlord.IsVerified = dto.IsVerified;
+                landlord.VerificationDate = dto.VerificationDate;
+                landlord.UpdatedAt = dto.UpdatedAt;
+
+                await _landlordRepo.UpdateAsync(landlord);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error updating verification for landlord ID {landlordId}");
+                throw;
+            }
+        }
+
+        public async Task<LandlordBasicDto> GetPublicLandlordAsync(int id)
+        {
+            var landlord = await _landlordRepo.GetByIdWithPropertiesAsync(id);
+            if (landlord == null)
+                throw new NotFoundException("Landlord not found");
+
+            return _mapper.Map<LandlordBasicDto>(landlord);
+        }
+
+        public async Task<LandlordAdminDto> GetLandlordForAdminAsync(int id)
+        {
+            var landlord = await _landlordRepo.GetByIdWithPropertiesAsync(id);
+            if (landlord == null)
+                throw new NotFoundException("Landlord not found");
+
+            return _mapper.Map<LandlordAdminDto>(landlord);
+        }
+
+
 
     }
 }

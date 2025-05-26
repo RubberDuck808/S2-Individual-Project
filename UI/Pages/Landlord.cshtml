@@ -1,19 +1,30 @@
 ﻿@page
 @model UI.Pages.LandlordModel
 
-<h2>✅ Verified Landlords</h2>
-<ul>
-    @foreach (var l in Model.VerifiedLandlords)
-    {
-        <li>@l.DisplayName - @l.Email</li>
-    }
-</ul>
+<h3>Manage Landlord</h3>
 
-<h2>❌ Unverified Landlords</h2>
-<ul>
-    @foreach (var l in Model.UnverifiedLandlords)
-    {
-        <li>@l.DisplayName - @l.Email</li>
-    }
-</ul>
+
+<h2>Edit Landlord (Basic)</h2>
+<form method="post" asp-page-handler="EditBasic">
+    <label for="BasicEditLandlordId">Select Landlord:</label>
+    <select name="BasicEditLandlordId" id="BasicEditLandlordId" required>
+        @foreach (var landlord in Model.VerifiedLandlords.Concat(Model.UnverifiedLandlords))
+        {
+            <option value="@landlord.LandlordId">@landlord.DisplayName</option>
+        }
+    </select>
+    <div>
+        <label for="BasicEditName">Name:</label>
+        <input type="text" name="BasicEditName" id="BasicEditName" />
+    </div>
+    <div>
+        <label for="BasicEditEmail">Email:</label>
+        <input type="email" name="BasicEditEmail" id="BasicEditEmail" />
+    </div>
+    <div>
+        <label for="BasicEditPhone">Phone:</label>
+        <input type="tel" name="BasicEditPhone" id="BasicEditPhone" />
+    </div>
+    <button type="submit">Save</button>
+</form>
 

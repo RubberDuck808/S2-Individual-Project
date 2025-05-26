@@ -1,0 +1,26 @@
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace DAL.Models
+{
+
+    public class ApplicationUser
+    {
+        public string Id { get; set; }
+        public string UserName { get; set; } = string.Empty;
+        public string NormalizedUserName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string NormalizedEmail { get; set; } = string.Empty;
+        public bool EmailConfirmed { get; set; } = false;
+        public string PasswordHash { get; set; } = string.Empty;
+        public string SecurityStamp { get; set; } = string.Empty;
+        public string ConcurrencyStamp { get; set; } = Guid.NewGuid().ToString();
+        public string PhoneNumber { get; set; } = string.Empty;
+        public bool PhoneNumberConfirmed { get; set; } = false;
+        public bool TwoFactorEnabled { get; set; } = false;
+        public DateTime? LockoutEnd { get; set; }
+        public bool LockoutEnabled { get; set; } = false;
+        public int AccessFailedCount { get; set; } = 0;
+    }
+
+}

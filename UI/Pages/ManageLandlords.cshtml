@@ -1,0 +1,77 @@
+﻿@page
+@model UI.Pages.ManageLandlordsModel
+@{
+}
+
+<h3>Manage Landlord</h3>
+
+
+<h2>Verified Landlords</h2>
+<ul>
+    @foreach (var l in Model.VerifiedLandlords)
+    {
+        <li>@l.LandlordId - @l.DisplayName - @l.Email</li>
+    }
+</ul>
+
+<h2>Unverified Landlords</h2>
+<ul>
+    @foreach (var l in Model.UnverifiedLandlords)
+    {
+        <li>@l.LandlordId - @l.DisplayName - @l.Email</li>
+    }
+</ul>
+
+<h2>Verify Landlord</h2>
+<form method="post" asp-page-handler="Verify">
+    <div>
+        <label for="VerifyLandlordId">Select Landlord:</label>
+        <select name="VerifyLandlordId" id="VerifyLandlordId" required>
+            @foreach (var landlord in Model.VerifiedLandlords.Concat(Model.UnverifiedLandlords))
+            {
+                <option value="@landlord.LandlordId">@landlord.DisplayName</option>
+            }
+        </select>
+    </div>
+
+    <div>
+        <label for="VerifySetVerified">Mark as Verified:</label>
+        <input type="checkbox" id="VerifySetVerified" name="VerifySetVerified" value="true" @(Model.VerifySetVerified ? "checked" : "") />
+    </div>
+
+    <button type="submit">Save</button>
+</form>
+
+
+<h2>Edit Landlord (Admin)</h2>
+<form method="post" asp-page-handler="EditAdmin">
+    <label for="AdminEditLandlordId">Select Landlord:</label>
+    <select name="AdminEditLandlordId" id="AdminEditLandlordId" required>
+        @foreach (var landlord in Model.VerifiedLandlords.Concat(Model.UnverifiedLandlords))
+        {
+            <option value="@landlord.LandlordId">@landlord.DisplayName</option>
+        }
+    </select>
+    <div>
+        <label for="AdminEditName">Name:</label>
+        <input type="text" name="AdminEditName" id="AdminEditName" />
+    </div>
+    <div>
+        <label for="AdminEditEmail">Email:</label>
+        <input type="email" name="AdminEditEmail" id="AdminEditEmail" />
+    </div>
+    <div>
+        <label for="AdminEditPhone">Phone:</label>
+        <input type="tel" name="AdminEditPhone" id="AdminEditPhone" />
+    </div>
+    <div>
+        <label for="AdminEditCompany">Company Name:</label>
+        <input type="text" name="AdminEditCompany" id="AdminEditCompany" />
+    </div>
+    <div>
+        <label for="AdminEditTaxId">Tax ID:</label>
+        <input type="text" name="AdminEditTaxId" id="AdminEditTaxId" />
+    </div>
+    <button type="submit">Save</button>
+</form>
+

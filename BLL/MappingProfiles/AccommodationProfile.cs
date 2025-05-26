@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using DAL.Entities;
+using DAL.Models;
 using BLL.DTOs.Accommodation;
 
 namespace BLL.MappingProfiles
@@ -8,8 +8,8 @@ namespace BLL.MappingProfiles
     {
         public AccommodationProfile()
         {
-            CreateMap<Accommodation, AccommodationDto>()
-                .ReverseMap();
+            CreateMap<Accommodation, AccommodationDto>();
+
         }
     }
 }

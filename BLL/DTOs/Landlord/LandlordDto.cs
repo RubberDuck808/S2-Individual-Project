@@ -26,5 +26,8 @@ namespace BLL.DTOs.Landlord
         public decimal TotalMonthlyRent { get; set; }
 
         public string DisplayName => CompanyName ?? Name;
+
+        public DateTime? VerificationDate { get; set; }
+        public DateTime UpdatedAt { get; set; }       
     }
 }

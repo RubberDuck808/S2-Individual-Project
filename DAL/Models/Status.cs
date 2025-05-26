@@ -1,16 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace DAL.Entities
+namespace DAL.Models
 {
-    [Table("Status")]
     public class Status
     {
-        [Key]
         public int StatusId { get; set; }
 
-        [Required]
-        [StringLength(50)]
-        public string Name { get; set; } 
+        public string Name { get; set; } = string.Empty;
     }
 }

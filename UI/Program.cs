@@ -1,71 +1,52 @@
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.FileProviders;
-
 using BLL.Interfaces;
 using BLL.Services;
 using BLL.MappingProfiles;
-using DAL.Data;
-using DAL.Entities;
+using DAL.Models;
 using DAL.Interfaces;
 using DAL.Repositories;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Data.SqlClient;
 using AutoMapper;
-using System.IO; 
+using System.IO;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-// Add AutoMapper
+// AutoMapper
 builder.Services.AddAutoMapper(typeof(LandlordProfile).Assembly);
 
-// Register DbContext
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// Get env var
+var connectionString = Environment.GetEnvironmentVariable("UNINEST_CONNECTION_STRING");
 
-// Identity
-builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
+Console.WriteLine("DEBUG: UNINEST_CONNECTION_STRING =");
+Console.WriteLine(connectionString ?? "[null]");
+
+if (string.IsNullOrEmpty(connectionString))
 {
-    options.SignIn.RequireConfirmedAccount = false;
-    options.Password.RequireDigit = true;
-    options.Password.RequiredLength = 8;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequireUppercase = true;
-})
-.AddEntityFrameworkStores<AppDbContext>();
+    throw new Exception("UNINEST_CONNECTION_STRING is not set in environment variables.");
+}
 
-// Register repositories
-builder.Services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
-builder.Services.AddScoped<ILandlordRepository, LandlordRepository>();
-builder.Services.AddScoped<IAccommodationRepository, AccommodationRepository>();
-builder.Services.AddScoped<IStudentRepository, StudentRepository>();
-builder.Services.AddScoped<IApplicationRepository, ApplicationRepository>();
-builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 
-// Register services
+// --- Repositories (ADO.NET, pass connection string) ---
+builder.Services.AddScoped<ILandlordRepository>(_ => new LandlordRepository(connectionString));
+builder.Services.AddScoped<IAccommodationRepository>(_ => new AccommodationRepository(connectionString));
+builder.Services.AddScoped<IStudentRepository>(_ => new StudentRepository(connectionString));
+
+// --- Services (BL layer stays the same) ---
 builder.Services.AddScoped<ILandlordService, LandlordService>();
 builder.Services.AddScoped<IAccommodationService, AccommodationService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
-builder.Services.AddScoped<IApplicationService, ApplicationService>();
-builder.Services.AddScoped<IBookingService, BookingService>();
-builder.Services.AddScoped<IUniversityService, UniversityService>();
+//builder.Services.AddScoped<IUniversityService, UniversityService>();
+
+builder.Services.AddAuthorization();
+builder.Services.AddRazorPages(); // Required for app.MapRazorPages() to work
+
+
 
 var app = builder.Build();
 
-// Seed in development
-if (app.Environment.IsDevelopment())
-{
-    using var scope = app.Services.CreateScope();
-    var services = scope.ServiceProvider;
-    try
-    {
-        await SeedData.Initialize(services);
-    }
-    catch (Exception ex)
-    {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while seeding the database.");
-    }
-}
 
 // HTTP pipeline
 if (!app.Environment.IsDevelopment())
@@ -79,7 +60,7 @@ app.UseStaticFiles();
 
 
 app.UseRouting();
-app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapRazorPages();
