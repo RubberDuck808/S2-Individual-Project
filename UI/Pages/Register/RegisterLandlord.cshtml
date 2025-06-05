@@ -1,0 +1,15 @@
+﻿@page "/register/landlord"
+@model UI.Pages.Register.RegisterLandlordModel
+
+<h2>Register as Landlord</h2>
+
+<form method="post">
+    <input asp-for="LandlordInput.Name" placeholder="Full Name" />
+    <input asp-for="LandlordInput.Email" type="email" placeholder="Email" />
+    <input asp-for="LandlordInput.PhoneNumber" placeholder="Phone Number" />
+    <input asp-for="LandlordInput.Password" type="password" placeholder="Password" />
+    <input asp-for="LandlordInput.ConfirmPassword" type="password" placeholder="Confirm Password" />
+    <button type="submit">Register as Landlord</button>
+</form>
+
+<partial name="_ValidationScriptsPartial" />

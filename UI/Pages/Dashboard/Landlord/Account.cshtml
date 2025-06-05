@@ -1,0 +1,48 @@
+﻿@page "/dashboard/account/edit"
+@model UI.Pages.Dashboard.Landlord.AccountModel
+
+<h3>Landlord Profile Edit</h3>
+
+<form method="post" asp-page-handler="EditBasic">
+    <label for="LandlordEditId"><strong>Select Landlord:</strong></label>
+    <select name="LandlordEditId" id="LandlordEditId" required>
+        @foreach (var landlord in Model.VerifiedLandlords.Concat(Model.UnverifiedLandlords))
+        {
+            <option value="@landlord.LandlordId">
+                @landlord.Name (@(landlord.IsVerified ? "Verified" : "Unverified"))
+            </option>
+        }
+    </select>
+
+    <div>
+        <label for="LandlordEditName">Landlord Name:</label>
+        <input type="text" name="LandlordEditName" id="LandlordEditName" value="@Model.LandlordEditName" />
+    </div>
+
+    <div>
+        <label for="LandlordEditEmail">Landlord Email:</label>
+        <input type="email" name="LandlordEditEmail" id="LandlordEditEmail" value="@Model.LandlordEditEmail" />
+    </div>
+
+    <div>
+        <label for="LandlordEditPhone">Landlord Phone:</label>
+        <input type="tel" name="LandlordEditPhone" id="LandlordEditPhone" value="@Model.LandlordEditPhone" />
+    </div>
+
+    <div>
+        <label for="LandlordEditCompany">Company Name:</label>
+        <input type="text" name="LandlordEditCompany" id="LandlordEditCompany" value="@Model.LandlordEditCompany" />
+    </div>
+
+    <div>
+        <label for="LandlordEditTaxNumber">Tax Identification Number:</label>
+        <input type="text" name="LandlordEditTaxNumber" id="LandlordEditTaxNumber" value="@Model.LandlordEditTaxNumber" />
+    </div>
+
+    <div>
+        <label><strong>Verification Status:</strong></label>
+        <span>@(Model.SelectedLandlord?.IsVerified == true ? "Verified" : "Unverified")</span>
+    </div>
+
+    <button type="submit">Save</button>
+</form>

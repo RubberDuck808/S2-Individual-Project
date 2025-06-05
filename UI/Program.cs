@@ -33,11 +33,17 @@ if (string.IsNullOrEmpty(connectionString))
 builder.Services.AddScoped<ILandlordRepository>(_ => new LandlordRepository(connectionString));
 builder.Services.AddScoped<IAccommodationRepository>(_ => new AccommodationRepository(connectionString));
 builder.Services.AddScoped<IStudentRepository>(_ => new StudentRepository(connectionString));
+builder.Services.AddScoped<IAccountService, AccountService>();
+
 
 // --- Services (BL layer stays the same) ---
 builder.Services.AddScoped<ILandlordService, LandlordService>();
 builder.Services.AddScoped<IAccommodationService, AccommodationService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
+builder.Services.AddScoped<IUserRepository>(_ => new UserRepository(connectionString));
+builder.Services.AddScoped<IUniversityRepository>(_ => new UniversityRepository(connectionString));
+
+
 //builder.Services.AddScoped<IUniversityService, UniversityService>();
 
 builder.Services.AddAuthorization();

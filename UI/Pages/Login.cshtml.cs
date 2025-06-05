@@ -8,99 +8,40 @@ namespace UI.Pages
 {
     public class LoginModel : PageModel
     {
-        private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
 
-        [BindProperty]
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; }
-
-        [BindProperty]
-        [Required]
-        [DataType(DataType.Password)]
-        public string Password { get; set; }
-
-        [BindProperty]
-        [Required]
-        [EmailAddress]
-        public string RegisterEmail { get; set; }
-
-        [BindProperty]
-        [Required]
-        [DataType(DataType.Password)]
-        public string RegisterPassword { get; set; }
-
-        [BindProperty]
-        [Required]
-        [DataType(DataType.Password)]
-        [Compare(nameof(RegisterPassword), ErrorMessage = "Passwords do not match.")]
-        public string ConfirmPassword { get; set; }
-
-        public string ErrorMessage { get; set; }
-
-        public LoginModel(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+        public LoginModel(SignInManager<IdentityUser> signInManager)
         {
-            _userManager = userManager;
             _signInManager = signInManager;
         }
 
-        public void OnGet()
-        {
-        }
+        [BindProperty, Required, EmailAddress]
+        public string Email { get; set; }
+
+        [BindProperty, Required, DataType(DataType.Password)]
+        public string Password { get; set; }
+
+        public string ErrorMessage { get; set; }
+
+        public void OnGet() { }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(Email, Password, isPersistent: false, lockoutOnFailure: false);
-
-                if (result.Succeeded)
-                {
-                    return RedirectToPage("./Index"); 
-                }
-                else
-                {
-                    ErrorMessage = "Invalid login attempt.";
-                    return Page();
-                }
+                ErrorMessage = "Invalid input. Please check your entries.";
+                return Page();
             }
 
-            ErrorMessage = "Invalid input. Please correct the errors.";
-            return Page();
-        }
+            var result = await _signInManager.PasswordSignInAsync(
+                Email, Password, isPersistent: false, lockoutOnFailure: false);
 
-        public async Task<IActionResult> OnPostRegisterAsync()
-        {
-            if (ModelState.IsValid)
+            if (result.Succeeded)
             {
-                if (RegisterPassword != ConfirmPassword)
-                {
-                    ErrorMessage = "Password and confirm password do not match.";
-                    return Page();
-                }
-
-                var user = new IdentityUser { UserName = RegisterEmail, Email = RegisterEmail };
-                var result = await _userManager.CreateAsync(user, RegisterPassword);
-
-                if (result.Succeeded)
-                {
-                    
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToPage("./Index"); 
-                }
-                else
-                {
-                    foreach (var error in result.Errors)
-                    {
-                        ModelState.AddModelError(string.Empty, error.Description);
-                    }
-                    ErrorMessage = "Registration failed. Please check the errors.";
-                    return Page();
-                }
+                return RedirectToPage("/Index"); 
             }
 
-            ErrorMessage = "Invalid input. Please correct the errors.";
+            ErrorMessage = "Invalid login attempt.";
             return Page();
         }
     }

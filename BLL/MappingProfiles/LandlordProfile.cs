@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DAL.Models;
 using BLL.DTOs.Landlord;
+using BLL.Models;
 
 namespace BLL.MappingProfiles
 {

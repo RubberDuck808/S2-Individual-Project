@@ -4,6 +4,7 @@ using DAL.Models;
 using BLL.Exceptions;
 using DAL.Interfaces;
 using BLL.Interfaces;
+using BLL.Models;
 
 namespace BLL.Services
 {
@@ -27,7 +28,7 @@ namespace BLL.Services
             return _mapper.Map<StudentDto>(student);
         }
 
-        public async Task<int> CreateAsync(StudentCreateDto dto)
+        public async Task<int> CreateAsync(StudentRegistrationDto dto)
         {
             var entity = _mapper.Map<Student>(dto);
             await _studentRepo.AddAsync(entity);

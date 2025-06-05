@@ -2,7 +2,7 @@
 
 namespace BLL.DTOs.Landlord
 {
-    public class LandlordCreateDto
+    public class LandlordRegistrationDto
     {
         [Required]
         public string UserId { get; set; } = string.Empty;
@@ -21,10 +21,7 @@ namespace BLL.DTOs.Landlord
         [StringLength(20)]
         public string PhoneNumber { get; set; } = string.Empty;
 
-        [StringLength(100)]
-        public string? CompanyName { get; set; }
-
-        [StringLength(50)]
-        public string? TaxIdentificationNumber { get; set; }
+        [Required]
+        public string Password { get; set; } = string.Empty;
     }
 }

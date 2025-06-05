@@ -4,6 +4,7 @@ using DAL.Models;
 using BLL.Exceptions;
 using DAL.Interfaces;
 using BLL.Interfaces;
+using BLL.Models;
 
 namespace BLL.Services
 {
