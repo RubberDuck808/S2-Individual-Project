@@ -20,11 +20,25 @@ namespace UI.Pages.Register
 
         public class LandlordInputModel
         {
-            [Required] public string Name { get; set; }
-            [Required, EmailAddress] public string Email { get; set; }
-            [Required] public string PhoneNumber { get; set; }
-            [Required] public string Password { get; set; }
-            [Required, Compare("Password")] public string ConfirmPassword { get; set; }
+            [Required]
+            public string FirstName { get; set; }
+
+            public string? MiddleName { get; set; }
+
+            [Required]
+            public string LastName { get; set; }
+
+            [Required, EmailAddress]
+            public string Email { get; set; }
+
+            [Required]
+            public string PhoneNumber { get; set; }
+
+            [Required]
+            public string Password { get; set; }
+
+            [Required, Compare("Password")]
+            public string ConfirmPassword { get; set; }
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -36,7 +50,9 @@ namespace UI.Pages.Register
 
             var dto = new LandlordRegistrationDto
             {
-                Name = LandlordInput.Name,
+                FirstName = LandlordInput.FirstName,
+                MiddleName = LandlordInput.MiddleName,
+                LastName = LandlordInput.LastName,
                 Email = LandlordInput.Email,
                 PhoneNumber = LandlordInput.PhoneNumber,
                 Password = LandlordInput.Password
@@ -45,7 +61,7 @@ namespace UI.Pages.Register
             try
             {
                 await _accountService.RegisterLandlordAsync(dto);
-                return RedirectToPage("/");
+                return RedirectToPage("/Dashboard/Landlord/Account");
             }
             catch (Exception ex)
             {

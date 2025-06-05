@@ -36,6 +36,7 @@ builder.Services.AddScoped<IStudentRepository>(_ => new StudentRepository(connec
 builder.Services.AddScoped<IAccountService, AccountService>();
 
 
+
 // --- Services (BL layer stays the same) ---
 builder.Services.AddScoped<ILandlordService, LandlordService>();
 builder.Services.AddScoped<IAccommodationService, AccommodationService>();

@@ -1,18 +1,17 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Identity;
-using System.Threading.Tasks;
+using BLL.Interfaces;
 using System.ComponentModel.DataAnnotations;
 
 namespace UI.Pages
 {
     public class LoginModel : PageModel
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly IAccountService _accountService;
 
-        public LoginModel(SignInManager<IdentityUser> signInManager)
+        public LoginModel(IAccountService accountService)
         {
-            _signInManager = signInManager;
+            _accountService = accountService;
         }
 
         [BindProperty, Required, EmailAddress]
@@ -33,16 +32,22 @@ namespace UI.Pages
                 return Page();
             }
 
-            var result = await _signInManager.PasswordSignInAsync(
-                Email, Password, isPersistent: false, lockoutOnFailure: false);
+            var (success, userId, role, error) = await _accountService.LoginAsync(Email, Password);
 
-            if (result.Succeeded)
+            if (!success)
             {
-                return RedirectToPage("/Index"); 
+                ErrorMessage = error;
+                return Page();
             }
 
-            ErrorMessage = "Invalid login attempt.";
-            return Page();
+
+            return role switch
+            {
+                "Student" => RedirectToPage("/Register/RegisterStudent"),
+                "Landlord" => RedirectToPage("/Register/RegisterLandlord"),
+                "Admin" => RedirectToPage("/Admin/Panel"),
+                _ => RedirectToPage("/Index")
+            };
         }
     }
 }

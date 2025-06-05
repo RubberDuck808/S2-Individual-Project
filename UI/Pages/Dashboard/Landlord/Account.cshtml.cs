@@ -19,9 +19,11 @@ namespace UI.Pages.Dashboard.Landlord
         public LandlordDto? SelectedLandlord { get; set; }
 
         [BindProperty] public int LandlordEditId { get; set; }
-        [BindProperty] public string LandlordEditName { get; set; }
-        [BindProperty] public string LandlordEditEmail { get; set; }
-        [BindProperty] public string LandlordEditPhone { get; set; }
+        [BindProperty] public string LandlordEditFirstName { get; set; } = string.Empty;
+        [BindProperty] public string? LandlordEditMiddleName { get; set; }
+        [BindProperty] public string LandlordEditLastName { get; set; } = string.Empty;
+        [BindProperty] public string LandlordEditEmail { get; set; } = string.Empty;
+        [BindProperty] public string LandlordEditPhone { get; set; } = string.Empty;
         [BindProperty] public string? LandlordEditCompany { get; set; }
         [BindProperty] public string? LandlordEditTaxNumber { get; set; }
 
@@ -39,7 +41,9 @@ namespace UI.Pages.Dashboard.Landlord
 
             var dto = new LandlordUpdateDto
             {
-                Name = LandlordEditName,
+                FirstName = LandlordEditFirstName,
+                MiddleName = LandlordEditMiddleName,
+                LastName = LandlordEditLastName,
                 Email = LandlordEditEmail,
                 PhoneNumber = LandlordEditPhone,
                 CompanyName = LandlordEditCompany,

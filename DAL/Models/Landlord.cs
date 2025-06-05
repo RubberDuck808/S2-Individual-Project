@@ -9,7 +9,11 @@ namespace DAL.Models
 
         public string UserId { get; set; }
 
-        public string Name { get; set; }
+        public string FirstName { get; set; }
+
+        public string? MiddleName { get; set; }
+
+        public string LastName { get; set; }
 
         public string Email { get; set; }
 
@@ -30,13 +34,15 @@ namespace DAL.Models
 
 
         // Constructor 
-        public Landlord(string userId, string name, string email, string phoneNumber)
+        public Landlord(string userId, string firstName, string lastName, string email, string phoneNumber)
         {
             UserId = userId ?? throw new ArgumentNullException(nameof(userId));
-            Name = name ?? throw new ArgumentNullException(nameof(name));
+            FirstName = firstName ?? throw new ArgumentNullException(nameof(firstName));
+            LastName = lastName ?? throw new ArgumentNullException(nameof(lastName));
             Email = email ?? throw new ArgumentNullException(nameof(email));
             PhoneNumber = phoneNumber ?? throw new ArgumentNullException(nameof(phoneNumber));
         }
+
 
         public Landlord() { }
 

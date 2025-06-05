@@ -1,4 +1,4 @@
-﻿@page "/dashboard/account/edit"
+﻿@page "/landlord/dashboard/account/edit"
 @model UI.Pages.Dashboard.Landlord.AccountModel
 
 <h3>Landlord Profile Edit</h3>
@@ -15,8 +15,18 @@
     </select>
 
     <div>
-        <label for="LandlordEditName">Landlord Name:</label>
-        <input type="text" name="LandlordEditName" id="LandlordEditName" value="@Model.LandlordEditName" />
+        <label for="LandlordEditFirstName">First Name:</label>
+        <input type="text" name="LandlordEditFirstName" id="LandlordEditFirstName" value="@Model.LandlordEditFirstName" />
+    </div>
+
+    <div>
+        <label for="LandlordEditMiddleName">Middle Name:</label>
+        <input type="text" name="LandlordEditMiddleName" id="LandlordEditMiddleName" value="@Model.LandlordEditMiddleName" />
+    </div>
+
+    <div>
+        <label for="LandlordEditLastName">Last Name:</label>
+        <input type="text" name="LandlordEditLastName" id="LandlordEditLastName" value="@Model.LandlordEditLastName" />
     </div>
 
     <div>

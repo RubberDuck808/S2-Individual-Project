@@ -5,11 +5,15 @@ namespace BLL.DTOs.Landlord
     public class LandlordRegistrationDto
     {
         [Required]
-        public string UserId { get; set; } = string.Empty;
+        [StringLength(100)]
+        public string FirstName { get; set; } = string.Empty;
+
+        [StringLength(100)]
+        public string? MiddleName { get; set; }
 
         [Required]
         [StringLength(100)]
-        public string Name { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
 
         [Required]
         [EmailAddress]
@@ -23,5 +27,11 @@ namespace BLL.DTOs.Landlord
 
         [Required]
         public string Password { get; set; } = string.Empty;
+
+        [StringLength(255)]
+        public string? CompanyName { get; set; }
+
+        [StringLength(50)]
+        public string? TaxNumber { get; set; }
     }
 }

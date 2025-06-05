@@ -4,7 +4,13 @@ public class LandlordUpdateDto
 {
     [Required]
     [StringLength(100)]
-    public string Name { get; set; }
+    public string FirstName { get; set; }
+    [StringLength(100)]
+    public string? MiddleName { get; set; }
+
+    [Required]
+    [StringLength(100)]
+    public string LastName { get; set; }
 
     [Required]
     [EmailAddress]

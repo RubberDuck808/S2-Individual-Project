@@ -68,5 +68,50 @@ namespace DAL.Repositories
 
             await assignCmd.ExecuteNonQueryAsync();
         }
+
+        public async Task<(string UserId, string PasswordHash)> GetUserAuthDataAsync(string email)
+        {
+            using var conn = new SqlConnection(_connectionString);
+            await conn.OpenAsync();
+
+            var cmd = new SqlCommand(@"
+                SELECT Id, PasswordHash
+                FROM AspNetUsers
+                WHERE NormalizedEmail = @Email", conn);
+            cmd.Parameters.AddWithValue("@Email", email.ToUpper());
+
+            using var reader = await cmd.ExecuteReaderAsync();
+            if (await reader.ReadAsync())
+            {
+                return (
+                    reader.GetString(0),  // UserId
+                    reader.GetString(1)   // PasswordHash
+                );
+            }
+
+            throw new Exception("User not found.");
+        }
+
+        public async Task<List<string>> GetRolesAsync(string userId)
+        {
+            var roles = new List<string>();
+
+            using var conn = new SqlConnection(_connectionString);
+            await conn.OpenAsync();
+
+            var cmd = new SqlCommand(@"
+        SELECT R.Name
+        FROM AspNetUserRoles UR
+        JOIN AspNetRoles R ON UR.RoleId = R.Id
+        WHERE UR.UserId = @UserId", conn);
+            cmd.Parameters.AddWithValue("@UserId", userId);
+
+            using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+                roles.Add(reader.GetString(0));
+
+            return roles;
+        }
+
     }
 }

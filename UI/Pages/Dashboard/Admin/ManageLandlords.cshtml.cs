@@ -54,7 +54,10 @@ namespace UI.Pages
 
         // Admin
         [BindProperty] public int AdminEditLandlordId { get; set; }
-        [BindProperty] public string AdminEditName { get; set; }
+        [BindProperty] public string AdminEditFirstName { get; set; }
+        [BindProperty] public string? AdminEditMiddleName { get; set; }
+        [BindProperty] public string AdminEditLastName { get; set; }
+
         [BindProperty] public string AdminEditEmail { get; set; }
         [BindProperty] public string AdminEditPhone { get; set; }
         [BindProperty] public string? AdminEditCompany { get; set; }
@@ -67,7 +70,9 @@ namespace UI.Pages
 
             var dto = new LandlordUpdateDto
             {
-                Name = AdminEditName,
+                FirstName = AdminEditFirstName,
+                MiddleName = AdminEditMiddleName,
+                LastName = AdminEditLastName,
                 Email = AdminEditEmail,
                 PhoneNumber = AdminEditPhone,
                 CompanyName = AdminEditCompany,

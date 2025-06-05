@@ -12,6 +12,8 @@ namespace BLL.Interfaces
     {
         Task RegisterStudentAsync(StudentRegistrationDto dto);
         Task RegisterLandlordAsync(LandlordRegistrationDto dto);
+        Task<(bool Success, string? UserId, string? Role, string? Error)> LoginAsync(string email, string password);
+
     }
 
 }

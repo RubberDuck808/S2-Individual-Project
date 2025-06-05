@@ -5,6 +5,7 @@ using BLL.Exceptions;
 using BLL.Interfaces;
 using DAL.Models;
 using DAL.Interfaces;
+using BLL.DTOs.Student;
 
 namespace BLL.Services
 {
@@ -48,6 +49,13 @@ namespace BLL.Services
             }
         }
 
+
+        public async Task<int> CreateAsync(LandlordRegistrationDto dto)
+        {
+            var entity = _mapper.Map<Landlord>(dto);
+            await _landlordRepo.AddAsync(entity);
+            return entity.LandlordId;
+        }
         public async Task VerifyLandlordAsync(int landlordId)
         {
             try
@@ -100,8 +108,15 @@ namespace BLL.Services
                 throw new NotFoundException($"Landlord with ID {landlordId} not found");
 
             // Only update if the field has a new value
-            if (!string.IsNullOrWhiteSpace(updateDto.Name))
-                landlord.Name = updateDto.Name;
+            if (!string.IsNullOrWhiteSpace(updateDto.FirstName))
+                landlord.FirstName = updateDto.FirstName;
+
+            if (!string.IsNullOrWhiteSpace(updateDto.MiddleName))
+                landlord.MiddleName = updateDto.MiddleName;
+
+            if (!string.IsNullOrWhiteSpace(updateDto.LastName))
+                landlord.LastName = updateDto.LastName;
+
 
             if (!string.IsNullOrWhiteSpace(updateDto.Email))
                 landlord.Email = updateDto.Email;

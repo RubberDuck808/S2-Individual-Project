@@ -10,5 +10,8 @@ namespace DAL.Interfaces
     {
         Task<string> CreateUserAsync(string email, string passwordHash, string phoneNumber, string firstName, string lastName);
         Task AssignRoleAsync(string userId, string roleName);
+        Task<(string UserId, string PasswordHash)> GetUserAuthDataAsync(string email);
+        Task<List<string>> GetRolesAsync(string userId);
+
     }
 }

@@ -11,15 +11,19 @@ public class AccountService : IAccountService
     private readonly IUserRepository _userRepository;
     private readonly IUniversityRepository _universityRepository;
     private readonly IStudentRepository _studentRepository;
+    private readonly ILandlordRepository _landlordRepository;
+
 
     public AccountService(
         IUserRepository userRepository,
         IUniversityRepository universityRepository,
-        IStudentRepository studentRepository)
+        IStudentRepository studentRepository,
+        ILandlordRepository landlordRepository)
     {
         _userRepository = userRepository;
         _universityRepository = universityRepository;
         _studentRepository = studentRepository;
+        _landlordRepository = landlordRepository;
     }
 
     public async Task RegisterStudentAsync(StudentRegistrationDto dto)
@@ -63,9 +67,61 @@ public class AccountService : IAccountService
         await _userRepository.AssignRoleAsync(userId, "Student");
     }
 
-    public Task RegisterLandlordAsync(LandlordRegistrationDto dto)
+    public async Task RegisterLandlordAsync(LandlordRegistrationDto dto)
     {
-        throw new NotImplementedException();
+        Console.WriteLine("Entered AccountService.RegisterLandlordAsync");
+
+        // 1. Hash password
+        var passwordHash = _hasher.HashPassword(null, dto.Password);
+
+        // 2. Create user
+        var userId = await _userRepository.CreateUserAsync(dto.Email, passwordHash, dto.PhoneNumber, dto.FirstName, dto.LastName);
+
+        // 3. Map and create landlord
+        var landlord = new Landlord
+        {
+            UserId = userId,
+            FirstName = dto.FirstName,
+            MiddleName = dto.MiddleName ?? string.Empty,
+            LastName = dto.LastName,
+            Email = dto.Email,
+            PhoneNumber = dto.PhoneNumber,
+            CompanyName = dto.CompanyName,
+            TaxIdentificationNumber = dto.TaxNumber,
+            IsVerified = false,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        await _landlordRepository.AddAsync(landlord);
+
+        // 5. Assign role
+        await _userRepository.AssignRoleAsync(userId, "Landlord");
     }
+
+    public async Task<(bool Success, string? UserId, string? Role, string? Error)> LoginAsync(string email, string password)
+    {
+        try
+        {
+            var (userId, storedHash) = await _userRepository.GetUserAuthDataAsync(email);
+
+            var verificationResult = _hasher.VerifyHashedPassword(null, storedHash, password);
+            if (verificationResult == PasswordVerificationResult.Failed)
+                return (false, null, null, "Invalid credentials.");
+
+            var roles = await _userRepository.GetRolesAsync(userId);
+            var primaryRole = roles.FirstOrDefault();
+
+            if (primaryRole == null)
+                return (false, null, null, "No role assigned to this user.");
+
+            return (true, userId, primaryRole, null);
+        }
+        catch (Exception ex)
+        {
+            return (false, null, null, ex.Message);
+        }
+    }
+
 
 }
