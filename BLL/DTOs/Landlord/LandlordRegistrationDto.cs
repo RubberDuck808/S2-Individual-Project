@@ -32,6 +32,6 @@ namespace BLL.DTOs.Landlord
         public string? CompanyName { get; set; }
 
         [StringLength(50)]
-        public string? TaxNumber { get; set; }
+        public string? TaxIdentificationNumber { get; set; }
     }
 }

@@ -181,6 +181,18 @@ namespace BLL.Services
             return _mapper.Map<LandlordAdminDto>(landlord);
         }
 
+        public async Task<LandlordDto?> GetByUserIdAsync(string userId)
+        {
+            var landlord = await _landlordRepo.GetByUserIdAsync(userId);
+            if (landlord == null) return null;
+
+            var dto = _mapper.Map<LandlordDto>(landlord);
+            dto.ActiveListingsCount = landlord.Accommodations?.Count(a => a.IsAvailable) ?? 0;
+            dto.TotalMonthlyRent = landlord.Accommodations?.Sum(a => a.MonthlyRent) ?? 0;
+
+            return dto;
+        }
+
 
 
     }

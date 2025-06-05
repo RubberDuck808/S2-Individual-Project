@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using System.Security.Claims
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -24,18 +26,42 @@
                             <a class="nav-link text-black fw-bold" asp-area="" asp-page="/Index">Home</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link text-black fw-bold" asp-area="" asp-page="/Listings">Listings</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link text-black fw-bold" asp-area="" asp-page="/Contact">Contact</a>
                         </li>
+
                         <li class="nav-item">
                             <a class="nav-link text-black fw-bold" asp-area="" asp-page="/About">About Us</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-black fw-bold" asp-area="" asp-page="/Login">Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-black fw-bold" asp-area="" asp-page="/Register">Register</a>
-                        </li>
+                        
 
+                        @if (!User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-black fw-bold" asp-area="" asp-page="/Login">Login</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-black fw-bold" asp-area="" asp-page="/Register">Register</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                @{
+                                    var role = User.FindFirst(ClaimTypes.Role)?.Value;
+                                    var dashboardPage = role switch
+                                    {
+                                        "Student" => "/Dashboard/Index",
+                                        "Landlord" => "/Dashboard/Index",
+                                        "Admin" => "/Dashboard/Index",
+                                        _ => "/Dashboard/Index"
+                                    };
+                                }
+                                <a class="nav-link text-black fw-bold" asp-area="" asp-page="@dashboardPage">Dashboard</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>

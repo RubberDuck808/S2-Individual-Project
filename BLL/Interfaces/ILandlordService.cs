@@ -15,6 +15,8 @@ namespace BLL.Interfaces
         Task<IEnumerable<LandlordDto>> GetAllAsync();
         Task<LandlordAdminDto> GetLandlordForAdminAsync(int id);
         Task<LandlordBasicDto> GetPublicLandlordAsync(int id);
+        Task<LandlordDto?> GetByUserIdAsync(string userId);
+
 
     }
 }

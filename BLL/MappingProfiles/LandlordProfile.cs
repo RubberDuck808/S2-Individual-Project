@@ -2,6 +2,7 @@
 using DAL.Models;
 using BLL.DTOs.Landlord;
 
+
 namespace BLL.MappingProfiles
 {
     public class LandlordProfile : Profile

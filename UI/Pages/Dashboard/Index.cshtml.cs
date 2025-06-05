@@ -10,10 +10,10 @@ namespace UI.Pages.Dashboard
         public IActionResult OnGet()
         {
             if (User.IsInRole("Landlord"))
-                return RedirectToPage("/Dashboard/Landlord");
+                return RedirectToPage("/Dashboard/Landlord/Dashboard");
 
             if (User.IsInRole("Student"))
-                return RedirectToPage("/Dashboard/Student");
+                return RedirectToPage("/Dashboard/Student/Dashboard");
             if (User.IsInRole("Management"))
                 return RedirectToPage("/Dashboard/Management");
 

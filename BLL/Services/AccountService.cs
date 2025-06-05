@@ -87,7 +87,7 @@ public class AccountService : IAccountService
             Email = dto.Email,
             PhoneNumber = dto.PhoneNumber,
             CompanyName = dto.CompanyName,
-            TaxIdentificationNumber = dto.TaxNumber,
+            TaxIdentificationNumber = dto.TaxIdentificationNumber,
             IsVerified = false,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
@@ -121,6 +121,30 @@ public class AccountService : IAccountService
         {
             return (false, null, null, ex.Message);
         }
+
+
+    }
+    public async Task<string> GetFullNameByUserIdAsync(string userId)
+    {
+        // Try landlord first
+        var landlord = await _landlordRepository.GetByUserIdAsync(userId);
+        if (landlord != null)
+        {
+            // Concatenate first, middle (if any), last name
+            var middle = string.IsNullOrEmpty(landlord.MiddleName) ? "" : $" {landlord.MiddleName}";
+            return $"{landlord.FirstName}{middle} {landlord.LastName}";
+        }
+
+        // Try student next
+        var student = await _studentRepository.GetByUserIdAsync(userId);
+        if (student != null)
+        {
+            var middle = string.IsNullOrEmpty(student.MiddleName) ? "" : $" {student.MiddleName}";
+            return $"{student.FirstName}{middle} {student.LastName}";
+        }
+
+        // Fallback or unknown user
+        return "User";
     }
 
 

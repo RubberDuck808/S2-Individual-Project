@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using BLL.Interfaces;
 using BLL.DTOs.Accommodation;
+using Microsoft.AspNetCore.Authorization;
 
 namespace UI.Pages
 {

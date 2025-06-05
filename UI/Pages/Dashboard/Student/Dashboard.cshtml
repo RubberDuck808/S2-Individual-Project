@@ -1,0 +1,14 @@
+﻿@page "/student/dashboard"
+@model UI.Pages.Dashboard.Student.IndexModel
+
+<h2>Welcome to the Student Dashboard</h2>
+
+<div>
+    <form method="get" asp-page="/Contact">
+        <button type="submit">Contact</button>
+    </form>
+
+    <form method="post" asp-page-handler="Logout">
+        <button type="submit">Logout</button>
+    </form>
+</div>

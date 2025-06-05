@@ -29,6 +29,8 @@ if (string.IsNullOrEmpty(connectionString))
 }
 
 
+
+
 // --- Repositories (ADO.NET, pass connection string) ---
 builder.Services.AddScoped<ILandlordRepository>(_ => new LandlordRepository(connectionString));
 builder.Services.AddScoped<IAccommodationRepository>(_ => new AccommodationRepository(connectionString));
@@ -47,15 +49,26 @@ builder.Services.AddScoped<IUniversityRepository>(_ => new UniversityRepository(
 
 //builder.Services.AddScoped<IUniversityService, UniversityService>();
 
+builder.Services.AddRazorPages(); 
+
+
+builder.Services.AddAuthentication("UniNestAuth")
+    .AddCookie("UniNestAuth", options =>
+    {
+        options.LoginPath = "/Login";
+        options.AccessDeniedPath = "/AccessDenied";
+        options.Cookie.Name = "UniNestAuthCookie";
+
+        
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
+        options.SlidingExpiration = true;
+    });
+
 builder.Services.AddAuthorization();
-builder.Services.AddRazorPages(); // Required for app.MapRazorPages() to work
-
-
 
 var app = builder.Build();
 
 
-// HTTP pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
@@ -65,10 +78,25 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-
 app.UseRouting();
 
+app.UseAuthentication(); 
 app.UseAuthorization();
+
+
+app.UseStatusCodePages(async context =>
+{
+    var response = context.HttpContext.Response;
+
+    if (response.StatusCode == 404)
+    {
+        response.Redirect("/NotFound");
+    }
+    else if (response.StatusCode == 403)
+    {
+        response.Redirect("/AccessDenied");
+    }
+});
 
 app.MapRazorPages();
 

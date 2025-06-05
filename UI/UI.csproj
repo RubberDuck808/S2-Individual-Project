@@ -36,7 +36,6 @@
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Folder Include="Pages\Dashboard\Students\" />
 	  <Folder Include="Pages\Landlord Functions\" />
 	</ItemGroup>
 

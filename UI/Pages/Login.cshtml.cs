@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using BLL.Interfaces;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
 
 namespace UI.Pages
 {
@@ -40,14 +43,30 @@ namespace UI.Pages
                 return Page();
             }
 
+            string fullName = await _accountService.GetFullNameByUserIdAsync(userId);
+
+            //  Set logged-in session
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, fullName),
+                new Claim(ClaimTypes.NameIdentifier, userId),
+                new Claim(ClaimTypes.Email, Email),
+                new Claim(ClaimTypes.Role, role)
+            };
+
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+
+            await HttpContext.SignInAsync("UniNestAuth", principal);
 
             return role switch
             {
-                "Student" => RedirectToPage("/Register/RegisterStudent"),
-                "Landlord" => RedirectToPage("/Register/RegisterLandlord"),
-                "Admin" => RedirectToPage("/Admin/Panel"),
+                "Student" => RedirectToPage("/Dashboard/Index"),
+                "Landlord" => RedirectToPage("/Dashboard/Index"),
+                "Admin" => RedirectToPage("/Dashboard/Index"),
                 _ => RedirectToPage("/Index")
             };
         }
+
     }
 }
