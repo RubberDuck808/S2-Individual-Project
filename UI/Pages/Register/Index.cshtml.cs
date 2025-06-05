@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace UI.Pages
+namespace UI.Pages.Register
 {
-    public class RegisterModel : PageModel
+    public class IndexModel : PageModel
     {
         public void OnGet() { }
     }

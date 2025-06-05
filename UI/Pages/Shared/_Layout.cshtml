@@ -3,9 +3,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="icon" href="~/images/Logo.svg" type="image/svg" />
+
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Project</title>
+    <title>@ViewData["Title"]</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Project.styles.css" asp-append-version="true" />
@@ -26,14 +28,14 @@
                             <a class="nav-link text-black fw-bold" asp-area="" asp-page="/Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-black fw-bold" asp-area="" asp-page="/Listings">Listings</a>
+                            <a class="nav-link text-black fw-bold" asp-area="" asp-page="/Listings/Index">Listings</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-black fw-bold" asp-area="" asp-page="/Contact">Contact</a>
+                            <a class="nav-link text-black fw-bold" asp-area="" asp-page="/Info/Contact">Contact</a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link text-black fw-bold" asp-area="" asp-page="/About">About Us</a>
+                            <a class="nav-link text-black fw-bold" asp-area="" asp-page="/Info/AboutUs">About Us</a>
                         </li>
                         
 
@@ -43,7 +45,7 @@
                                 <a class="nav-link text-black fw-bold" asp-area="" asp-page="/Login">Login</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-black fw-bold" asp-area="" asp-page="/Register">Register</a>
+                                <a class="nav-link text-black fw-bold" asp-area="" asp-page="/Register/Index">Register</a>
                             </li>
                         }
                         else

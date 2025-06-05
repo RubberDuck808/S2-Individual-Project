@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace UI.Pages
+namespace UI.Pages.Info
 {
-    public class NotFoundModel : PageModel
+    
+    public class ContactModel : PageModel
     {
         public void OnGet()
         {

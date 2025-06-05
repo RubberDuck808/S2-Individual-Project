@@ -2,18 +2,17 @@
 @using System.Security.Claims
 @model UI.Pages.Dashboard.Landlord.IndexModel
 
-<h2>Welcome to the Landlord Dashboard @User.Identity.Name</h2>
+<h2>Welcome to the Landlord Dashboard</h2>
 
 <div>
-    <div class="profile">
-        <form method="get" asp-page="/Dashboard/Landlord/Account">
-            <button type="submit">Edit Account</button>
-        </form>
-    </div>
 
-    <div class="listing">
+    <form method="get" asp-page="/Dashboard/Landlord/Account">
+        <button type="submit">Edit Account</button>
+    </form>
 
-    </div>
+    <form method="get" asp-page="/Listings/CreateListing">
+        <button type="submit">Create a listing</button>
+    </form>
 
     <form method="post" asp-page-handler="Logout">
         <button type="submit">Logout</button>

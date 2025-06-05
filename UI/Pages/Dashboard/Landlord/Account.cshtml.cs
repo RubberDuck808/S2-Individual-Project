@@ -67,40 +67,16 @@ namespace UI.Pages.Dashboard.Landlord
             return Page();
         }
 
-        public async Task<IActionResult> OnPostEditBasicAsync()
-        {
-            _logger.LogInformation("OnPostEditBasicAsync called with LandlordEditId {LandlordEditId}", LandlordEditId);
-
-            var landlord = await _landlordService.GetLandlordAsync(LandlordEditId);
-            if (landlord == null)
-            {
-                _logger.LogWarning("Landlord with ID {LandlordEditId} not found.", LandlordEditId);
-                return NotFound();
-            }
-
-            var dto = new LandlordUpdateDto
-            {
-                FirstName = LandlordEditFirstName,
-                MiddleName = LandlordEditMiddleName,
-                LastName = LandlordEditLastName,
-                Email = LandlordEditEmail,
-                PhoneNumber = LandlordEditPhone,
-                CompanyName = LandlordEditCompany,
-                TaxIdentificationNumber = LandlordEditTaxNumber
-            };
-
-            await _landlordService.UpdateLandlordProfileAsync(LandlordEditId, dto);
-            _logger.LogInformation("Updated landlord profile for landlordId {LandlordEditId}", LandlordEditId);
-
-            return RedirectToPage();
-        }
-
-
-
         //public async Task<IActionResult> OnPostEditBasicAsync()
         //{
+        //    _logger.LogInformation("OnPostEditBasicAsync called with LandlordEditId {LandlordEditId}", LandlordEditId);
+
         //    var landlord = await _landlordService.GetLandlordAsync(LandlordEditId);
-        //    if (landlord == null) return NotFound();
+        //    if (landlord == null)
+        //    {
+        //        _logger.LogWarning("Landlord with ID {LandlordEditId} not found.", LandlordEditId);
+        //        return NotFound();
+        //    }
 
         //    var dto = new LandlordUpdateDto
         //    {
@@ -114,8 +90,32 @@ namespace UI.Pages.Dashboard.Landlord
         //    };
 
         //    await _landlordService.UpdateLandlordProfileAsync(LandlordEditId, dto);
+        //    _logger.LogInformation("Updated landlord profile for landlordId {LandlordEditId}", LandlordEditId);
+
         //    return RedirectToPage();
         //}
+
+
+
+        public async Task<IActionResult> OnPostEditBasicAsync()
+        {
+            var landlord = await _landlordService.GetLandlordAsync(LandlordEditId);
+            if (landlord == null) return NotFound();
+
+            var dto = new LandlordUpdateDto
+            {
+                FirstName = LandlordEditFirstName,
+                MiddleName = LandlordEditMiddleName,
+                LastName = LandlordEditLastName,
+                Email = LandlordEditEmail,
+                PhoneNumber = LandlordEditPhone,
+                CompanyName = LandlordEditCompany,
+                TaxIdentificationNumber = LandlordEditTaxNumber
+            };
+
+            await _landlordService.UpdateLandlordProfileAsync(LandlordEditId, dto);
+            return RedirectToPage();
+        }
 
     }
 }

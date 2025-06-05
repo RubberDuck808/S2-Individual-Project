@@ -3,13 +3,13 @@ using BLL.Interfaces;
 using BLL.DTOs.Accommodation;
 using Microsoft.AspNetCore.Authorization;
 
-namespace UI.Pages
+namespace UI.Pages.Listings
 {
-    public class ListingsModel : PageModel
+    public class IndexModel : PageModel
     {
         private readonly IAccommodationService _accommodationService;
 
-        public ListingsModel(IAccommodationService accommodationService)
+        public IndexModel(IAccommodationService accommodationService)
         {
             _accommodationService = accommodationService;
         }
