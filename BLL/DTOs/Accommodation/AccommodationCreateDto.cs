@@ -17,18 +17,14 @@ namespace BLL.DTOs.Accommodation
         [Required]
         public string Address { get; set; } = string.Empty;
 
-        [Range(300, 5000)]
+        [Range(100, 10000)]
         public decimal MonthlyRent { get; set; }
 
-        public decimal DepositAmount { get; set; } = 0;
-
         [Required]
-        public int AreaSqM { get; set; }
+        public decimal Size { get; set; }  // matches `DAL.Models.Accommodation.Size`
 
+        [Range(1, 10)]
         public int MaxOccupants { get; set; } = 1;
-        public int MinimumLeaseMonths { get; set; } = 6;
-
-        public DateTime AvailableFrom { get; set; }
 
         [Required]
         public int LandlordId { get; set; }
@@ -39,7 +35,10 @@ namespace BLL.DTOs.Accommodation
         [Required]
         public int AccommodationTypeId { get; set; }
 
-        public List<IFormFile>? Photos { get; set; }
-        public List<int>? AmenityIds { get; set; }
+        // Optional: collected from the form as checkboxes
+        public List<int> AmenityIds { get; set; } = new();
+
+        // Uploaded image files from form
+        public List<IFormFile>? Images { get; set; }
     }
 }

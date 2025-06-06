@@ -1,0 +1,41 @@
+﻿using DAL.Interfaces;
+using DAL.Models;
+using Microsoft.Data.SqlClient;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace DAL.Repositories
+{
+    public class AccommodationTypeRepository : IAccommodationTypeRepository
+    {
+        private readonly string _connectionString;
+
+        public AccommodationTypeRepository(string connectionString)
+        {
+            _connectionString = connectionString;
+        }
+
+        public async Task<List<AccommodationType>> GetAllAsync()
+        {
+            var list = new List<AccommodationType>();
+
+            using var conn = new SqlConnection(_connectionString);
+            await conn.OpenAsync();
+
+            var query = "SELECT AccommodationTypeId, Name FROM AccommodationType";
+            using var cmd = new SqlCommand(query, conn);
+            using var reader = await cmd.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
+            {
+                list.Add(new AccommodationType
+                {
+                    AccommodationTypeId = reader.GetInt32(0),
+                    Name = reader.GetString(1)
+                });
+            }
+
+            return list;
+        }
+    }
+}

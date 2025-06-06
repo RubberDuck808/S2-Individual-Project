@@ -45,6 +45,13 @@ builder.Services.AddScoped<IAccommodationService, AccommodationService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<IUserRepository>(_ => new UserRepository(connectionString));
 builder.Services.AddScoped<IUniversityRepository>(_ => new UniversityRepository(connectionString));
+builder.Services.AddScoped<IAmenityRepository>(_ => new AmenityRepository(connectionString));
+builder.Services.AddScoped<IUniversityRepository>(_ => new UniversityRepository(connectionString));
+builder.Services.AddScoped<IAccommodationTypeRepository>(_ => new AccommodationTypeRepository(connectionString));
+
+
+
+
 
 
 //builder.Services.AddScoped<IUniversityService, UniversityService>();

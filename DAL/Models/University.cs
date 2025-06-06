@@ -10,5 +10,6 @@ namespace DAL.Models
         public string Name { get; set; }
 
         public string Location { get; set; } = string.Empty;
+
     }
 }

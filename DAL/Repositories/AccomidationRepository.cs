@@ -60,20 +60,22 @@ namespace DAL.Repositories
             throw new NotSupportedException("FindAsync using LINQ expressions is not supported in ADO.NET repositories.");
         }
 
-        public async Task AddAsync(Accommodation accommodation)
+        public async Task<int> AddAsync(Accommodation accommodation)
         {
             using var conn = new SqlConnection(_connectionString);
             await conn.OpenAsync();
 
             var query = @"
-                INSERT INTO Accommodation 
-                (Title, Description, MonthlyRent, Size, MaxOccupants, IsAvailable, LandlordId, AccommodationTypeId, UniversityId)
-                VALUES 
-                (@Title, @Description, @MonthlyRent, @Size, @MaxOccupants, @IsAvailable, @LandlordId, @AccommodationTypeId, @UniversityId)";
+            INSERT INTO Accommodation 
+            (Title, Description, Address, MonthlyRent, Size, MaxOccupants, IsAvailable, LandlordId, AccommodationTypeId, UniversityId)
+            OUTPUT INSERTED.AccommodationId
+            VALUES 
+            (@Title, @Description, @Address, @MonthlyRent, @Size, @MaxOccupants, @IsAvailable, @LandlordId, @AccommodationTypeId, @UniversityId)";
 
             using var cmd = new SqlCommand(query, conn);
             cmd.Parameters.AddWithValue("@Title", accommodation.Title);
             cmd.Parameters.AddWithValue("@Description", accommodation.Description);
+            cmd.Parameters.AddWithValue("@Address", accommodation.Address);
             cmd.Parameters.AddWithValue("@MonthlyRent", accommodation.MonthlyRent);
             cmd.Parameters.AddWithValue("@Size", accommodation.Size);
             cmd.Parameters.AddWithValue("@MaxOccupants", accommodation.MaxOccupants);
@@ -82,8 +84,11 @@ namespace DAL.Repositories
             cmd.Parameters.AddWithValue("@AccommodationTypeId", accommodation.AccommodationTypeId);
             cmd.Parameters.AddWithValue("@UniversityId", accommodation.UniversityId);
 
-            await cmd.ExecuteNonQueryAsync();
+            var result = await cmd.ExecuteScalarAsync();
+            return Convert.ToInt32(result);
         }
+
+
 
         public async Task UpdateAsync(Accommodation accommodation)
         {
@@ -212,5 +217,45 @@ namespace DAL.Repositories
                 UniversityId = reader.GetInt32(reader.GetOrdinal("UniversityId"))
             };
         }
+
+        public async Task AddAmenitiesAsync(int accommodationId, IEnumerable<int> amenityIds)
+        {
+            using var conn = new SqlConnection(_connectionString);
+            await conn.OpenAsync();
+
+            foreach (var amenityId in amenityIds)
+            {
+                var cmd = new SqlCommand(
+                    "INSERT INTO AccommodationAmenity (AccommodationId, AmenityId) VALUES (@AccommodationId, @AmenityId)",
+                    conn);
+                cmd.Parameters.AddWithValue("@AccommodationId", accommodationId);
+                cmd.Parameters.AddWithValue("@AmenityId", amenityId);
+                await cmd.ExecuteNonQueryAsync();
+            }
+        }
+
+
+        public async Task AddImagesAsync(IEnumerable<AccommodationImage> images)
+        {
+            using var conn = new SqlConnection(_connectionString);
+            await conn.OpenAsync();
+
+            foreach (var image in images)
+            {
+                var cmd = new SqlCommand(@"
+            INSERT INTO AccommodationImage (AccommodationId, ImageUrl, Description, UploadedAt)
+            VALUES (@AccommodationId, @ImageUrl, @Description, @UploadedAt)", conn);
+
+                cmd.Parameters.AddWithValue("@AccommodationId", image.AccommodationId);
+                cmd.Parameters.AddWithValue("@ImageUrl", image.ImageUrl);
+                cmd.Parameters.AddWithValue("@Description", image.Description ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@UploadedAt", image.UploadedAt);
+
+                await cmd.ExecuteNonQueryAsync();
+            }
+        }
+
+
+
     }
 }

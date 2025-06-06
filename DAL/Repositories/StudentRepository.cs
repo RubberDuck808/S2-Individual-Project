@@ -63,16 +63,17 @@ namespace DAL.Repositories
             throw new NotSupportedException("FindAsync with expressions is not supported in ADO.NET.");
         }
 
-        public async Task AddAsync(Student student)
+        public async Task<int> AddAsync(Student student)
         {
             using var conn = new SqlConnection(_connectionString);
             await conn.OpenAsync();
 
             var query = @"
-                INSERT INTO Student 
-                (UserId, UniversityId, Email, FirstName, MiddleName, LastName, DateOfBirth, PhoneNumber, EmergencyContact, EmergencyPhone, ProfileImageUrl, IsVerified, CreatedAt, UpdatedAt)
-                VALUES 
-                (@UserId, @UniversityId, @Email, @FirstName, @MiddleName, @LastName, @DateOfBirth, @PhoneNumber, @EmergencyContact, @EmergencyPhone, @ProfileImageUrl, @IsVerified, @CreatedAt, @UpdatedAt)";
+        INSERT INTO Student 
+        (UserId, UniversityId, Email, FirstName, MiddleName, LastName, DateOfBirth, PhoneNumber, EmergencyContact, EmergencyPhone, ProfileImageUrl, IsVerified, CreatedAt, UpdatedAt)
+        OUTPUT INSERTED.StudentId
+        VALUES 
+        (@UserId, @UniversityId, @Email, @FirstName, @MiddleName, @LastName, @DateOfBirth, @PhoneNumber, @EmergencyContact, @EmergencyPhone, @ProfileImageUrl, @IsVerified, @CreatedAt, @UpdatedAt)";
 
             using var cmd = new SqlCommand(query, conn);
 
@@ -91,8 +92,10 @@ namespace DAL.Repositories
             cmd.Parameters.AddWithValue("@CreatedAt", student.CreatedAt);
             cmd.Parameters.AddWithValue("@UpdatedAt", student.UpdatedAt);
 
-            await cmd.ExecuteNonQueryAsync();
+            var result = await cmd.ExecuteScalarAsync();
+            return Convert.ToInt32(result);
         }
+
 
         public async Task UpdateAsync(Student student)
         {

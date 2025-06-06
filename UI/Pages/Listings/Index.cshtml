@@ -21,7 +21,22 @@ else
                 <p><strong>Rent:</strong> €@item.MonthlyRent</p>
                 <p><strong>Max Occupants:</strong> @item.MaxOccupants</p>
                 <p><strong>Available:</strong> @(item.IsAvailable ? "Yes" : "No")</p>
+                <p><strong>Available From:</strong> @item.AvailableFrom.ToString("dd MMM yyyy")</p>
                 <p><strong>University:</strong> @item.UniversityName</p>
+                <p><strong>Address:</strong> @item.Address</p>
+                <p><strong>Room Type:</strong> @item.AccommodationType</p>
+                <p><strong>Size:</strong> @item.AreaSqM m²</p>
+                <p><strong>Amenities:</strong> @string.Join(", ", item.AmenityNames)</p>
+
+                @if (item.ImageUrls?.Count > 0)
+                {
+                    <div class="image-gallery">
+                        @foreach (var imageUrl in item.ImageUrls)
+                        {
+                            <img src="@imageUrl" alt="Accommodation image" style="max-width: 100%; height: auto;" />
+                        }
+                    </div>
+                }
             </div>
         }
     </div>

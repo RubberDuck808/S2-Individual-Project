@@ -36,9 +36,10 @@ namespace BLL.Services
         public async Task<int> CreateAsync(AccommodationCreateDto dto)
         {
             var entity = _mapper.Map<Accommodation>(dto);
-            await _accommodationRepo.AddAsync(entity);
-            return entity.AccommodationId;
+            int insertedId = await _accommodationRepo.AddAsync(entity);
+            return insertedId;
         }
+
 
         public async Task UpdateAsync(AccommodationUpdateDto dto)
         {
@@ -54,5 +55,29 @@ namespace BLL.Services
         {
             await _accommodationRepo.DeleteAsync(id);
         }
+
+        public async Task AddAmenitiesAsync(int accommodationId, IEnumerable<int> amenityIds)
+        {
+            await _accommodationRepo.AddAmenitiesAsync(accommodationId, amenityIds);
+        }
+
+        public async Task AddImagesAsync(IEnumerable<AccommodationImage> images)
+        {
+            await _accommodationRepo.AddImagesAsync(images);
+        }
+
+        public async Task<int> CreateAccommodationWithAmenitiesAsync(AccommodationCreateDto dto, IEnumerable<int> amenityIds)
+        {
+            var entity = _mapper.Map<Accommodation>(dto);
+            int accommodationId = await _accommodationRepo.AddAsync(entity);
+
+            if (accommodationId <= 0)
+                throw new Exception("Accommodation insert failed or returned invalid ID.");
+
+            await _accommodationRepo.AddAmenitiesAsync(accommodationId, amenityIds);
+            return accommodationId;
+        }
+
+
     }
 }

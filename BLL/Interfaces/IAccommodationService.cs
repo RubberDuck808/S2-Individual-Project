@@ -1,4 +1,5 @@
 ﻿using BLL.DTOs.Accommodation;
+using DAL.Models;
 
 namespace BLL.Interfaces
 {
@@ -9,5 +10,12 @@ namespace BLL.Interfaces
         Task<int> CreateAsync(AccommodationCreateDto dto);
         Task UpdateAsync(AccommodationUpdateDto dto);
         Task DeleteAsync(int id);
+        Task AddAmenitiesAsync(int accommodationId, IEnumerable<int> amenityIds);
+        Task AddImagesAsync(IEnumerable<AccommodationImage> images);
+
+        Task<int> CreateAccommodationWithAmenitiesAsync(AccommodationCreateDto dto, IEnumerable<int> amenityIds);
+
+
+
     }
 }
