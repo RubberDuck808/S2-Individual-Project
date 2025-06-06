@@ -6,6 +6,7 @@ namespace BLL.Interfaces
     public interface IAccommodationService
     {
         Task<IEnumerable<AccommodationDto>> GetAllAsync();
+        Task<IEnumerable<AccommodationDto>> GetIndexAsync();
         Task<AccommodationDto> GetByIdAsync(int id);
         Task<int> CreateAsync(AccommodationCreateDto dto);
         Task UpdateAsync(AccommodationUpdateDto dto);

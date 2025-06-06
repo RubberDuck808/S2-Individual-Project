@@ -33,75 +33,6 @@ body {
 
 
 
-
-.homepage-image {
-    position: absolute;
-    top: 100px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 700px;
-    height: auto;
-    z-index: 10;
-}
-
-.search-box {
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-    padding-top: 380px;
-}
-
-
-
-.search-types {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 15px;
-    position: relative;
-}
-
-    .search-types span {
-        padding: 8px 15px;
-        border-radius: 20px;
-        background-color: rgba(0, 0, 0, 0.1);
-        color: #333;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-        margin: 0 5px;
-    }
-
-        .search-types span:hover {
-            background-color: rgba(0, 0, 0, 0.2);
-        }
-
-.search-input {
-    margin-bottom: 20px;
-    position: relative;
-    z-index: 20;
-}
-
-    .search-input .form-control {
-        background-color: white;
-        border-radius: 5px 0 0 5px;
-        border-right: none;
-    }
-
-    .search-input .btn-primary {
-        background-color: #0D526B;
-        border: none;
-        border-radius: 0 5px 5px 0;
-    }
-
-
-
-.container > .search-box {
-    margin-top: 50px;
-}
-
-
 .navbar-brand img {
     margin-right: 30px;
 }
@@ -122,6 +53,7 @@ body {
     margin-left: -50vw;
     margin-right: -50vw;
 }
+
 
 /* Banner styling */
 .contact-banner {
@@ -329,27 +261,38 @@ body {
         flex-direction: column;
         align-items: flex-start;
     }
+
 }
 
-
-.listing-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1rem;
-}
-
-.listing-card {
-    border: 1px solid #ccc;
-    padding: 1rem;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-}
-
-.listing-image {
-    width: 240px;
-    height: 150px;
+.card-img-top {
+    width: 100%;
+    height: 200px;
     object-fit: cover;
-    border-radius: 1px;
-    display: block;
+}
+
+.navbar {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+
+.carousel-inner img {
+    height: 450px;
+    object-fit: cover;
+}
+
+.table th {
+    width: 30%;
+}
+
+.listing-item {
+    transition: box-shadow 0.2s ease-in-out;
+}
+
+    .listing-item:hover {
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+
+.object-fit-cover {
+    object-fit: cover;
 }
 

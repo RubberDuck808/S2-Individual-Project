@@ -10,6 +10,9 @@ namespace DAL.Interfaces
         Task<IEnumerable<Accommodation>> GetAccommodationsByLandlordAsync(int landlordId);
         Task<IEnumerable<Accommodation>> GetAccommodationsByUniversityAsync(int universityId);
         Task<IEnumerable<Accommodation>> GetAvailableAccommodationsAsync();
+
+        Task<IEnumerable<Accommodation>> GetFeaturedAccommodationsAsync();
+
         Task AddAmenitiesAsync(int accommodationId, IEnumerable<int> amenityIds);
         Task AddImagesAsync(IEnumerable<AccommodationImage> images);
 

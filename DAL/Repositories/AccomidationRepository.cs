@@ -201,6 +201,25 @@ namespace DAL.Repositories
             return accommodations;
         }
 
+        public async Task<IEnumerable<Accommodation>> GetFeaturedAccommodationsAsync()
+        {
+            var accommodations = new List<Accommodation>();
+
+            using var conn = new SqlConnection(_connectionString);
+            await conn.OpenAsync();
+
+            var query = "SELECT TOP 3 * FROM Accommodation WHERE IsAvailable = 1 ORDER BY AccommodationId DESC";
+            using var cmd = new SqlCommand(query, conn);
+            using var reader = await cmd.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
+            {
+                accommodations.Add(ReadAccommodation(reader));
+            }
+
+            return accommodations;
+        }
+
 
 
         private Accommodation ReadAccommodation(SqlDataReader reader)

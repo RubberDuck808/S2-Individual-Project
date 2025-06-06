@@ -147,5 +147,42 @@ namespace BLL.Services
             return dtos;
         }
 
+
+        public async Task<IEnumerable<AccommodationDto>> GetIndexAsync()
+        {
+            var entities = await _accommodationRepo.GetFeaturedAccommodationsAsync();
+            var dtos = new List<AccommodationDto>();
+
+            foreach (var entity in entities)
+            {
+                var amenities = await _amenityRepo.GetByAccommodationIdAsync(entity.AccommodationId);
+                var images = await _imageRepo.GetByAccommodationIdAsync(entity.AccommodationId);
+                var university = await _universityRepo.GetByIdAsync(entity.UniversityId);
+                var type = await _typeRepo.GetByIdAsync(entity.AccommodationTypeId);
+
+                var dto = new AccommodationDto
+                {
+                    AccommodationId = entity.AccommodationId,
+                    Title = entity.Title,
+                    Description = entity.Description,
+                    Address = entity.Address,
+                    MonthlyRent = entity.MonthlyRent,
+                    IsAvailable = entity.IsAvailable,
+                    MaxOccupants = entity.MaxOccupants,
+                    Size = (int)entity.Size,
+                    AvailableFrom = entity.AvailableFrom,
+                    AmenityNames = amenities.Select(a => a.Name).ToList(),
+                    ImageUrls = images.Select(i => i.ImageUrl).ToList(),
+                    UniversityName = university?.Name ?? string.Empty,
+                    AccommodationType = type?.Name ?? string.Empty,
+                    LandlordName = ""
+                };
+
+                dtos.Add(dto);
+            }
+
+            return dtos;
+        }
+
     }
 }

@@ -6,53 +6,87 @@
 
 @if (Model.Accommodation == null)
 {
-    <p>Accommodation not found.</p>
+    <div class="container py-5">
+        <div class="alert alert-warning text-center">
+            <h4>Accommodation not found</h4>
+        </div>
+    </div>
 }
 else
 {
-    <div class="detail-container">
-        <h2>@Model.Accommodation.Title</h2>
+    <div class="container my-5">
+        <!-- Title + Breadcrumb (optional) -->
+        <h1 class="mb-4 fw-bold">For rent: @Model.Accommodation.Title</h1>
 
-        <div class="image-gallery">
-            @if (Model.Accommodation.ImageUrls?.Count > 0)
-            {
-                @foreach (var image in Model.Accommodation.ImageUrls)
+        <!-- Image Carousel -->
+        <div id="accommodationCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                @for (int i = 0; i < Model.Accommodation.ImageUrls?.Count; i++)
                 {
-                    <img src="@image" alt="Accommodation image" class="listing-image" />
+                    <div class="carousel-item @(i == 0 ? "active" : "")">
+                        <img src="@Model.Accommodation.ImageUrls[i]" class="d-block w-100 rounded" style="max-height: 500px; object-fit: cover;" />
+                    </div>
                 }
-            }
-            else
-            {
-                <img src="~/images/NoImage.png" alt="No image available" class="listing-image" />
-            }
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#accommodationCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#accommodationCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
         </div>
 
-        <p><strong>Description:</strong> @Model.Accommodation.Description</p>
-        <p><strong>Rent:</strong> €@Model.Accommodation.MonthlyRent</p>
-        <p><strong>Max Occupants:</strong> @Model.Accommodation.MaxOccupants</p>
-        <p><strong>Available:</strong> @(Model.Accommodation.IsAvailable ? "Yes" : "No")</p>
-        <p><strong>Available From:</strong> @Model.Accommodation.AvailableFrom.ToString("dd MMM yyyy")</p>
-        <p><strong>Room Type:</strong> @Model.Accommodation.AccommodationType</p>
-        <p><strong>University:</strong> @Model.Accommodation.UniversityName</p>
-        <p><strong>Address:</strong> @Model.Accommodation.Address</p>
-        <p><strong>Size:</strong> @Model.Accommodation.Size²</p>
-        <p><strong>Amenities:</strong> @string.Join(", ", Model.Accommodation.AmenityNames)</p>
-        @if (User.Identity.IsAuthenticated && User.IsInRole("Student"))
-        {
-            <form method="post" asp-page-handler="Apply">
-                <input type="hidden" name="AccommodationId" value="@Model.Accommodation.AccommodationId" />
-                <button type="submit" class="btn btn-primary">Apply</button>
-            </form>
-        }
-        else if (!User.Identity.IsAuthenticated)
-        {
-            <p><a href="/Account/Login">Log in</a> to apply for this accommodation.</p>
-        }
-        else
-        {
-            <p>Only students can apply for listings.</p>
-        }
+        <!-- Details Section -->
+        <div class="row g-4">
+            <!-- Left: Description & Info -->
+            <div class="col-lg-8">
+                <!-- Description -->
+                <div class="mb-4">
+                    <h4>Description</h4>
+                    <p>@Model.Accommodation.Description</p>
+                </div>
 
-        
+                <!-- Detail Table -->
+                <h5>Accommodation Details</h5>
+                <table class="table table-striped">
+                    <tbody>
+                        <tr><th>Rent</th><td>€@Model.Accommodation.MonthlyRent /mo</td></tr>
+                        <tr><th>Available From</th><td>@Model.Accommodation.AvailableFrom.ToString("dd MMM yyyy")</td></tr>
+                        <tr><th>Available</th><td>@(Model.Accommodation.IsAvailable ? "Yes" : "No")</td></tr>
+                        <tr><th>Type</th><td>@Model.Accommodation.AccommodationType</td></tr>
+                        <tr><th>Max Occupants</th><td>@Model.Accommodation.MaxOccupants</td></tr>
+                        <tr><th>Size</th><td>@Model.Accommodation.Size m²</td></tr>
+                        <tr><th>University</th><td>@Model.Accommodation.UniversityName</td></tr>
+                        <tr><th>Address</th><td>@Model.Accommodation.Address</td></tr>
+                        <tr><th>Amenities</th><td>@string.Join(", ", Model.Accommodation.AmenityNames)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Right: Apply/Contact Card -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Interested?</h5>
+
+                        @if (User.Identity.IsAuthenticated && User.IsInRole("Student"))
+                        {
+                            <form method="post" asp-page-handler="Apply">
+                                <input type="hidden" name="AccommodationId" value="@Model.Accommodation.AccommodationId" />
+                                <button type="submit" class="btn btn-primary w-100">Apply Now</button>
+                            </form>
+                        }
+                        else if (!User.Identity.IsAuthenticated)
+                        {
+                            <p class="text-muted text-center">You must <a href="/Login">log in</a> to apply.</p>
+                        }
+                        else
+                        {
+                            <p class="text-muted text-center">Only students can apply.</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 }

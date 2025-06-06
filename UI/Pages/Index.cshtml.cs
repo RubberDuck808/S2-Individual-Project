@@ -1,3 +1,5 @@
+using BLL.DTOs.Accommodation;
+using BLL.Interfaces;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Data.SqlClient;
 using System;
@@ -7,28 +9,18 @@ namespace UI.Pages
 {
     public class IndexModel : PageModel
     {
-        private readonly string _connectionString;
+        private readonly IAccommodationService _accommodationService;
 
-        public IndexModel(IConfiguration config)
+        public IndexModel(IAccommodationService accommodationService)
         {
-            _connectionString = config.GetValue<string>("UNINEST_CONNECTION_STRING")
-                ?? throw new Exception("Connection string not found.");
+            _accommodationService = accommodationService;
         }
 
-        public bool IsDatabaseConnected { get; private set; }
+        public List<AccommodationDto> Accommodations { get; set; } = new();
 
         public async Task OnGetAsync()
         {
-            try
-            {
-                using var conn = new SqlConnection(_connectionString);
-                await conn.OpenAsync();
-                IsDatabaseConnected = true;
-            }
-            catch
-            {
-                IsDatabaseConnected = false;
-            }
+            Accommodations = (await _accommodationService.GetIndexAsync()).ToList();
         }
     }
 }
