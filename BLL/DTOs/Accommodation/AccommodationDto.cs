@@ -10,7 +10,7 @@
         public bool IsAvailable { get; set; }
 
         public int MaxOccupants { get; set; }
-        public int AreaSqM { get; set; }
+        public int Size { get; set; }
         public DateTime AvailableFrom { get; set; }
 
         // Related info 

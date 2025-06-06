@@ -344,3 +344,12 @@ body {
     border-radius: 8px;
     background-color: #f9f9f9;
 }
+
+.listing-image {
+    width: 240px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 1px;
+    display: block;
+}
+

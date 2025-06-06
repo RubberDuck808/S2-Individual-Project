@@ -8,15 +8,21 @@
 <h2>Welcome to the Landlord Dashboard</h2>
 
 <div>
-
+    <p>Account</p>
     <form method="get" asp-page="/Dashboard/Landlord/Account">
         <button type="submit">Edit Account</button>
     </form>
 
+    <p>Mananage Listing</p>
+
     <form method="get" asp-page="/Listings/CreateListing">
         <button type="submit">Create a listing</button>
     </form>
+    <form method="get" asp-page="/Listings/EditListing">
+        <button type="submit">Edit a listing</button>
+    </form>
 
+    <p>Log out of account</p>
     <form method="post" asp-page-handler="Logout">
         <button type="submit">Logout</button>
     </form>

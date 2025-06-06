@@ -16,6 +16,21 @@ else
         @foreach (var item in Model.Accommodations)
         {
             <div class="listing-card">
+                @if (item.ImageUrls?.Count > 0)
+                {
+                    <div class="image-gallery">
+                        @foreach (var imageUrl in item.ImageUrls)
+                        {
+                            <img src="@imageUrl" alt="Accommodation image" class="listing-image" />
+                        }
+                    </div>
+                }
+                else
+                {
+                    <img src="~/images/NoImage.png" alt="No image available" class="listing-image" />
+                }
+
+
                 <h3>@item.Title</h3>
                 <p>@item.Description</p>
                 <p><strong>Rent:</strong> €@item.MonthlyRent</p>
@@ -25,18 +40,11 @@ else
                 <p><strong>University:</strong> @item.UniversityName</p>
                 <p><strong>Address:</strong> @item.Address</p>
                 <p><strong>Room Type:</strong> @item.AccommodationType</p>
-                <p><strong>Size:</strong> @item.AreaSqM m²</p>
+                <p><strong>Size:</strong> @item.Size²</p>
                 <p><strong>Amenities:</strong> @string.Join(", ", item.AmenityNames)</p>
 
-                @if (item.ImageUrls?.Count > 0)
-                {
-                    <div class="image-gallery">
-                        @foreach (var imageUrl in item.ImageUrls)
-                        {
-                            <img src="@imageUrl" alt="Accommodation image" style="max-width: 100%; height: auto;" />
-                        }
-                    </div>
-                }
+                <a class="btn-view" asp-page="/Listings/Detail" asp-route-id="@item.AccommodationId">View Full Listing</a>
+
             </div>
         }
     </div>

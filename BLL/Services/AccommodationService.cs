@@ -9,29 +9,61 @@ namespace BLL.Services
 {
     public class AccommodationService : IAccommodationService
     {
+        private readonly IAmenityRepository _amenityRepo;
+        private readonly IAccommodationImageRepository _imageRepo;
+        private readonly IUniversityRepository _universityRepo;
+        private readonly IAccommodationTypeRepository _typeRepo;
         private readonly IAccommodationRepository _accommodationRepo;
         private readonly IMapper _mapper;
 
-        public AccommodationService(IAccommodationRepository accommodationRepo, IMapper mapper)
+
+        public AccommodationService(
+            IAccommodationRepository accommodationRepo,
+            IMapper mapper,
+            IAmenityRepository amenityRepo,
+            IAccommodationImageRepository imageRepo,
+            IUniversityRepository universityRepo,
+            IAccommodationTypeRepository typeRepo)
         {
             _accommodationRepo = accommodationRepo;
             _mapper = mapper;
+            _amenityRepo = amenityRepo;
+            _imageRepo = imageRepo;
+            _universityRepo = universityRepo;
+            _typeRepo = typeRepo;
         }
 
-        public async Task<IEnumerable<AccommodationDto>> GetAllAsync()
-        {
-            var entities = await _accommodationRepo.GetAvailableAccommodationsAsync();
-            return _mapper.Map<IEnumerable<AccommodationDto>>(entities);
-        }
 
         public async Task<AccommodationDto> GetByIdAsync(int id)
         {
-            var accommodation = await _accommodationRepo.GetAccommodationWithDetailsAsync(id);
-            if (accommodation == null)
+            var entity = await _accommodationRepo.GetByIdAsync(id);
+            if (entity == null)
                 throw new NotFoundException($"Accommodation {id} not found");
 
-            return _mapper.Map<AccommodationDto>(accommodation);
+            var amenities = await _amenityRepo.GetByAccommodationIdAsync(id);
+            var images = await _imageRepo.GetByAccommodationIdAsync(id);
+            var university = await _universityRepo.GetByIdAsync(entity.UniversityId);
+            var type = await _typeRepo.GetByIdAsync(entity.AccommodationTypeId);
+
+            return new AccommodationDto
+            {
+                AccommodationId = entity.AccommodationId,
+                Title = entity.Title,
+                Description = entity.Description,
+                Address = entity.Address,
+                MonthlyRent = entity.MonthlyRent,
+                IsAvailable = entity.IsAvailable,
+                MaxOccupants = entity.MaxOccupants,
+                Size = (int)entity.Size,
+                AvailableFrom = entity.AvailableFrom,
+                AmenityNames = amenities.Select(a => a.Name).ToList(),
+                ImageUrls = images.Select(i => i.ImageUrl).ToList(),
+                UniversityName = university?.Name ?? "",
+                AccommodationType = type?.Name ?? "",
+                LandlordName = ""
+            };
         }
+
 
         public async Task<int> CreateAsync(AccommodationCreateDto dto)
         {
@@ -78,6 +110,42 @@ namespace BLL.Services
             return accommodationId;
         }
 
+
+        public async Task<IEnumerable<AccommodationDto>> GetAllAsync()
+        {
+            var entities = await _accommodationRepo.GetAvailableAccommodationsAsync();
+            var dtos = new List<AccommodationDto>();
+
+            foreach (var entity in entities)
+            {
+                var amenities = await _amenityRepo.GetByAccommodationIdAsync(entity.AccommodationId);
+                var images = await _imageRepo.GetByAccommodationIdAsync(entity.AccommodationId);
+                var university = await _universityRepo.GetByIdAsync(entity.UniversityId);
+                var type = await _typeRepo.GetByIdAsync(entity.AccommodationTypeId);
+
+                var dto = new AccommodationDto
+                {
+                    AccommodationId = entity.AccommodationId,
+                    Title = entity.Title,
+                    Description = entity.Description,
+                    Address = entity.Address,
+                    MonthlyRent = entity.MonthlyRent,
+                    IsAvailable = entity.IsAvailable,
+                    MaxOccupants = entity.MaxOccupants,
+                    Size = (int)entity.Size,
+                    AvailableFrom = entity.AvailableFrom,
+                    AmenityNames = amenities.Select(a => a.Name).ToList(),
+                    ImageUrls = images.Select(i => i.ImageUrl).ToList(),
+                    UniversityName = university?.Name ?? string.Empty,
+                    AccommodationType = type?.Name ?? string.Empty,
+                    LandlordName = ""  
+                };
+
+                dtos.Add(dto);
+            }
+
+            return dtos;
+        }
 
     }
 }

@@ -1,0 +1,58 @@
+﻿@page "/listings/{id:int}"
+@model UI.Pages.Listings.DetailModel
+@{
+    ViewData["Title"] = Model.Accommodation?.Title ?? "Accommodation Details";
+}
+
+@if (Model.Accommodation == null)
+{
+    <p>Accommodation not found.</p>
+}
+else
+{
+    <div class="detail-container">
+        <h2>@Model.Accommodation.Title</h2>
+
+        <div class="image-gallery">
+            @if (Model.Accommodation.ImageUrls?.Count > 0)
+            {
+                @foreach (var image in Model.Accommodation.ImageUrls)
+                {
+                    <img src="@image" alt="Accommodation image" class="listing-image" />
+                }
+            }
+            else
+            {
+                <img src="~/images/NoImage.png" alt="No image available" class="listing-image" />
+            }
+        </div>
+
+        <p><strong>Description:</strong> @Model.Accommodation.Description</p>
+        <p><strong>Rent:</strong> €@Model.Accommodation.MonthlyRent</p>
+        <p><strong>Max Occupants:</strong> @Model.Accommodation.MaxOccupants</p>
+        <p><strong>Available:</strong> @(Model.Accommodation.IsAvailable ? "Yes" : "No")</p>
+        <p><strong>Available From:</strong> @Model.Accommodation.AvailableFrom.ToString("dd MMM yyyy")</p>
+        <p><strong>Room Type:</strong> @Model.Accommodation.AccommodationType</p>
+        <p><strong>University:</strong> @Model.Accommodation.UniversityName</p>
+        <p><strong>Address:</strong> @Model.Accommodation.Address</p>
+        <p><strong>Size:</strong> @Model.Accommodation.Size²</p>
+        <p><strong>Amenities:</strong> @string.Join(", ", Model.Accommodation.AmenityNames)</p>
+        @if (User.Identity.IsAuthenticated && User.IsInRole("Student"))
+        {
+            <form method="post" asp-page-handler="Apply">
+                <input type="hidden" name="AccommodationId" value="@Model.Accommodation.AccommodationId" />
+                <button type="submit" class="btn btn-primary">Apply</button>
+            </form>
+        }
+        else if (!User.Identity.IsAuthenticated)
+        {
+            <p><a href="/Account/Login">Log in</a> to apply for this accommodation.</p>
+        }
+        else
+        {
+            <p>Only students can apply for listings.</p>
+        }
+
+        
+    </div>
+}

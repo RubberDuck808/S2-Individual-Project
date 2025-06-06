@@ -17,7 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(LandlordProfile).Assembly);
 
-// Get env var
+// Database connection string
 var connectionString = Environment.GetEnvironmentVariable("UNINEST_CONNECTION_STRING");
 
 Console.WriteLine("DEBUG: UNINEST_CONNECTION_STRING =");
@@ -28,37 +28,27 @@ if (string.IsNullOrEmpty(connectionString))
     throw new Exception("UNINEST_CONNECTION_STRING is not set in environment variables.");
 }
 
-
-
-
-// --- Repositories (ADO.NET, pass connection string) ---
-builder.Services.AddScoped<ILandlordRepository>(_ => new LandlordRepository(connectionString));
-builder.Services.AddScoped<IAccommodationRepository>(_ => new AccommodationRepository(connectionString));
-builder.Services.AddScoped<IStudentRepository>(_ => new StudentRepository(connectionString));
+// Services
 builder.Services.AddScoped<IAccountService, AccountService>();
-
-
-
-// --- Services (BL layer stays the same) ---
 builder.Services.AddScoped<ILandlordService, LandlordService>();
 builder.Services.AddScoped<IAccommodationService, AccommodationService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
+
+
+// Repositories
 builder.Services.AddScoped<IUserRepository>(_ => new UserRepository(connectionString));
 builder.Services.AddScoped<IUniversityRepository>(_ => new UniversityRepository(connectionString));
 builder.Services.AddScoped<IAmenityRepository>(_ => new AmenityRepository(connectionString));
 builder.Services.AddScoped<IUniversityRepository>(_ => new UniversityRepository(connectionString));
 builder.Services.AddScoped<IAccommodationTypeRepository>(_ => new AccommodationTypeRepository(connectionString));
+builder.Services.AddScoped<IAccommodationImageRepository>(_ => new AccommodationImageRepository(connectionString));
+builder.Services.AddScoped<ILandlordRepository>(_ => new LandlordRepository(connectionString));
+builder.Services.AddScoped<IAccommodationRepository>(_ => new AccommodationRepository(connectionString));
+builder.Services.AddScoped<IStudentRepository>(_ => new StudentRepository(connectionString));
 
+builder.Services.AddRazorPages();
 
-
-
-
-
-//builder.Services.AddScoped<IUniversityService, UniversityService>();
-
-builder.Services.AddRazorPages(); 
-
-
+// Cookie Authentication
 builder.Services.AddAuthentication("UniNestAuth")
     .AddCookie("UniNestAuth", options =>
     {
@@ -75,7 +65,6 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
@@ -84,13 +73,12 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-
 app.UseAuthentication(); 
 app.UseAuthorization();
 
 
+// Error handling for status codes
 app.UseStatusCodePages(async context =>
 {
     var response = context.HttpContext.Response;

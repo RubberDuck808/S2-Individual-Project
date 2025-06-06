@@ -37,5 +37,28 @@ namespace DAL.Repositories
 
             return list;
         }
+
+        public async Task<AccommodationType?> GetByIdAsync(int id)
+        {
+            using var conn = new SqlConnection(_connectionString);
+            await conn.OpenAsync();
+
+            var query = "SELECT AccommodationTypeId, Name FROM AccommodationType WHERE AccommodationTypeId = @Id";
+            using var cmd = new SqlCommand(query, conn);
+            cmd.Parameters.AddWithValue("@Id", id);
+
+            using var reader = await cmd.ExecuteReaderAsync();
+            if (await reader.ReadAsync())
+            {
+                return new AccommodationType
+                {
+                    AccommodationTypeId = reader.GetInt32(reader.GetOrdinal("AccommodationTypeId")),
+                    Name = reader.GetString(reader.GetOrdinal("Name"))
+                };
+            }
+
+            return null;
+        }
+
     }
 }

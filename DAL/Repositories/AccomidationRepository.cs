@@ -191,8 +191,8 @@ namespace DAL.Repositories
 
             var query = "SELECT * FROM Accommodation WHERE IsAvailable = 1";
             using var cmd = new SqlCommand(query, conn);
-
             using var reader = await cmd.ExecuteReaderAsync();
+
             while (await reader.ReadAsync())
             {
                 accommodations.Add(ReadAccommodation(reader));
@@ -201,12 +201,15 @@ namespace DAL.Repositories
             return accommodations;
         }
 
+
+
         private Accommodation ReadAccommodation(SqlDataReader reader)
         {
             return new Accommodation
             {
                 AccommodationId = reader.GetInt32(reader.GetOrdinal("AccommodationId")),
                 Title = reader.GetString(reader.GetOrdinal("Title")),
+                Address = reader.GetString(reader.GetOrdinal("Address")),
                 Description = reader.GetString(reader.GetOrdinal("Description")),
                 MonthlyRent = reader.GetDecimal(reader.GetOrdinal("MonthlyRent")),
                 Size = reader.GetDecimal(reader.GetOrdinal("Size")),
@@ -214,9 +217,11 @@ namespace DAL.Repositories
                 IsAvailable = reader.GetBoolean(reader.GetOrdinal("IsAvailable")),
                 LandlordId = reader.GetInt32(reader.GetOrdinal("LandlordId")),
                 AccommodationTypeId = reader.GetInt32(reader.GetOrdinal("AccommodationTypeId")),
-                UniversityId = reader.GetInt32(reader.GetOrdinal("UniversityId"))
+                UniversityId = reader.GetInt32(reader.GetOrdinal("UniversityId")),
+                AvailableFrom = reader.GetDateTime(reader.GetOrdinal("AvailableFrom")) 
             };
         }
+
 
         public async Task AddAmenitiesAsync(int accommodationId, IEnumerable<int> amenityIds)
         {

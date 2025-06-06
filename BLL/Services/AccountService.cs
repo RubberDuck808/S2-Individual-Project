@@ -29,20 +29,20 @@ public class AccountService : IAccountService
     public async Task RegisterStudentAsync(StudentRegistrationDto dto)
     {
         Console.WriteLine("Entered AccountService.RegisterStudentAsync");
-        // 1. Validate email domain
+        
         var domain = dto.Email.Split('@').Last();
         var universityId = await _universityRepository.GetUniversityIdByEmailDomainAsync(domain);
         if (universityId == null)
             throw new Exception("Invalid student email domain.");
         dto.UniversityId = universityId.Value;
 
-        // 2. Hash password
+        
         var passwordHash = _hasher.HashPassword(null, dto.Password);
 
-        // 3. Create user
+        
         var userId = await _userRepository.CreateUserAsync(dto.Email, passwordHash, dto.PhoneNumber, dto.FirstName, dto.LastName);
 
-        // 4. Map and create student
+       
         var student = new Student
         {
             UserId = userId,
@@ -63,7 +63,7 @@ public class AccountService : IAccountService
 
         await _studentRepository.AddAsync(student);
 
-        // 5. Assign role
+        
         await _userRepository.AssignRoleAsync(userId, "Student");
     }
 
@@ -71,13 +71,13 @@ public class AccountService : IAccountService
     {
         Console.WriteLine("Entered AccountService.RegisterLandlordAsync");
 
-        // 1. Hash password
+        
         var passwordHash = _hasher.HashPassword(null, dto.Password);
 
-        // 2. Create user
+        
         var userId = await _userRepository.CreateUserAsync(dto.Email, passwordHash, dto.PhoneNumber, dto.FirstName, dto.LastName);
 
-        // 3. Map and create landlord
+        
         var landlord = new Landlord
         {
             UserId = userId,
@@ -95,7 +95,7 @@ public class AccountService : IAccountService
 
         await _landlordRepository.AddAsync(landlord);
 
-        // 5. Assign role
+        
         await _userRepository.AssignRoleAsync(userId, "Landlord");
     }
 
@@ -130,7 +130,7 @@ public class AccountService : IAccountService
         var landlord = await _landlordRepository.GetByUserIdAsync(userId);
         if (landlord != null)
         {
-            // Concatenate first, middle (if any), last name
+            
             var middle = string.IsNullOrEmpty(landlord.MiddleName) ? "" : $" {landlord.MiddleName}";
             return $"{landlord.FirstName}{middle} {landlord.LastName}";
         }

@@ -1,4 +1,5 @@
-﻿using DAL.Interfaces;
+﻿using BLL.Exceptions;
+using DAL.Interfaces;
 using DAL.Models;
 
 public class AccommodationTypeService : IAccommodationTypeService
@@ -13,4 +14,14 @@ public class AccommodationTypeService : IAccommodationTypeService
     {
         return await _repo.GetAllAsync();
     }
+
+    public async Task<AccommodationType> GetByIdAsync(int id)
+    {
+        var type = await _repo.GetByIdAsync(id);
+        if (type == null)
+            throw new NotFoundException($"Accommodation type {id} not found");
+
+        return type;
+    }
+
 }

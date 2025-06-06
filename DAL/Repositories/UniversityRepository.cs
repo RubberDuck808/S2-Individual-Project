@@ -56,6 +56,29 @@ namespace DAL.Repositories
 
             return universities;
         }
+
+        public async Task<University?> GetByIdAsync(int id)
+        {
+            using var conn = new SqlConnection(_connectionString);
+            await conn.OpenAsync();
+
+            var query = "SELECT UniversityId, Name FROM University WHERE UniversityId = @Id";
+            using var cmd = new SqlCommand(query, conn);
+            cmd.Parameters.AddWithValue("@Id", id);
+
+            using var reader = await cmd.ExecuteReaderAsync();
+            if (await reader.ReadAsync())
+            {
+                return new University
+                {
+                    UniversityId = reader.GetInt32(reader.GetOrdinal("UniversityId")),
+                    Name = reader.GetString(reader.GetOrdinal("Name")),
+                };
+            }
+
+            return null;
+        }
+
     }
 }
 

@@ -7,5 +7,6 @@ namespace DAL.Interfaces
     public interface IAmenityRepository
     {
         Task<List<Amenity>> GetAllAsync();
+        Task<List<Amenity>> GetByAccommodationIdAsync(int accommodationId);
     }
 }

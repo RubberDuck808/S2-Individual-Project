@@ -27,6 +27,9 @@ namespace DAL.Models
         public int AccommodationTypeId { get; set; }
 
         public int UniversityId { get; set; }
+        public DateTime AvailableFrom { get; set; }
+
+
 
         // Optional: Constructor
         public Accommodation(string title, string description, decimal monthlyRent,
