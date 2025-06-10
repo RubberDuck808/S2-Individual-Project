@@ -16,6 +16,11 @@ namespace BLL.Interfaces
 
         Task<int> CreateAccommodationWithAmenitiesAsync(AccommodationCreateDto dto, IEnumerable<int> amenityIds);
 
+        Task<IEnumerable<LandlordAccommodationDto>> GetByLandlordUserIdAsync(string landlordUserId);
+
+
+
+
 
 
     }

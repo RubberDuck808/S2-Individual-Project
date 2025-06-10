@@ -10,3 +10,4 @@ namespace DAL.Interfaces
         Task<List<Amenity>> GetByAccommodationIdAsync(int accommodationId);
     }
 }
+

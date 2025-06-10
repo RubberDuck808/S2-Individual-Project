@@ -11,6 +11,9 @@ namespace BLL.DTOs.Application
         public int AccommodationId { get; set; }
 
         [Required]
-        public int StatusId { get; set; } 
+        public int StatusId { get; set; }
+        [Required]
+        public DateTime ApplicationDate { get; set; } = DateTime.UtcNow;
+
     }
 }

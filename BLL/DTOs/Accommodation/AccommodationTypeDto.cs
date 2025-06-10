@@ -2,7 +2,7 @@
 {
     public class AccommodationTypeDto
     {
-        public int Id { get; set; }
+        public int AccommodationTypeId { get; set; }
         public string Name { get; set; } = string.Empty;
     }
 }

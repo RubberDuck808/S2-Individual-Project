@@ -34,18 +34,21 @@ builder.Services.AddScoped<ILandlordService, LandlordService>();
 builder.Services.AddScoped<IAccommodationService, AccommodationService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
-
+builder.Services.AddScoped<IApplicationService, ApplicationService>();
+builder.Services.AddScoped<IUniversityService, UniversityService>();
+builder.Services.AddScoped<IAccommodationTypeService, AccommodationTypeService>();
+builder.Services.AddScoped<IAmenityService, AmenityService>();
 
 // Repositories
 builder.Services.AddScoped<IUserRepository>(_ => new UserRepository(connectionString));
 builder.Services.AddScoped<IUniversityRepository>(_ => new UniversityRepository(connectionString));
 builder.Services.AddScoped<IAmenityRepository>(_ => new AmenityRepository(connectionString));
-builder.Services.AddScoped<IUniversityRepository>(_ => new UniversityRepository(connectionString));
 builder.Services.AddScoped<IAccommodationTypeRepository>(_ => new AccommodationTypeRepository(connectionString));
 builder.Services.AddScoped<IAccommodationImageRepository>(_ => new AccommodationImageRepository(connectionString));
 builder.Services.AddScoped<ILandlordRepository>(_ => new LandlordRepository(connectionString));
 builder.Services.AddScoped<IAccommodationRepository>(_ => new AccommodationRepository(connectionString));
 builder.Services.AddScoped<IStudentRepository>(_ => new StudentRepository(connectionString));
+builder.Services.AddScoped<IApplicationRepository>(_ => new ApplicationRepository(connectionString));
 
 builder.Services.AddRazorPages();
 

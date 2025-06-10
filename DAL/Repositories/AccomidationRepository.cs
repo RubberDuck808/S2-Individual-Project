@@ -36,6 +36,38 @@ namespace DAL.Repositories
             return null;
         }
 
+        public async Task<IEnumerable<(Accommodation accommodation, int applicationCount)>> GetWithApplicationCountsByLandlordIdAsync(int landlordId)
+        {
+            var results = new List<(Accommodation, int)>();
+
+            using var conn = new SqlConnection(_connectionString);
+            await conn.OpenAsync();
+
+            var query = @"
+            SELECT a.*, COUNT(app.ApplicationId) AS ApplicationCount
+            FROM Accommodation a
+            LEFT JOIN Application app ON a.AccommodationId = app.AccommodationId
+            WHERE a.LandlordId = @LandlordId
+            GROUP BY 
+            a.AccommodationId, a.Title, a.Description, a.Address, a.PostCode, a.City, a.Country, 
+            a.MonthlyRent, a.Size, a.MaxOccupants, a.IsAvailable, a.LandlordId, a.AccommodationTypeId,
+            a.UniversityId, a.AvailableFrom";
+
+            using var cmd = new SqlCommand(query, conn);
+            cmd.Parameters.AddWithValue("@LandlordId", landlordId);
+
+            using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                var accommodation = ReadAccommodation(reader);
+                int applicationCount = reader.GetInt32(reader.GetOrdinal("ApplicationCount"));
+                results.Add((accommodation, applicationCount));
+            }
+
+            return results;
+        }
+
+
         public async Task<IEnumerable<Accommodation>> GetAllAsync()
         {
             var list = new List<Accommodation>();
@@ -67,15 +99,19 @@ namespace DAL.Repositories
 
             var query = @"
             INSERT INTO Accommodation 
-            (Title, Description, Address, MonthlyRent, Size, MaxOccupants, IsAvailable, LandlordId, AccommodationTypeId, UniversityId)
+            (Title, Description, Address, PostCode, City, Country, MonthlyRent, Size, MaxOccupants, IsAvailable, LandlordId, AccommodationTypeId, UniversityId)
             OUTPUT INSERTED.AccommodationId
             VALUES 
-            (@Title, @Description, @Address, @MonthlyRent, @Size, @MaxOccupants, @IsAvailable, @LandlordId, @AccommodationTypeId, @UniversityId)";
+            (@Title, @Description, @Address, @PostCode, @City, @Country, @MonthlyRent, @Size, @MaxOccupants, @IsAvailable, @LandlordId, @AccommodationTypeId, @UniversityId)";
+
 
             using var cmd = new SqlCommand(query, conn);
             cmd.Parameters.AddWithValue("@Title", accommodation.Title);
             cmd.Parameters.AddWithValue("@Description", accommodation.Description);
             cmd.Parameters.AddWithValue("@Address", accommodation.Address);
+            cmd.Parameters.AddWithValue("@PostCode", accommodation.PostCode);
+            cmd.Parameters.AddWithValue("@City", accommodation.City);
+            cmd.Parameters.AddWithValue("@Country", accommodation.Country);
             cmd.Parameters.AddWithValue("@MonthlyRent", accommodation.MonthlyRent);
             cmd.Parameters.AddWithValue("@Size", accommodation.Size);
             cmd.Parameters.AddWithValue("@MaxOccupants", accommodation.MaxOccupants);
@@ -97,22 +133,26 @@ namespace DAL.Repositories
 
             var query = @"
                 UPDATE Accommodation
-                SET Title = @Title, Description = @Description, MonthlyRent = @MonthlyRent, Size = @Size,
-                    MaxOccupants = @MaxOccupants, IsAvailable = @IsAvailable, LandlordId = @LandlordId,
+                SET Title = @Title, Description = @Description,Address = @Address, PostCode = @PostCode, City = @City, Country = @Country, MonthlyRent = @MonthlyRent, Size = @Size,
+                    MaxOccupants = @MaxOccupants, IsAvailable = @IsAvailable,
                     AccommodationTypeId = @AccommodationTypeId, UniversityId = @UniversityId
                 WHERE AccommodationId = @AccommodationId";
 
             using var cmd = new SqlCommand(query, conn);
             cmd.Parameters.AddWithValue("@Title", accommodation.Title);
             cmd.Parameters.AddWithValue("@Description", accommodation.Description);
+            cmd.Parameters.AddWithValue("@Address", accommodation.Address);
+            cmd.Parameters.AddWithValue("@PostCode", accommodation.PostCode);
+            cmd.Parameters.AddWithValue("@City", accommodation.City);
+            cmd.Parameters.AddWithValue("@Country", accommodation.Country);
             cmd.Parameters.AddWithValue("@MonthlyRent", accommodation.MonthlyRent);
             cmd.Parameters.AddWithValue("@Size", accommodation.Size);
             cmd.Parameters.AddWithValue("@MaxOccupants", accommodation.MaxOccupants);
             cmd.Parameters.AddWithValue("@IsAvailable", accommodation.IsAvailable);
-            cmd.Parameters.AddWithValue("@LandlordId", accommodation.LandlordId);
             cmd.Parameters.AddWithValue("@AccommodationTypeId", accommodation.AccommodationTypeId);
             cmd.Parameters.AddWithValue("@UniversityId", accommodation.UniversityId);
             cmd.Parameters.AddWithValue("@AccommodationId", accommodation.AccommodationId);
+
 
             await cmd.ExecuteNonQueryAsync();
         }
@@ -229,6 +269,9 @@ namespace DAL.Repositories
                 AccommodationId = reader.GetInt32(reader.GetOrdinal("AccommodationId")),
                 Title = reader.GetString(reader.GetOrdinal("Title")),
                 Address = reader.GetString(reader.GetOrdinal("Address")),
+                PostCode = reader.GetString(reader.GetOrdinal("PostCode")),
+                City = reader.GetString(reader.GetOrdinal("City")),
+                Country = reader.GetString(reader.GetOrdinal("Country")),
                 Description = reader.GetString(reader.GetOrdinal("Description")),
                 MonthlyRent = reader.GetDecimal(reader.GetOrdinal("MonthlyRent")),
                 Size = reader.GetDecimal(reader.GetOrdinal("Size")),

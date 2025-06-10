@@ -1,16 +1,15 @@
-﻿@page "/listings"
-@model UI.Pages.Listings.IndexModel
+﻿@page "/landlord/mylistings"
+@model UI.Pages.Landlord.MyListingsModel
 @{
-    ViewData["Title"] = "Listings";
+    ViewData["Title"] = "My Listings";
 }
 
-
 <section class="container my-5">
-    <h3 class="mb-4">@Model.Accommodations.Count accommodation(s) found</h3>
+    <h3 class="mb-4">You have @Model.Accommodations.Count listing(s)</h3>
 
     @foreach (var item in Model.Accommodations)
     {
-        <div class="listing-item d-flex flex-column flex-md-row border rounded shadow-sm mb-4 overflow-hidden">
+        <div class="listing-item d-flex flex-column flex-md-row border rounded shadow-sm mb-4 overflow-hidden position-relative">
             <!-- Image -->
             <div class="listing-img-wrapper flex-shrink-0">
                 @if (item.ImageUrls?.Count > 0)
@@ -26,11 +25,11 @@
             <!-- Details -->
             <div class="p-3 d-flex flex-column justify-content-between flex-grow-1">
                 <div>
-                    <h5 class="fw-bold mb-1">
-                        <a asp-page="/Listings/Detail" asp-route-id="@item.AccommodationId" class="text-decoration-none text-primary">
-                            @item.AccommodationType
-                        </a>
+                    <h5 class="fw-bold mb-1 text-primary">
+                        @item.AccommodationType
+                        <span class="badge bg-info ms-2">ID: @item.AccommodationId</span>
                     </h5>
+
                     <p class="mb-1 text-muted">@($"{item.Address}, {item.PostCode} {item.City}, {item.Country}")</p>
 
                     <p class="mb-1 fs-5 fw-semibold text-dark">€@item.MonthlyRent / month</p>
@@ -42,21 +41,22 @@
                     </div>
                 </div>
 
-                <div class="mt-3">
-                    <span class="badge bg-light text-dark border me-1">@item.UniversityName</span>
-                    @if (item.AmenityNames?.Any() == true)
-                    {
-                        foreach (var amenity in item.AmenityNames.Take(3))
+                <div class="mt-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="badge bg-light text-dark border me-1">@item.UniversityName</span>
+                        @foreach (var amenity in item.AmenityNames.Take(3))
                         {
                             <span class="badge bg-secondary text-white me-1">@amenity</span>
                         }
-                    }
-                    <a asp-page="/Listings/Detail" asp-route-id="@item.AccommodationId" class="btn btn-outline-primary btn-sm float-end">View Listing</a>
+                    </div>
+                    <div>
+                        <a asp-page="/Landlord/Applications" asp-route-id="@item.AccommodationId" class="btn btn-outline-info btn-sm me-2">
+                            View Applications (@item.ApplicationCount)
+                        </a>
+                        <a asp-page="/Listings/EditListing" asp-route-id="@item.AccommodationId" class="btn btn-outline-warning btn-sm me-2">Edit</a>
+                    </div>
                 </div>
             </div>
         </div>
     }
 </section>
-
-
-

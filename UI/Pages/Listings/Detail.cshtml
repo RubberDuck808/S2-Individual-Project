@@ -57,7 +57,7 @@ else
                         <tr><th>Max Occupants</th><td>@Model.Accommodation.MaxOccupants</td></tr>
                         <tr><th>Size</th><td>@Model.Accommodation.Size m²</td></tr>
                         <tr><th>University</th><td>@Model.Accommodation.UniversityName</td></tr>
-                        <tr><th>Address</th><td>@Model.Accommodation.Address</td></tr>
+                        <tr><th>Address</th><td>@Model.Accommodation.Address @Model.Accommodation.PostCode @Model.Accommodation.City @Model.Accommodation.Country</td></tr>
                         <tr><th>Amenities</th><td>@string.Join(", ", Model.Accommodation.AmenityNames)</td></tr>
                     </tbody>
                 </table>

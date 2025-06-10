@@ -1,4 +1,106 @@
-﻿@page
+﻿@page "/listings/edit/{id:int}"
 @model UI.Pages.Listings.EditListingModel
 @{
+    ViewData["Title"] = "Edit Listing";
 }
+
+<section class="container my-5">
+    <h2 class="mb-4">Edit Listing</h2>
+
+    <form method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="Input.AccommodationId" />
+
+        <div class="mb-3">
+            <label asp-for="Input.Title" class="form-label"></label>
+            <input asp-for="Input.Title" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Input.Description" class="form-label"></label>
+            <textarea asp-for="Input.Description" class="form-control" rows="4"></textarea>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="Input.Address" class="form-label"></label>
+                <input asp-for="Input.Address" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label asp-for="Input.PostCode" class="form-label"></label>
+                <input asp-for="Input.PostCode" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label asp-for="Input.City" class="form-label"></label>
+                <input asp-for="Input.City" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Input.Country" class="form-label"></label>
+                <input asp-for="Input.Country" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Input.MonthlyRent" class="form-label"></label>
+                <input asp-for="Input.MonthlyRent" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Input.Size" class="form-label"></label>
+                <input asp-for="Input.Size" class="form-control" />
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <label asp-for="Input.MaxOccupants" class="form-label"></label>
+                <input asp-for="Input.MaxOccupants" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <select asp-for="Input.AccommodationTypeId" class="form-control" asp-items="Model.AccommodationTypes">
+                    <option value="">-- Select Type --</option>
+                </select>
+            </div>
+
+            <div class="col-md-6 mt-3">
+                <select asp-for="Input.UniversityId" class="form-control" asp-items="Model.Universities">
+                    <option value="">-- Select University --</option>
+                </select>
+
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <label class="form-label">Amenities</label>
+            <small class="form-text text-muted">Select all amenities that apply</small>
+
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Choose Amenities
+                </button>
+                <div class="dropdown-menu p-3" style="max-height: 300px; overflow-y: auto;">
+                    @foreach (var amenity in Model.Input.Amenities)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   name="Input.SelectedAmenityIds"
+                                   value="@amenity.AmenityId"
+                                   id="amenity_@amenity.AmenityId"
+                            @(Model.Input.SelectedAmenityIds.Contains(amenity.AmenityId) ? "checked" : "") />
+                            <label class="form-check-label text-dark" for="amenity_@amenity.AmenityId">
+                                @amenity.Name
+                            </label>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <label asp-for="Input.Images" class="form-label"></label>
+            <small class="form-text text-muted">You can upload multiple images (JPG, PNG)</small>
+            <input name="Input.Images" type="file" class="form-control" multiple />
+            <span asp-validation-for="Input.Images" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-4">Save Changes</button>
+        <a asp-page="/Landlord/MyListings" class="btn btn-secondary mt-4 ms-2">Cancel</a>
+    </form>
+</section>

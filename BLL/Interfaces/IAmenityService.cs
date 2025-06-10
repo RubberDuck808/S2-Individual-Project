@@ -1,6 +1,7 @@
-﻿using DAL.Models;
+﻿using BLL.DTOs.Shared;
 
 public interface IAmenityService
 {
-    Task<List<Amenity>> GetAllAsync();
+    Task<List<AmenityDto>> GetAllAsync();
+    Task<List<int>> GetIdsByAccommodationIdAsync(int accommodationId);
 }

@@ -1,13 +1,10 @@
 using BLL.DTOs.Accommodation;
+using BLL.DTOs.Shared;
 using BLL.Interfaces;
-using BLL.Services;
-using DAL.Interfaces;
 using DAL.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Extensions.Hosting;
 using System.Security.Claims;
 using UI.ViewModels;
 
@@ -17,28 +14,28 @@ namespace UI.Pages.Listings
     public class CreateListingModel : PageModel
     {
         private readonly IAccommodationService _accommodationService;
-        private readonly IAmenityRepository _amenityRepository;
-        private readonly IAccommodationTypeRepository _typeRepository;
-        private readonly IUniversityRepository _universityRepository;
-        private readonly ILandlordRepository _landlordRepository;
+        private readonly IAmenityService _amenityService;
+        private readonly IAccommodationTypeService _typeService;
+        private readonly IUniversityService _universityService;
+        private readonly ILandlordService _landlordService;
         private readonly IWebHostEnvironment _environment;
 
         [BindProperty]
-        public CreateAccommodationViewModel Input { get; set; } = new();
+        public AccommodationViewModel Input { get; set; } = new();
 
         public CreateListingModel(
             IAccommodationService accommodationService,
-            IAmenityRepository amenityRepository,
-            IAccommodationTypeRepository typeRepository,
-            IUniversityRepository universityRepository,
-            ILandlordRepository landlordRepository,
+            IAmenityService amenityService,
+            IAccommodationTypeService typeService,
+            IUniversityService universityService,
+            ILandlordService landlordService,
             IWebHostEnvironment environment)
         {
             _accommodationService = accommodationService;
-            _amenityRepository = amenityRepository;
-            _typeRepository = typeRepository;
-            _universityRepository = universityRepository;
-            _landlordRepository = landlordRepository;
+            _amenityService = amenityService;
+            _typeService = typeService;
+            _universityService = universityService;
+            _landlordService = landlordService;
             _environment = environment;
         }
 
@@ -57,7 +54,7 @@ namespace UI.Pages.Listings
             }
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var landlord = await _landlordRepository.GetByUserIdAsync(userId);
+            var landlord = await _landlordService.GetByUserIdAsync(userId);
             if (landlord == null)
             {
                 return Forbid();
@@ -68,6 +65,9 @@ namespace UI.Pages.Listings
                 Title = Input.Title,
                 Description = Input.Description,
                 Address = Input.Address,
+                PostCode = Input.PostCode,
+                City = Input.City,
+                Country = "Netherlands",
                 MonthlyRent = Input.MonthlyRent,
                 Size = Input.Size,
                 MaxOccupants = Input.MaxOccupants,
@@ -79,8 +79,6 @@ namespace UI.Pages.Listings
             };
 
             var accId = await _accommodationService.CreateAccommodationWithAmenitiesAsync(dto, Input.SelectedAmenityIds);
-
-
 
             if (Input.Images != null && Input.Images.Any())
             {
@@ -108,7 +106,6 @@ namespace UI.Pages.Listings
                 }
 
                 await _accommodationService.AddImagesAsync(imageEntities);
-
             }
 
             return RedirectToPage("/Dashboard/Index");
@@ -116,9 +113,9 @@ namespace UI.Pages.Listings
 
         private async Task LoadFormOptionsAsync()
         {
-            Input.AccommodationTypes = await _typeRepository.GetAllAsync();
-            Input.Universities = await _universityRepository.GetAllAsync();
-            Input.Amenities = await _amenityRepository.GetAllAsync();
+            Input.AccommodationTypes = await _typeService.GetAllAsync();
+            Input.Universities = await _universityService.GetAllAsync();
+            Input.Amenities = await _amenityService.GetAllAsync();
         }
     }
 }

@@ -16,7 +16,13 @@ namespace BLL.DTOs.Accommodation
 
         [Required]
         public string Address { get; set; } = string.Empty;
+        [Required]
+        public string PostCode { get; set; } = string.Empty;
+        [Required]
+        public string City { get; set; } = string.Empty;
 
+        [Required]
+        public string Country { get; set; } = string.Empty;
         [Range(100, 10000)]
         public decimal MonthlyRent { get; set; }
 

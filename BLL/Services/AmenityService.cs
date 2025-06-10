@@ -1,16 +1,29 @@
-﻿using DAL.Interfaces;
+﻿using AutoMapper;
+using BLL.DTOs.Shared;
+using DAL.Interfaces;
 using DAL.Models;
 
+namespace BLL.Services;
 public class AmenityService : IAmenityService
 {
     private readonly IAmenityRepository _repo;
-    public AmenityService(IAmenityRepository repo)
+    private readonly IMapper _mapper;
+
+    public AmenityService(IAmenityRepository repo, IMapper mapper)
     {
         _repo = repo;
+        _mapper = mapper;
     }
 
-    public async Task<List<Amenity>> GetAllAsync()
+    public async Task<List<AmenityDto>> GetAllAsync()
     {
-        return await _repo.GetAllAsync();
+        var amenities = await _repo.GetAllAsync();
+        return _mapper.Map<List<AmenityDto>>(amenities);
+    }
+
+    public async Task<List<int>> GetIdsByAccommodationIdAsync(int accommodationId)
+    {
+        var amenities = await _repo.GetByAccommodationIdAsync(accommodationId);
+        return amenities.Select(a => a.AmenityId).ToList();
     }
 }

@@ -13,6 +13,12 @@ namespace DAL.Models
         public string Description { get; set; } = string.Empty;
 
         public string Address { get; set; } = string.Empty;
+        public string PostCode { get; set; } = string.Empty;
+        public string City { get; set; } = string.Empty;
+
+        public string Country { get; set; } = "Netherlands"; // default if applicable
+
+
 
         public decimal MonthlyRent { get; set; }
 

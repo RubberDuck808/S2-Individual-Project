@@ -34,4 +34,23 @@ public class AccommodationImageRepository : IAccommodationImageRepository
 
         return images;
     }
+
+    public async Task AddImagesAsync(IEnumerable<AccommodationImage> images)
+    {
+        using var conn = new SqlConnection(_connectionString);
+        await conn.OpenAsync();
+
+        foreach (var image in images)
+        {
+            var query = @"INSERT INTO AccommodationImage (AccommodationId, ImageUrl, UploadedAt)
+                      VALUES (@AccommodationId, @ImageUrl, @UploadedAt)";
+
+            using var cmd = new SqlCommand(query, conn);
+            cmd.Parameters.AddWithValue("@AccommodationId", image.AccommodationId);
+            cmd.Parameters.AddWithValue("@ImageUrl", image.ImageUrl);
+            cmd.Parameters.AddWithValue("@UploadedAt", image.UploadedAt);
+            await cmd.ExecuteNonQueryAsync();
+        }
+    }
+
 }

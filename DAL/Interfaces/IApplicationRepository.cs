@@ -1,10 +1,17 @@
-﻿//using DAL.Models;
+﻿using DAL.Models;
 
-//namespace DAL.Interfaces
-//{
-//    public interface IApplicationRepository : IRepository<Application>
-//    {
-//        Task<IEnumerable<Application>> GetByStudentAsync(int studentId);
-//        Task<IEnumerable<Application>> GetByLandlordIdAsync(int landlordId);
-//    }
-//}
+namespace DAL.Interfaces
+{
+    public interface IApplicationRepository
+    {
+        Task<IEnumerable<Application>> GetAllAsync();
+        Task<Application?> GetByIdAsync(int id);
+        Task<IEnumerable<Application>> GetByStudentAsync(int studentId);
+        Task<IEnumerable<Application>> GetByLandlordIdAsync(int landlordId);
+        Task<int> CreateAsync(Application application);
+        Task UpdateAsync(Application application);
+        Task DeleteAsync(int id);
+        Task<bool> ExistsAsync(int id);
+        Task<bool> ExistsAsync(int studentId, int accommodationId);
+    }
+}

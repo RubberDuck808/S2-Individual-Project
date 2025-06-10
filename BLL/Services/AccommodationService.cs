@@ -4,6 +4,7 @@ using DAL.Models;
 using BLL.Exceptions;
 using DAL.Interfaces;
 using BLL.Interfaces;
+using DAL.Repositories;
 
 namespace BLL.Services
 {
@@ -15,6 +16,8 @@ namespace BLL.Services
         private readonly IAccommodationTypeRepository _typeRepo;
         private readonly IAccommodationRepository _accommodationRepo;
         private readonly IMapper _mapper;
+        private readonly ILandlordRepository _landlordRepo;
+
 
 
         public AccommodationService(
@@ -23,7 +26,8 @@ namespace BLL.Services
             IAmenityRepository amenityRepo,
             IAccommodationImageRepository imageRepo,
             IUniversityRepository universityRepo,
-            IAccommodationTypeRepository typeRepo)
+            IAccommodationTypeRepository typeRepo,
+            ILandlordRepository landlordRepo)
         {
             _accommodationRepo = accommodationRepo;
             _mapper = mapper;
@@ -31,6 +35,7 @@ namespace BLL.Services
             _imageRepo = imageRepo;
             _universityRepo = universityRepo;
             _typeRepo = typeRepo;
+            _landlordRepo = landlordRepo;
         }
 
 
@@ -51,6 +56,9 @@ namespace BLL.Services
                 Title = entity.Title,
                 Description = entity.Description,
                 Address = entity.Address,
+                PostCode = entity.PostCode,
+                City = entity.City,
+                Country = entity.Country,
                 MonthlyRent = entity.MonthlyRent,
                 IsAvailable = entity.IsAvailable,
                 MaxOccupants = entity.MaxOccupants,
@@ -129,6 +137,9 @@ namespace BLL.Services
                     Title = entity.Title,
                     Description = entity.Description,
                     Address = entity.Address,
+                    PostCode = entity.PostCode,
+                    City = entity.City,
+                    Country = entity.Country,
                     MonthlyRent = entity.MonthlyRent,
                     IsAvailable = entity.IsAvailable,
                     MaxOccupants = entity.MaxOccupants,
@@ -166,6 +177,9 @@ namespace BLL.Services
                     Title = entity.Title,
                     Description = entity.Description,
                     Address = entity.Address,
+                    PostCode = entity.PostCode,
+                    City = entity.City,
+                    Country = entity.Country,
                     MonthlyRent = entity.MonthlyRent,
                     IsAvailable = entity.IsAvailable,
                     MaxOccupants = entity.MaxOccupants,
@@ -182,6 +196,47 @@ namespace BLL.Services
             }
 
             return dtos;
+        }
+
+        public async Task<IEnumerable<LandlordAccommodationDto>> GetByLandlordUserIdAsync(string landlordUserId)
+        {
+            var landlord = await _landlordRepo.GetByUserIdAsync(landlordUserId);
+            var listings = await _accommodationRepo.GetWithApplicationCountsByLandlordIdAsync(landlord.LandlordId);
+
+            var result = new List<LandlordAccommodationDto>();
+
+            foreach ((var accommodation, var count) in listings)
+            {
+                var amenities = await _amenityRepo.GetByAccommodationIdAsync(accommodation.AccommodationId);
+                var images = await _imageRepo.GetByAccommodationIdAsync(accommodation.AccommodationId);
+                var university = await _universityRepo.GetByIdAsync(accommodation.UniversityId);
+                var type = await _typeRepo.GetByIdAsync(accommodation.AccommodationTypeId);
+
+                var dto = new LandlordAccommodationDto
+                {
+                    AccommodationId = accommodation.AccommodationId,
+                    Title = accommodation.Title,
+                    Description = accommodation.Description,
+                    Address = accommodation.Address,
+                    PostCode = accommodation.PostCode,
+                    City = accommodation.City,
+                    Country = accommodation.Country,
+                    MonthlyRent = accommodation.MonthlyRent,
+                    IsAvailable = accommodation.IsAvailable,
+                    MaxOccupants = accommodation.MaxOccupants,
+                    Size = (int)accommodation.Size,
+                    AvailableFrom = accommodation.AvailableFrom,
+                    ApplicationCount = count,
+                    AmenityNames = amenities.Select(a => a.Name).ToList(),
+                    ImageUrls = images.Select(i => i.ImageUrl).ToList(),
+                    UniversityName = university?.Name ?? string.Empty,
+                    AccommodationType = type?.Name ?? string.Empty
+                };
+
+                result.Add(dto);
+            }
+
+            return result;
         }
 
     }

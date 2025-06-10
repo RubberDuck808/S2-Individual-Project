@@ -6,7 +6,7 @@ namespace BLL.Interfaces
 {
     public interface IUniversityService
     {
-        Task<IEnumerable<UniversityDto>> GetAllAsync();
+        Task<List<UniversityDto>> GetAllAsync();
         Task<UniversityDto> GetByIdAsync(int id);
     }
 }

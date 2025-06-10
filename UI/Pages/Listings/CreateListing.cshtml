@@ -23,10 +23,32 @@
 
     <div class="form-group mb-3">
         <label asp-for="Input.Address" class="form-label"></label>
-        <small class="form-text text-muted">Exact address including street, number, and city</small>
+        <small class="form-text text-muted">Address</small>
         <input asp-for="Input.Address" class="form-control" />
         <span asp-validation-for="Input.Address" class="text-danger"></span>
     </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Input.PostCode" class="form-label"></label>
+        <small class="form-text text-muted">PostCode</small>
+        <input asp-for="Input.PostCode" class="form-control" />
+        <span asp-validation-for="Input.PostCode" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Input.City" class="form-label"></label>
+        <small class="form-text text-muted">City</small>
+        <input asp-for="Input.City" class="form-control" />
+        <span asp-validation-for="Input.City" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Input.Country" class="form-label"></label>
+        <small class="form-text text-muted">Country</small>
+        <div class="form-control text-dark bg-light">Netherlands</div>
+    </div>
+
+
 
     <div class="form-group mb-3">
         <label asp-for="Input.Size" class="form-label"></label>
@@ -75,30 +97,31 @@
             <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                 Choose Amenities
             </button>
-            <ul class="dropdown-menu p-3" style="max-height: 300px; overflow-y: auto;">
+            <div class="dropdown-menu p-3" style="max-height: 300px; overflow-y: auto;">
                 @foreach (var amenity in Model.Input.Amenities)
                 {
-                    <li>
-                        <div class="form-check">
-                            <input class="form-check-input"
-                                   type="checkbox"
-                                   name="Input.SelectedAmenityIds"
-                                   value="@amenity.AmenityId"
-                                   id="amenity_@amenity.AmenityId"
-                            @(Model.Input.SelectedAmenityIds.Contains(amenity.AmenityId) ? "checked" : "") />
-                            <label class="form-check-label" for="amenity_@amenity.AmenityId">@amenity.Name</label>
-                        </div>
-                    </li>
+                    <div class="form-check">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               name="Input.SelectedAmenityIds"
+                               value="@amenity.AmenityId"
+                               id="amenity_@amenity.AmenityId"
+                        @(Model.Input.SelectedAmenityIds.Contains(amenity.AmenityId) ? "checked" : "") />
+                        <label class="form-check-label text-dark" for="amenity_@amenity.AmenityId">
+                            @amenity.Name
+                        </label>
+                    </div>
                 }
-            </ul>
+            </div>
         </div>
     </div>
+
 
 
     <div class="form-group mb-4">
         <label asp-for="Input.Images" class="form-label"></label>
         <small class="form-text text-muted">You can upload multiple images (JPG, PNG)</small>
-        <input asp-for="Input.Images" type="file" class="form-control" multiple />
+        <input name="Input.Images" type="file" class="form-control" multiple />
         <span asp-validation-for="Input.Images" class="text-danger"></span>
     </div>
 

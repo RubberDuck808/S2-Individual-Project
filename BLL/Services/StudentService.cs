@@ -4,6 +4,7 @@ using DAL.Models;
 using BLL.Exceptions;
 using DAL.Interfaces;
 using BLL.Interfaces;
+using DAL.Repositories;
 
 namespace BLL.Services
 {
@@ -43,5 +44,12 @@ namespace BLL.Services
             _mapper.Map(dto, student);
             await _studentRepo.UpdateAsync(student);
         }
+
+        public async Task<StudentDto?> GetByUserIdAsync(string userId)
+        {
+            var student = await _studentRepo.GetByUserIdAsync(userId);
+            return _mapper.Map<StudentDto>(student);
+        }
+
     }
 }

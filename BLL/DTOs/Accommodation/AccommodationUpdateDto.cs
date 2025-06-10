@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -18,19 +19,39 @@ namespace BLL.DTOs.Accommodation
 
         [Required]
         public string Address { get; set; } = string.Empty;
+        [Required]
+        public string PostCode { get; set; } = string.Empty;
+        [Required]
+        public string City { get; set; } = string.Empty;
 
+        [Required]
+        public string Country { get; set; } = string.Empty;
+        [Range(100, 10000)]
         public decimal MonthlyRent { get; set; }
-        public decimal DepositAmount { get; set; }
 
-        public int AreaSqM { get; set; }
-        public int MaxOccupants { get; set; }
-        public int MinimumLeaseMonths { get; set; }
-
+        [Required]
+        public decimal Size { get; set; }  // matches `DAL.Models.Accommodation.Size`
+        [Required]
         public DateTime AvailableFrom { get; set; }
+        [Required]
+        public bool IsAvailable { get; set; }
 
-        public int AccommodationTypeId { get; set; }
+        [Range(1, 10)]
+        public int MaxOccupants { get; set; } = 1;
+
+        [Required]
+        public int LandlordId { get; set; }
+
+        [Required]
         public int UniversityId { get; set; }
 
-        public List<int>? AmenityIds { get; set; }
+        [Required]
+        public int AccommodationTypeId { get; set; }
+
+        // Optional: collected from the form as checkboxes
+        public List<int> AmenityIds { get; set; } = new();
+
+        // Uploaded image files from form
+        public List<IFormFile>? Images { get; set; }
     }
 }

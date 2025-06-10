@@ -9,19 +9,20 @@ namespace BLL.Services
 {
     public class UniversityService : IUniversityService
     {
-        private readonly IRepository<University> _universityRepo;
+        private readonly IUniversityRepository _universityRepo;
         private readonly IMapper _mapper;
-
-        public UniversityService(IRepository<University> universityRepo, IMapper mapper)
+        
+        public UniversityService(IUniversityRepository universityRepo, IMapper mapper)
         {
             _universityRepo = universityRepo;
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<UniversityDto>> GetAllAsync()
+
+        public async Task<List<UniversityDto>> GetAllAsync()
         {
             var universities = await _universityRepo.GetAllAsync();
-            return _mapper.Map<IEnumerable<UniversityDto>>(universities);
+            return _mapper.Map<List<UniversityDto>>(universities);
         }
 
         public async Task<UniversityDto> GetByIdAsync(int id)
