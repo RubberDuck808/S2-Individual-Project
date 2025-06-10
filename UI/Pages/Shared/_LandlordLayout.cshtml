@@ -1,0 +1,88 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewBag.Title - UniNest Landlord Panel</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .dashboard-layout {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #f8f9fa;
+            padding: 1rem;
+            flex-shrink: 0;
+        }
+
+        .content-area {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 2rem;
+            background-color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <nav class="sidebar shadow-sm">
+            <h4 class="mb-4">Landlord Panel</h4>
+            <ul class="nav nav-pills flex-column">
+                <li class="nav-item mb-2">
+                    <a class="nav-link" asp-page="/Dashboard/Landlord/EditAccount">
+                        <i class="bi bi-person-circle"></i> Edit Account
+                    </a>
+                </li>
+                <li class="nav-item mb-2 text-muted ps-3">Manage Listings</li>
+                <li class="nav-item mb-2">
+                    <a class="nav-link" asp-page="/Listings/CreateListing">
+                        <i class="bi bi-plus-circle"></i> Create Listing
+                    </a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a class="nav-link" asp-page="/Listings/MyListings">
+                        <i class="bi bi-card-list"></i> My Listings
+                    </a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a class="nav-link" asp-page="/Index">
+                        <i class="bi bi-card-list"></i> Home
+                    </a>
+                </li>
+                <form method="post" asp-page="/Dashboard/Landlord/Logout" asp-page-handler="Logout">
+                    <button type="submit" class="btn btn-outline-danger w-100">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </button>
+                </form>
+
+            </ul>
+        </nav>
+
+        <!-- Scrollable Content -->
+        <main class="content-area">
+            @RenderBody()
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

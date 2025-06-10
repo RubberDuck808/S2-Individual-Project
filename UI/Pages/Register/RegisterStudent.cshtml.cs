@@ -38,6 +38,15 @@ namespace UI.Pages.Register
             [Required, Compare("Password")] public string ConfirmPassword { get; set; }
         }
 
+
+        public void OnGet()
+        {
+            // Only set if empty (to avoid overwriting user input after validation errors)
+            if (StudentInput.DateOfBirth == default)
+            {
+                StudentInput.DateOfBirth = new DateTime(2000, 1, 1);
+            }
+        }
         public async Task<IActionResult> OnPostAsync()
         {
             _logger.LogInformation("RegisterStudent POST triggered");

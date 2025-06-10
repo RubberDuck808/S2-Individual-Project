@@ -66,7 +66,7 @@ namespace UI.Pages.Listings
                 Description = Input.Description,
                 Address = Input.Address,
                 PostCode = Input.PostCode,
-                City = Input.City,
+                City = "Eindhoven",
                 Country = "Netherlands",
                 MonthlyRent = Input.MonthlyRent,
                 Size = Input.Size,

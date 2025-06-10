@@ -4,121 +4,190 @@ using BLL.DTOs.Accommodation;
 using BLL.Interfaces;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using UI.ViewModels;
+using System.Security.Claims;
+using BLL.Exceptions;
+using DAL.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
 
 namespace UI.Pages.Listings
 {
+    [Authorize(Roles = "Landlord")]
     public class EditListingModel : PageModel
     {
+        private readonly ILogger<EditListingModel> _logger;
         private readonly IAccommodationService _accommodationService;
-        private readonly IUniversityService _universityService;
-        private readonly IAccommodationTypeService _typeService;
         private readonly IAmenityService _amenityService;
+        private readonly IAccommodationTypeService _typeService;
+        private readonly IUniversityService _universityService;
+        private readonly ILandlordService _landlordService;
+        private readonly IWebHostEnvironment _environment;
 
         [BindProperty]
         public AccommodationViewModel Input { get; set; } = new();
+
+        [TempData]
+        public string Message { get; set; }
+
         public EditListingModel(
+
+            ILogger<EditListingModel> logger,
             IAccommodationService accommodationService,
-            IUniversityService universityService,
+            IAmenityService amenityService,
             IAccommodationTypeService typeService,
-            IAmenityService amenityService)
+            IUniversityService universityService,
+            ILandlordService landlordService,
+            IWebHostEnvironment environment)
         {
+            _logger = logger;
             _accommodationService = accommodationService;
-            _universityService = universityService;
-            _typeService = typeService;
             _amenityService = amenityService;
+            _typeService = typeService;
+            _universityService = universityService;
+            _landlordService = landlordService;
+            _environment = environment;
         }
-
-        [BindProperty]
-        public AccommodationUpdateDto Form { get; set; } = new();
-
-        [BindProperty]
-        public List<int> SelectedAmenityIds { get; set; } = new();
-
-        public List<SelectListItem> Universities { get; set; } = new();
-        public List<SelectListItem> AccommodationTypes { get; set; } = new();
-        public List<SelectListItem> AllAmenities { get; set; } = new();
-
-
-        public string? Message { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int id)
         {
-            var accommodation = await _accommodationService.GetByIdAsync(id);
-            if (accommodation == null)
-                return NotFound();
-
-            Input = new AccommodationViewModel
+            try
             {
-                AccommodationId = accommodation.AccommodationId,
-                Title = accommodation.Title,
-                Description = accommodation.Description,
-                Address = accommodation.Address,
-                PostCode = accommodation.PostCode,
-                City = accommodation.City,
-                Country = accommodation.Country,
-                MonthlyRent = accommodation.MonthlyRent,
-                Size = accommodation.Size,
-                MaxOccupants = accommodation.MaxOccupants,
-                AccommodationTypeId = accommodation.AccommodationTypeId,
-                UniversityId = accommodation.UniversityId,
-                SelectedAmenityIds = await _amenityService.GetIdsByAccommodationIdAsync(id),
-                Amenities = await _amenityService.GetAllAsync(),
-                AccommodationTypes = (await _typeService.GetAllAsync()).ToList(),
-                Universities = (await _universityService.GetAllAsync()).ToList()
-            };
+                var accommodation = await _accommodationService.GetByIdAsync(id);
+                if (accommodation == null)
+                    return NotFound();
 
-            return Page();
+                // Verify the current user owns this listing
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var landlord = await _landlordService.GetByUserIdAsync(userId);
+
+                //if (landlord == null || !await _accommodationService.IsOwnedByLandlord(id, landlord.LandlordId))
+                //{
+                //    return Forbid();
+                //}
+
+                Input = new AccommodationViewModel
+                {
+                    AccommodationId = accommodation.AccommodationId,
+                    Title = accommodation.Title,
+                    Description = accommodation.Description,
+                    Address = accommodation.Address,
+                    PostCode = accommodation.PostCode,
+                    City = accommodation.City,
+                    Country = accommodation.Country,
+                    MonthlyRent = accommodation.MonthlyRent,
+                    Size = accommodation.Size,
+                    MaxOccupants = accommodation.MaxOccupants,
+                    AccommodationTypeId = accommodation.AccommodationTypeId,
+                    UniversityId = accommodation.UniversityId,
+                    SelectedAmenityIds = await _amenityService.GetIdsByAccommodationIdAsync(id),
+                    Amenities = await _amenityService.GetAllAsync(),
+                    AccommodationTypes = (await _typeService.GetAllAsync()).ToList(),
+                    Universities = (await _universityService.GetAllAsync()).ToList()
+                };
+
+                _logger.LogInformation("Edit GET requested for listing ID {Id}", id);
+
+
+                return Page();
+            }
+            catch (NotFoundException)
+            {
+                return NotFound();
+            }
         }
-
 
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
             {
-                await PopulateDropdowns();
+                await LoadFormOptionsAsync();
                 return Page();
             }
-            Console.WriteLine($"Post ID: {Input.AccommodationId}, Title: {Input.Title}");
 
-
-            var updateDto = new AccommodationUpdateDto
+            try
             {
-                AccommodationId = Input.AccommodationId,
-                Title = Input.Title,
-                Description = Input.Description,
-                Address = Input.Address,
-                PostCode = Input.PostCode,
-                City = Input.City,
-                Country = Input.Country,
-                MonthlyRent = Input.MonthlyRent,
-                MaxOccupants = Input.MaxOccupants,
-                Size = Input.Size,
-                AccommodationTypeId = Input.AccommodationTypeId,
-                UniversityId = Input.UniversityId,
-                IsAvailable = true, 
-                AvailableFrom = DateTime.UtcNow 
-            };
+                _logger.LogInformation("Submitting edit for accommodation ID {Id}", Input.AccommodationId);
 
-            await _accommodationService.UpdateAsync(updateDto);
-            await _accommodationService.AddAmenitiesAsync(Input.AccommodationId, Input.SelectedAmenityIds);
+                // Verify ownership
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var landlord = await _landlordService.GetByUserIdAsync(userId);
 
-            Message = "Listing updated successfully!";
-            await PopulateDropdowns();
-            return Page();
+                //if (landlord == null || !await _accommodationService.IsOwnedByLandlord(Input.AccommodationId, landlord.LandlordId))
+                //{
+                //    return Forbid();
+                //}
+
+                var dto = new AccommodationUpdateDto
+                {
+                    AccommodationId = Input.AccommodationId,
+                    Title = Input.Title,
+                    Description = Input.Description,
+                    Address = Input.Address,
+                    PostCode = Input.PostCode,
+                    City = "Eindhoven",
+                    Country = "Netherlands",
+                    MonthlyRent = Input.MonthlyRent,
+                    Size = Input.Size,
+                    MaxOccupants = Input.MaxOccupants,
+                    AccommodationTypeId = Input.AccommodationTypeId,
+                    UniversityId = Input.UniversityId,
+                    IsAvailable = true,
+                    AvailableFrom = DateTime.UtcNow
+                };
+
+
+
+                // Update accommodation and amenities
+                await _accommodationService.UpdateWithAmenitiesAsync(dto, Input.SelectedAmenityIds);
+                _logger.LogInformation("Accommodation ID {Id} updated successfully", Input.AccommodationId);
+
+                // Handle image uploads if any
+                if (Input.Images != null && Input.Images.Any())
+                {
+                    var uploadPath = Path.Combine(_environment.WebRootPath, "uploads");
+                    Directory.CreateDirectory(uploadPath);
+
+                    var imageEntities = new List<AccommodationImage>();
+
+                    foreach (var image in Input.Images)
+                    {
+                        var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(image.FileName)}";
+                        var filePath = Path.Combine(uploadPath, fileName);
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await image.CopyToAsync(stream);
+                        }
+
+                        imageEntities.Add(new AccommodationImage
+                        {
+                            AccommodationId = Input.AccommodationId,
+                            ImageUrl = $"/uploads/{fileName}",
+                            UploadedAt = DateTime.UtcNow
+                        });
+                    }
+
+                    await _accommodationService.AddImagesAsync(imageEntities);
+                }
+
+                Message = "Listing updated successfully!";
+                return RedirectToPage("/Listings/MyListings");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while updating accommodation ID {Id}", Input.AccommodationId);
+                ModelState.AddModelError("", "An error occurred while updating the listing.");
+                await LoadFormOptionsAsync();
+                return Page();
+            }
+
         }
 
-
-        private async Task PopulateDropdowns()
+        private async Task LoadFormOptionsAsync()
         {
-
-
-            var universities = await _universityService.GetAllAsync();
-            var types = await _typeService.GetAllAsync();
-            var amenities = await _amenityService.GetAllAsync();
-
-            Universities = universities.Select(u => new SelectListItem(u.Name, u.UniversityId.ToString())).ToList();
-            AccommodationTypes = types.Select(t => new SelectListItem(t.Name, t.AccommodationTypeId.ToString())).ToList();
-            AllAmenities = amenities.Select(a => new SelectListItem(a.Name, a.AmenityId.ToString())).ToList();
+            Input.AccommodationTypes = await _typeService.GetAllAsync();
+            Input.Universities = await _universityService.GetAllAsync();
+            Input.Amenities = await _amenityService.GetAllAsync();
         }
     }
 }

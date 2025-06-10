@@ -40,9 +40,6 @@ namespace BLL.DTOs.Accommodation
         public int MaxOccupants { get; set; } = 1;
 
         [Required]
-        public int LandlordId { get; set; }
-
-        [Required]
         public int UniversityId { get; set; }
 
         [Required]

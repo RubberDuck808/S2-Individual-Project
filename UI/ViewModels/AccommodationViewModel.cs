@@ -16,6 +16,7 @@ public class AccommodationViewModel
     public int MaxOccupants { get; set; }
     public int AccommodationTypeId { get; set; }
     public int UniversityId { get; set; }
+    public int SelectedAccommodationTypeId { get; set; }
     public List<int> SelectedAmenityIds { get; set; } = new();
     public List<IFormFile>? Images { get; set; }
 

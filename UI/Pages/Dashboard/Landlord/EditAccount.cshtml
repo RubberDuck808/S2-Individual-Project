@@ -1,0 +1,76 @@
+﻿@page "/landlord/dashboard/account/edit"
+@model UI.Pages.Dashboard.Landlord.EditAccountModel
+@{
+    ViewData["Title"] = "Edit Landlord Profile";
+    Layout = "_LandlordLayout";
+}
+
+<div class="container my-5">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Edit Your Landlord Profile</h4>
+        </div>
+        <div class="card-body">
+            <form method="post" asp-page-handler="EditBasic" class="row g-3">
+                <input type="hidden" asp-for="LandlordEditId" />
+
+                <div class="col-md-4">
+                    <label asp-for="LandlordEditFirstName" class="form-label">First Name</label>
+                    <input type="text" asp-for="LandlordEditFirstName" class="form-control" />
+                    <span asp-validation-for="LandlordEditFirstName" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="LandlordEditMiddleName" class="form-label">Middle Name</label>
+                    <input type="text" asp-for="LandlordEditMiddleName" class="form-control" />
+                    <span asp-validation-for="LandlordEditMiddleName" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="LandlordEditLastName" class="form-label">Last Name</label>
+                    <input type="text" asp-for="LandlordEditLastName" class="form-control" />
+                    <span asp-validation-for="LandlordEditLastName" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="LandlordEditEmail" class="form-label">Email</label>
+                    <input type="email" asp-for="LandlordEditEmail" class="form-control" />
+                    <span asp-validation-for="LandlordEditEmail" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="LandlordEditPhone" class="form-label">Phone Number</label>
+                    <input type="tel" asp-for="LandlordEditPhone" class="form-control" />
+                    <span asp-validation-for="LandlordEditPhone" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="LandlordEditCompany" class="form-label">Company Name</label>
+                    <input type="text" asp-for="LandlordEditCompany" class="form-control" />
+                    <span asp-validation-for="LandlordEditCompany" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="LandlordEditTaxNumber" class="form-label">Tax Identification Number</label>
+                    <input type="text" asp-for="LandlordEditTaxNumber" class="form-control" />
+                    <span asp-validation-for="LandlordEditTaxNumber" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">Verification Status</label>
+                    <div class="form-control bg-light">
+                        @(Model.SelectedLandlord?.IsVerified == true ? "Verified" : "Unverified")
+                    </div>
+                </div>
+
+                <div class="col-12 mt-3">
+                    <button type="submit" class="btn btn-success px-4">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

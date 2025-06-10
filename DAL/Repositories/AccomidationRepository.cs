@@ -67,6 +67,33 @@ namespace DAL.Repositories
             return results;
         }
 
+        public async Task<IEnumerable<Accommodation>> GetWithApplicationsByStudentIdAsync(int studentId)
+        {
+            var results = new List<Accommodation>();
+
+            using var conn = new SqlConnection(_connectionString);
+            await conn.OpenAsync();
+
+            var query = @"
+            SELECT a.*
+            FROM Accommodation a
+            INNER JOIN Application app ON a.AccommodationId = app.AccommodationId
+            WHERE app.StudentId = @StudentId";
+
+            using var cmd = new SqlCommand(query, conn);
+            cmd.Parameters.AddWithValue("@StudentId", studentId);
+
+            using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                var accommodation = ReadAccommodation(reader);
+                results.Add(accommodation);
+            }
+
+            return results;
+        }
+
+
 
         public async Task<IEnumerable<Accommodation>> GetAllAsync()
         {
@@ -259,6 +286,41 @@ namespace DAL.Repositories
 
             return accommodations;
         }
+
+        public async Task UpdateAmenitiesAsync(int accommodationId, IEnumerable<int> amenityIds)
+        {
+            using var conn = new SqlConnection(_connectionString);
+            await conn.OpenAsync();
+
+            using var transaction = conn.BeginTransaction();
+
+            try
+            {
+                // 1. Delete all current amenities for this accommodation
+                var deleteCmd = new SqlCommand("DELETE FROM AccommodationAmenity WHERE AccommodationId = @AccommodationId", conn, transaction);
+                deleteCmd.Parameters.AddWithValue("@AccommodationId", accommodationId);
+                await deleteCmd.ExecuteNonQueryAsync();
+
+                // 2. Re-insert new ones
+                foreach (var amenityId in amenityIds)
+                {
+                    var insertCmd = new SqlCommand(
+                        "INSERT INTO AccommodationAmenity (AccommodationId, AmenityId) VALUES (@AccommodationId, @AmenityId)",
+                        conn, transaction);
+                    insertCmd.Parameters.AddWithValue("@AccommodationId", accommodationId);
+                    insertCmd.Parameters.AddWithValue("@AmenityId", amenityId);
+                    await insertCmd.ExecuteNonQueryAsync();
+                }
+
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
 
 
 

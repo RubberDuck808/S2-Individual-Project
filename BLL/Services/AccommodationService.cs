@@ -17,6 +17,7 @@ namespace BLL.Services
         private readonly IAccommodationRepository _accommodationRepo;
         private readonly IMapper _mapper;
         private readonly ILandlordRepository _landlordRepo;
+        private readonly IStudentRepository _studentRepo;
 
 
 
@@ -27,7 +28,8 @@ namespace BLL.Services
             IAccommodationImageRepository imageRepo,
             IUniversityRepository universityRepo,
             IAccommodationTypeRepository typeRepo,
-            ILandlordRepository landlordRepo)
+            ILandlordRepository landlordRepo,
+            IStudentRepository studentRepo)
         {
             _accommodationRepo = accommodationRepo;
             _mapper = mapper;
@@ -36,6 +38,7 @@ namespace BLL.Services
             _universityRepo = universityRepo;
             _typeRepo = typeRepo;
             _landlordRepo = landlordRepo;
+            _studentRepo = studentRepo;
         }
 
 
@@ -116,6 +119,16 @@ namespace BLL.Services
 
             await _accommodationRepo.AddAmenitiesAsync(accommodationId, amenityIds);
             return accommodationId;
+        }
+
+
+        public async Task<int> UpdateWithAmenitiesAsync(AccommodationUpdateDto dto, IEnumerable<int> amenityIds)
+        {
+            var entity = _mapper.Map<Accommodation>(dto);
+            await _accommodationRepo.UpdateAsync(entity);
+
+            await _accommodationRepo.UpdateAmenitiesAsync(dto.AccommodationId, amenityIds);
+            return dto.AccommodationId;
         }
 
 
@@ -227,6 +240,47 @@ namespace BLL.Services
                     Size = (int)accommodation.Size,
                     AvailableFrom = accommodation.AvailableFrom,
                     ApplicationCount = count,
+                    AmenityNames = amenities.Select(a => a.Name).ToList(),
+                    ImageUrls = images.Select(i => i.ImageUrl).ToList(),
+                    UniversityName = university?.Name ?? string.Empty,
+                    AccommodationType = type?.Name ?? string.Empty
+                };
+
+                result.Add(dto);
+            }
+
+            return result;
+        }
+
+
+        public async Task<IEnumerable<AccommodationDto>> GetByStudentUserIdAsync(string studentUserId)
+        {
+            var student = await _studentRepo.GetByUserIdAsync(studentUserId);
+            var listings = await _accommodationRepo.GetWithApplicationsByStudentIdAsync(student.StudentId);
+
+            var result = new List<AccommodationDto>();
+
+            foreach (var accommodation in listings)
+            {
+                var amenities = await _amenityRepo.GetByAccommodationIdAsync(accommodation.AccommodationId);
+                var images = await _imageRepo.GetByAccommodationIdAsync(accommodation.AccommodationId);
+                var university = await _universityRepo.GetByIdAsync(accommodation.UniversityId);
+                var type = await _typeRepo.GetByIdAsync(accommodation.AccommodationTypeId);
+
+                var dto = new AccommodationDto
+                {
+                    AccommodationId = accommodation.AccommodationId,
+                    Title = accommodation.Title,
+                    Description = accommodation.Description,
+                    Address = accommodation.Address,
+                    PostCode = accommodation.PostCode,
+                    City = accommodation.City,
+                    Country = accommodation.Country,
+                    MonthlyRent = accommodation.MonthlyRent,
+                    IsAvailable = accommodation.IsAvailable,
+                    MaxOccupants = accommodation.MaxOccupants,
+                    Size = (int)accommodation.Size,
+                    AvailableFrom = accommodation.AvailableFrom,
                     AmenityNames = amenities.Select(a => a.Name).ToList(),
                     ImageUrls = images.Select(i => i.ImageUrl).ToList(),
                     UniversityName = university?.Name ?? string.Empty,

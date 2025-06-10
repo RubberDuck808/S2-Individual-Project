@@ -9,12 +9,12 @@ using Microsoft.Extensions.Logging;
 namespace UI.Pages.Dashboard.Landlord
 {
     [Authorize(Roles = "Landlord")]
-    public class AccountModel : PageModel
+    public class EditAccountModel : PageModel
     {
         private readonly ILandlordService _landlordService;
-        private readonly ILogger<AccountModel> _logger;
+        private readonly ILogger<EditAccountModel> _logger;
 
-        public AccountModel(ILandlordService landlordService, ILogger<AccountModel> logger)
+        public EditAccountModel(ILandlordService landlordService, ILogger<EditAccountModel> logger)
         {
             _landlordService = landlordService;
             _logger = logger;

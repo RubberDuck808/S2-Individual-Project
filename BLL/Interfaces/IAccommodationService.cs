@@ -15,8 +15,12 @@ namespace BLL.Interfaces
         Task AddImagesAsync(IEnumerable<AccommodationImage> images);
 
         Task<int> CreateAccommodationWithAmenitiesAsync(AccommodationCreateDto dto, IEnumerable<int> amenityIds);
+        Task<int> UpdateWithAmenitiesAsync(AccommodationUpdateDto dto, IEnumerable<int> amenityIds);
 
         Task<IEnumerable<LandlordAccommodationDto>> GetByLandlordUserIdAsync(string landlordUserId);
+
+        Task<IEnumerable<AccommodationDto>> GetByStudentUserIdAsync(string studentUserId);
+
 
 
 

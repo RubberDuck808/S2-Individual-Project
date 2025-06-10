@@ -1,7 +1,8 @@
-﻿@page "/listings/edit/{id:int}"
+﻿@page "/landlord/dashboard/mylistings/edit/{id:int}"
 @model UI.Pages.Listings.EditListingModel
 @{
     ViewData["Title"] = "Edit Listing";
+    Layout = "_LandlordLayout";
 }
 
 <section class="container my-5">
@@ -31,11 +32,11 @@
             </div>
             <div class="col-md-3">
                 <label asp-for="Input.City" class="form-label"></label>
-                <input asp-for="Input.City" class="form-control" />
+                <div class="form-control text-dark bg-light">Eindhoven</div>
             </div>
             <div class="col-md-4">
                 <label asp-for="Input.Country" class="form-label"></label>
-                <input asp-for="Input.Country" class="form-control" />
+                <div class="form-control text-dark bg-light">Netherlands</div>
             </div>
             <div class="col-md-4">
                 <label asp-for="Input.MonthlyRent" class="form-label"></label>
@@ -53,15 +54,21 @@
                 <input asp-for="Input.MaxOccupants" class="form-control" />
             </div>
             <div class="col-md-6">
-                <select asp-for="Input.AccommodationTypeId" class="form-control" asp-items="Model.AccommodationTypes">
-                    <option value="">-- Select Type --</option>
+                <select asp-for="Input.AccommodationTypeId"
+                        class="form-control"
+                        asp-items="@(new SelectList(Model.Input.AccommodationTypes, "AccommodationTypeId", "Name"))">
                 </select>
+
+
+
             </div>
 
             <div class="col-md-6 mt-3">
-                <select asp-for="Input.UniversityId" class="form-control" asp-items="Model.Universities">
-                    <option value="">-- Select University --</option>
+                <select asp-for="Input.UniversityId"
+                        class="form-control"
+                        asp-items="@(new SelectList(Model.Input.Universities, "UniversityId", "Name"))">
                 </select>
+
 
             </div>
         </div>
