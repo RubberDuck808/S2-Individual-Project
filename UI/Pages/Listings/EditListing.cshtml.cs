@@ -189,5 +189,19 @@ namespace UI.Pages.Listings
             Input.Universities = await _universityService.GetAllAsync();
             Input.Amenities = await _amenityService.GetAllAsync();
         }
+
+        public async Task<IActionResult> OnPostDeleteAsync()
+        {
+            var accommodationId = Input.AccommodationId;
+
+            if (accommodationId <= 0)
+                return NotFound();
+
+            await _accommodationService.DeleteAsync(accommodationId);
+
+            TempData["SuccessMessage"] = "Listing deleted successfully.";
+            return RedirectToPage("/Listings/MyListings");
+        }
+
     }
 }
