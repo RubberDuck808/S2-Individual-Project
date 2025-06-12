@@ -60,5 +60,24 @@ namespace BLL.Services
         {
             return await _applicationRepo.ExistsAsync(studentId, accommodationId);
         }
+
+        public async Task<List<ApplicationDto>> GetByAccommodationIdAsync(int accommodationId)
+        {
+            var apps = await _applicationRepo.GetByAccommodationIdAsync(accommodationId);
+            return apps.Select(a => new ApplicationDto
+            {
+                ApplicationId = a.ApplicationId,
+                StudentId = a.StudentId,
+                AccommodationId = a.AccommodationId,
+                StatusId = a.StatusId
+            }).ToList();
+        }
+
+        public async Task SelectApplicantAsync(int applicationId, int accommodationId)
+        {
+            await _applicationRepo.MarkAsSelectedAsync(applicationId);
+            await _applicationRepo.RejectOthersAsync(accommodationId, applicationId);
+        }
+
     }
 }

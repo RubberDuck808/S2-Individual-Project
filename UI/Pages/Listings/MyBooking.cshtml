@@ -1,11 +1,10 @@
-﻿@page "/student/myapplications"
-@model UI.Pages.Listings.MyApplicationsModel
+﻿@page "/student/mybookings"
+@model UI.Pages.Listings.MyBookingModel
 @{
 }
 
-
 <section class="container my-5">
-    <h3 class="mb-4">You applied @Model.Accommodations.Count listing(s)</h3>
+    <h3 class="mb-4">You have @Model.Accommodations.Count booking(s)</h3>
 
     @foreach (var item in Model.Accommodations)
     {

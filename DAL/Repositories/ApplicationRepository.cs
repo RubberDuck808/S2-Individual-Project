@@ -1,4 +1,4 @@
-﻿using System.Data.SqlClient;
+﻿using Microsoft.Data.SqlClient;
 using DAL.Interfaces;
 using DAL.Models;
 
@@ -200,5 +200,81 @@ namespace DAL.Repositories
             await connection.OpenAsync();
             await command.ExecuteNonQueryAsync();
         }
+
+        public async Task<string?> GetStatusNameByStudentAndAccommodationIdAsync(int studentId, int accommodationId)
+        {
+            using var conn = new SqlConnection(_connectionString);
+            await conn.OpenAsync();
+
+            var query = @"
+            SELECT s.Name
+            FROM Application a
+            INNER JOIN Status s ON a.StatusId = s.StatusId
+            WHERE a.StudentId = @StudentId AND a.AccommodationId = @AccommodationId";
+
+            using var cmd = new SqlCommand(query, conn);
+            cmd.Parameters.AddWithValue("@StudentId", studentId);
+            cmd.Parameters.AddWithValue("@AccommodationId", accommodationId);
+
+            var result = await cmd.ExecuteScalarAsync();
+            return result as string;
+        }
+
+        public async Task<List<Application>> GetByAccommodationIdAsync(int accommodationId)
+        {
+            var applications = new List<Application>();
+
+            using var connection = new SqlConnection(_connectionString);
+            var command = new SqlCommand("SELECT * FROM Application WHERE AccommodationId = @accId", connection);
+            command.Parameters.AddWithValue("@accId", accommodationId);
+
+            await connection.OpenAsync();
+            using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                applications.Add(new Application
+                {
+                    ApplicationId = (int)reader["ApplicationId"],
+                    StudentId = (int)reader["StudentId"],
+                    AccommodationId = (int)reader["AccommodationId"],
+                    StatusId = (int)reader["StatusId"],
+                    ApplicationDate = (DateTime)reader["ApplicationDate"]
+                });
+            }
+
+            return applications;
+        }
+
+        public async Task MarkAsSelectedAsync(int selectedAppId)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            var command = new SqlCommand(@"
+            UPDATE Application
+            SET StatusId = 2 -- Assuming 2 = Selected
+            WHERE ApplicationId = @id", connection);
+
+            command.Parameters.AddWithValue("@id", selectedAppId);
+
+            await connection.OpenAsync();
+            await command.ExecuteNonQueryAsync();
+        }
+
+
+        public async Task RejectOthersAsync(int accommodationId, int selectedAppId)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            var command = new SqlCommand(@"
+        UPDATE Application
+        SET StatusId = 3 -- Assuming 3 = Rejected
+        WHERE AccommodationId = @accId AND ApplicationId != @selectedId", connection);
+
+            command.Parameters.AddWithValue("@accId", accommodationId);
+            command.Parameters.AddWithValue("@selectedId", selectedAppId);
+
+            await connection.OpenAsync();
+            await command.ExecuteNonQueryAsync();
+        }
+
+
     }
 }

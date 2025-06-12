@@ -18,6 +18,7 @@ namespace BLL.Services
         private readonly IMapper _mapper;
         private readonly ILandlordRepository _landlordRepo;
         private readonly IStudentRepository _studentRepo;
+        private readonly IApplicationRepository _applicationRepo;
 
 
 
@@ -29,7 +30,8 @@ namespace BLL.Services
             IUniversityRepository universityRepo,
             IAccommodationTypeRepository typeRepo,
             ILandlordRepository landlordRepo,
-            IStudentRepository studentRepo)
+            IStudentRepository studentRepo,
+            IApplicationRepository applicationRepo)
         {
             _accommodationRepo = accommodationRepo;
             _mapper = mapper;
@@ -39,6 +41,7 @@ namespace BLL.Services
             _typeRepo = typeRepo;
             _landlordRepo = landlordRepo;
             _studentRepo = studentRepo;
+            _applicationRepo = applicationRepo;
         }
 
 
@@ -253,12 +256,12 @@ namespace BLL.Services
         }
 
 
-        public async Task<IEnumerable<AccommodationDto>> GetByStudentUserIdAsync(string studentUserId)
+        public async Task<IEnumerable<AppliedAccommodationDto>> GetByStudentUserIdAsync(string studentUserId)
         {
             var student = await _studentRepo.GetByUserIdAsync(studentUserId);
             var listings = await _accommodationRepo.GetWithApplicationsByStudentIdAsync(student.StudentId);
 
-            var result = new List<AccommodationDto>();
+            var result = new List<AppliedAccommodationDto>();
 
             foreach (var accommodation in listings)
             {
@@ -266,8 +269,9 @@ namespace BLL.Services
                 var images = await _imageRepo.GetByAccommodationIdAsync(accommodation.AccommodationId);
                 var university = await _universityRepo.GetByIdAsync(accommodation.UniversityId);
                 var type = await _typeRepo.GetByIdAsync(accommodation.AccommodationTypeId);
+                var status = await _applicationRepo.GetStatusNameByStudentAndAccommodationIdAsync(student.StudentId, accommodation.AccommodationId); // ✅
 
-                var dto = new AccommodationDto
+                var dto = new AppliedAccommodationDto
                 {
                     AccommodationId = accommodation.AccommodationId,
                     Title = accommodation.Title,
@@ -284,7 +288,8 @@ namespace BLL.Services
                     AmenityNames = amenities.Select(a => a.Name).ToList(),
                     ImageUrls = images.Select(i => i.ImageUrl).ToList(),
                     UniversityName = university?.Name ?? string.Empty,
-                    AccommodationType = type?.Name ?? string.Empty
+                    AccommodationType = type?.Name ?? string.Empty,
+                    ApplicationStatus = status
                 };
 
                 result.Add(dto);

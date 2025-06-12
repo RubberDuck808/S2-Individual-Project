@@ -13,5 +13,13 @@ namespace DAL.Interfaces
         Task DeleteAsync(int id);
         Task<bool> ExistsAsync(int id);
         Task<bool> ExistsAsync(int studentId, int accommodationId);
+
+        Task<string?> GetStatusNameByStudentAndAccommodationIdAsync(int studentId, int accommodationId);
+
+        Task<List<Application>> GetByAccommodationIdAsync(int accommodationId);
+        Task MarkAsSelectedAsync(int selectedAppId);
+        Task RejectOthersAsync(int accommodationId, int selectedAppId);
+
+
     }
 }

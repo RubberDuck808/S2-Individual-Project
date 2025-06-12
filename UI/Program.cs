@@ -38,6 +38,9 @@ builder.Services.AddScoped<IApplicationService, ApplicationService>();
 builder.Services.AddScoped<IUniversityService, UniversityService>();
 builder.Services.AddScoped<IAccommodationTypeService, AccommodationTypeService>();
 builder.Services.AddScoped<IAmenityService, AmenityService>();
+builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddScoped<IStatusService, StatusService>();
+
 
 // Repositories
 builder.Services.AddScoped<IUserRepository>(_ => new UserRepository(connectionString));
@@ -49,6 +52,8 @@ builder.Services.AddScoped<ILandlordRepository>(_ => new LandlordRepository(conn
 builder.Services.AddScoped<IAccommodationRepository>(_ => new AccommodationRepository(connectionString));
 builder.Services.AddScoped<IStudentRepository>(_ => new StudentRepository(connectionString));
 builder.Services.AddScoped<IApplicationRepository>(_ => new ApplicationRepository(connectionString));
+builder.Services.AddScoped<IBookingRepository>(_ => new BookingRepository(connectionString));
+builder.Services.AddScoped<IStatusRepository>(_ => new StatusRepository(connectionString));
 
 builder.Services.AddRazorPages();
 

@@ -7,7 +7,7 @@ namespace BLL.DTOs.Application
         public int ApplicationId { get; set; }
 
         public DateTime ApplicationDate { get; set; }
-        public string Status { get; set; } = string.Empty;
+        public int StatusId { get; set; }
 
         public int StudentId { get; set; }
         public string StudentName { get; set; } = string.Empty;

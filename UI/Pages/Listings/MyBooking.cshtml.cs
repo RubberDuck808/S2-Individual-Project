@@ -8,16 +8,16 @@ using System.Security.Claims;
 namespace UI.Pages.Listings
 {
     [Authorize(Roles = "Student")]
-    public class MyApplicationsModel : PageModel
+    public class MyBookingModel : PageModel
     {
         private readonly IAccommodationService _accommodationService;
 
-        public MyApplicationsModel(IAccommodationService accommodationService)
+        public MyBookingModel(IAccommodationService accommodationService)
         {
             _accommodationService = accommodationService;
         }
 
-        public List<AppliedAccommodationDto> Accommodations { get; set; } = new();
+        public List<AccommodationBookingDto> Accommodations { get; set; } = new();
 
         public async Task OnGetAsync()
         {

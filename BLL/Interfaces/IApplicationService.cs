@@ -10,5 +10,9 @@ namespace BLL.Interfaces
         Task<int> CreateAsync(ApplicationCreateDto dto);
         Task UpdateStatusAsync(ApplicationUpdateDto dto);
         Task<bool> ExistsAsync(int studentId, int accommodationId);
+        Task<List<ApplicationDto>> GetByAccommodationIdAsync(int accommodationId);
+        Task SelectApplicantAsync(int applicationId, int accommodationId);
+
+
     }
 }
