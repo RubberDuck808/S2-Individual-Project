@@ -19,5 +19,7 @@ namespace BLL.Interfaces
         Task<IEnumerable<LandlordAccommodationDto>> GetByLandlordUserIdAsync(string landlordUserId);
 
         Task<IEnumerable<AppliedAccommodationDto>> GetByStudentUserIdAsync(string studentUserId);
+        Task<IEnumerable<AccommodationBookingDto>> GetBookingsByStudentUserIdAsync(string studentUserId);
+
     }
 }

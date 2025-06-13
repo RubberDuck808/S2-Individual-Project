@@ -1,24 +1,24 @@
-﻿@page "/student/myapplications"
-@model UI.Pages.Listings.MyApplicationsModel
+﻿@page "/student/dashboard/mybookings"
+@model UI.Pages.Dashboard.Student.MyBookingsModel
 @{
+    Layout = "_StudentLayout";
 }
 
-
 <section class="container my-5">
-    <h3 class="mb-4">You applied @Model.Accommodations.Count listing(s)</h3>
+    <h3 class="mb-4">You have @Model.Accommodations.Count booking(s)</h3>
 
     @foreach (var item in Model.Accommodations)
     {
         <div class="listing-item d-flex flex-column flex-md-row border rounded shadow-sm mb-4 overflow-hidden position-relative">
 
-            <!-- Application Status in top-right -->
-            @if (!string.IsNullOrEmpty(item.ApplicationStatus))
+            <!-- Booking Status in top-right -->
+            @if (!string.IsNullOrEmpty(item.BookingStatus))
             {
                 <span class="position-absolute top-0 end-0 m-2 badge
-                    @(item.ApplicationStatus == "Accepted" ? "bg-success" :
-                      item.ApplicationStatus == "Rejected" ? "bg-danger" :
+                    @(item.BookingStatus == "Accepted" ? "bg-success" :
+                      item.BookingStatus == "Rejected" ? "bg-danger" :
                       "bg-warning text-dark")">
-                    @item.ApplicationStatus
+                    @item.BookingStatus
                 </span>
             }
 
@@ -61,6 +61,24 @@
                             <span class="badge bg-secondary text-white me-1">@amenity</span>
                         }
                     </div>
+                </div>
+
+                <div class="mt-2">
+                    <a asp-page="/Listings/Detail" asp-route-id="@item.AccommodationId" class="btn btn-outline-primary btn-sm float-end">View Listing</a>
+                    @if (item.BookingStatus == "Pending")
+                    {
+                        <form method="post" asp-page-handler="Accept" asp-route-id="@item.BookingId" class="d-inline">
+                            <button type="submit" class="btn btn-success btn-sm me-1">Accept</button>
+                        </form>
+
+                        <form method="post" asp-page-handler="Reject" asp-route-id="@item.BookingId" class="d-inline">
+                            <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                        </form>
+                    }
+                    else
+                    {
+                        
+                    }
                 </div>
             </div>
         </div>

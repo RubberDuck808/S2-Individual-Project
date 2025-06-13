@@ -9,5 +9,7 @@ namespace BLL.Interfaces
         Task UpdateAsync(BookingUpdateDto dto);
         Task CancelAsync(int bookingId);
         Task<int> CreateAsync(int studentId, int accommodationId, int applicationId);
+        Task UpdateStatusAsync(int bookingId, string statusName);
+
     }
 }

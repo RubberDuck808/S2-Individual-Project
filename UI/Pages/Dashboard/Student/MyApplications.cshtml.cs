@@ -5,19 +5,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Security.Claims;
 
-namespace UI.Pages.Listings
+namespace UI.Pages.Dashboard.Student
 {
     [Authorize(Roles = "Student")]
-    public class MyBookingModel : PageModel
+    public class MyApplicationsModel : PageModel
     {
         private readonly IAccommodationService _accommodationService;
 
-        public MyBookingModel(IAccommodationService accommodationService)
+        public MyApplicationsModel(IAccommodationService accommodationService)
         {
             _accommodationService = accommodationService;
         }
 
-        public List<AccommodationBookingDto> Accommodations { get; set; } = new();
+        public List<AppliedAccommodationDto> Accommodations { get; set; } = new();
 
         public async Task OnGetAsync()
         {

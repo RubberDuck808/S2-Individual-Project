@@ -10,5 +10,7 @@ namespace DAL.Interfaces
         Task AddAsync(Booking booking);
         Task UpdateAsync(Booking booking);
         Task DeleteAsync(int bookingId);
+
+
     }
 }

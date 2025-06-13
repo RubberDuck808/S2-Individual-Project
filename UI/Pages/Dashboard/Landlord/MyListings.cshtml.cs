@@ -5,7 +5,7 @@ using BLL.Interfaces;
 using BLL.DTOs.Accommodation;
 using System.Security.Claims;
 
-namespace UI.Pages.Landlord
+namespace UI.Pages.Dashboard.Landlord
 {
     [Authorize(Roles = "Landlord")]
     public class MyListingsModel : PageModel

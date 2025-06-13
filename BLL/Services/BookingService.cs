@@ -11,11 +11,13 @@ namespace BLL.Services
     {
         private readonly IBookingRepository _bookingRepo;
         private readonly IMapper _mapper;
+        private readonly IStatusRepository _statusRepo;
 
-        public BookingService(IBookingRepository bookingRepo, IMapper mapper)
+        public BookingService(IBookingRepository bookingRepo, IMapper mapper, IStatusRepository statusRepo)
         {
             _bookingRepo = bookingRepo;
             _mapper = mapper;
+            _statusRepo = statusRepo;
         }
 
         public async Task<IEnumerable<BookingDto>> GetByStudentAsync(int studentId)
@@ -73,5 +75,21 @@ namespace BLL.Services
             await _bookingRepo.AddAsync(booking);
             return booking.BookingId;
         }
+
+        public async Task UpdateStatusAsync(int bookingId, string statusName)
+        {
+            var booking = await _bookingRepo.GetByIdAsync(bookingId);
+            if (booking == null)
+                throw new NotFoundException($"Booking {bookingId} not found");
+
+            var statusId = await _statusRepo.GetIdByNameAsync(statusName);
+            if (statusId == null)
+                throw new NotFoundException($"Status '{statusName}' not found");
+
+            booking.StatusId = statusId.Value;
+            await _bookingRepo.UpdateAsync(booking);
+        }
+
+
     }
 }

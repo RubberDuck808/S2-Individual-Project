@@ -2,7 +2,7 @@
 
 namespace DAL.Interfaces
 {
-    public interface IStudentRepository : IRepository<Student>
+    public interface IStudentRepository
     {
         Task<Student?> GetByUserIdAsync(string userId);
         Task<int> GetCountAsync();

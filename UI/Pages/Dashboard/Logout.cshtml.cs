@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace UI.Pages.Dashboard.Landlord
+namespace UI.Pages.Dashboard
 {
     public class LogoutModel : PageModel
     {

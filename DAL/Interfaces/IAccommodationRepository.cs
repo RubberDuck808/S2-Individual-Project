@@ -20,5 +20,8 @@ namespace DAL.Interfaces
         Task<IEnumerable<(Accommodation accommodation, int applicationCount)>> GetWithApplicationCountsByLandlordIdAsync(int landlordId);
         Task<IEnumerable<Accommodation>> GetWithApplicationsByStudentIdAsync(int studentId);
 
+        Task<IEnumerable<(Accommodation, Booking, string?)>> GetWithBookingsByStudentIdAsync(int studentId);
+
+
     }
 }

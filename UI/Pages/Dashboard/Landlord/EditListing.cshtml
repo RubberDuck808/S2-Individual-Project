@@ -1,5 +1,5 @@
 ﻿@page "/landlord/dashboard/mylistings/edit/{id:int}"
-@model UI.Pages.Listings.EditListingModel
+@model UI.Pages.Dashboard.Landlord.EditListingModel
 @{
     ViewData["Title"] = "Edit Listing";
     Layout = "_LandlordLayout";
@@ -108,7 +108,7 @@
         </div>
 
         <button type="submit" class="btn btn-primary mt-4">Save Changes</button>
-        <a asp-page="/Landlord/MyListings" class="btn btn-secondary mt-4 ms-2">Cancel</a>
+        <a asp-page="/Landlord/Dashboard/MyListings" class="btn btn-secondary mt-4 ms-2">Cancel</a>
     </form>
 </section>
 <section>

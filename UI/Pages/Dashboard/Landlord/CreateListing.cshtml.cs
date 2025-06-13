@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Security.Claims;
 using UI.ViewModels;
 
-namespace UI.Pages.Listings
+namespace UI.Pages.Dashboard.Landlord
 {
     [Authorize(Roles = "Landlord")]
     public class CreateListingModel : PageModel

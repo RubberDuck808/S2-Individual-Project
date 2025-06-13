@@ -10,7 +10,7 @@ using DAL.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 
-namespace UI.Pages.Listings
+namespace UI.Pages.Dashboard.Landlord
 {
     [Authorize(Roles = "Landlord")]
     public class EditListingModel : PageModel

@@ -2,17 +2,7 @@
 @model UI.Pages.Dashboard.Student.IndexModel
 @{
     ViewData["Title"] = "Dashboard";
-    
+    Layout = "_StudentLayout";
 }
 
 <h2>Welcome to the Student Dashboard</h2>
-
-<div>
-    <form method="get" asp-page="/Listings/MyApplications">
-        <button type="submit">My Applications</button>
-    </form>
-
-    <form method="post" asp-page-handler="Logout">
-        <button type="submit">Logout</button>
-    </form>
-</div>

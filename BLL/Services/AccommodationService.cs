@@ -298,5 +298,49 @@ namespace BLL.Services
             return result;
         }
 
+
+
+        public async Task<IEnumerable<AccommodationBookingDto>> GetBookingsByStudentUserIdAsync(string studentUserId)
+        {
+            var student = await _studentRepo.GetByUserIdAsync(studentUserId);
+            var bookings = await _accommodationRepo.GetWithBookingsByStudentIdAsync(student.StudentId); // ✅ You'll implement this repo method
+
+            var result = new List<AccommodationBookingDto>();
+
+            foreach (var (accommodation, booking, statusName) in bookings)
+            {
+                var amenities = await _amenityRepo.GetByAccommodationIdAsync(accommodation.AccommodationId);
+                var images = await _imageRepo.GetByAccommodationIdAsync(accommodation.AccommodationId);
+                var university = await _universityRepo.GetByIdAsync(accommodation.UniversityId);
+                var type = await _typeRepo.GetByIdAsync(accommodation.AccommodationTypeId);
+
+                var dto = new AccommodationBookingDto
+                {
+                    BookingId = booking.BookingId,
+                    AccommodationId = accommodation.AccommodationId,
+                    Title = accommodation.Title,
+                    Description = accommodation.Description,
+                    Address = accommodation.Address,
+                    PostCode = accommodation.PostCode,
+                    City = accommodation.City,
+                    Country = accommodation.Country,
+                    MonthlyRent = accommodation.MonthlyRent,
+                    IsAvailable = accommodation.IsAvailable,
+                    MaxOccupants = accommodation.MaxOccupants,
+                    Size = (int)accommodation.Size,
+                    AvailableFrom = accommodation.AvailableFrom,
+                    AmenityNames = amenities.Select(a => a.Name).ToList(),
+                    ImageUrls = images.Select(i => i.ImageUrl).ToList(),
+                    UniversityName = university?.Name ?? string.Empty,
+                    AccommodationType = type?.Name ?? string.Empty,
+                    BookingStatus = statusName ?? "Unknown"
+                };
+
+                result.Add(dto);
+            }
+
+            return result;
+        }
+
     }
 }

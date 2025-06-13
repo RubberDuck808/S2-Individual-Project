@@ -385,6 +385,67 @@ namespace DAL.Repositories
         }
 
 
+        public async Task<IEnumerable<(Accommodation, Booking, string?)>> GetWithBookingsByStudentIdAsync(int studentId)
+        {
+            var results = new List<(Accommodation, Booking, string?)>();
+
+            using var conn = new SqlConnection(_connectionString);
+            await conn.OpenAsync();
+
+            var query = @"
+        SELECT 
+            a.*, 
+            b.BookingId, b.StudentId, b.AccommodationId, b.StartDate, b.EndDate, b.TotalAmount, b.StatusId, b.ApplicationId,
+            s.Name AS StatusName
+        FROM Booking b
+        INNER JOIN Accommodation a ON b.AccommodationId = a.AccommodationId
+        INNER JOIN Status s ON b.StatusId = s.StatusId
+        WHERE b.StudentId = @StudentId";
+
+            using var cmd = new SqlCommand(query, conn);
+            cmd.Parameters.AddWithValue("@StudentId", studentId);
+
+            using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                var accommodation = new Accommodation
+                {
+                    AccommodationId = (int)reader["AccommodationId"],
+                    Title = reader["Title"].ToString() ?? "",
+                    Description = reader["Description"].ToString() ?? "",
+                    Address = reader["Address"].ToString() ?? "",
+                    PostCode = reader["PostCode"].ToString() ?? "",
+                    City = reader["City"].ToString() ?? "",
+                    Country = reader["Country"].ToString() ?? "",
+                    MonthlyRent = (decimal)reader["MonthlyRent"],
+                    IsAvailable = (bool)reader["IsAvailable"],
+                    MaxOccupants = (int)reader["MaxOccupants"],
+                    Size = Convert.ToInt32(reader["Size"]),
+                    AvailableFrom = (DateTime)reader["AvailableFrom"],
+                    UniversityId = (int)reader["UniversityId"],
+                    AccommodationTypeId = (int)reader["AccommodationTypeId"],
+                    LandlordId = (int)reader["LandlordId"]
+                };
+
+                var booking = new Booking
+                {
+                    BookingId = (int)reader["BookingId"],
+                    StudentId = (int)reader["StudentId"],
+                    AccommodationId = (int)reader["AccommodationId"],
+                    StartDate = (DateTime)reader["StartDate"],
+                    EndDate = (DateTime)reader["EndDate"],
+                    TotalAmount = (decimal)reader["TotalAmount"],
+                    StatusId = (int)reader["StatusId"],
+                    ApplicationId = (int)reader["ApplicationId"]
+                };
+
+                var statusName = reader["StatusName"]?.ToString();
+
+                results.Add((accommodation, booking, statusName));
+            }
+
+            return results;
+        }
 
     }
 }
