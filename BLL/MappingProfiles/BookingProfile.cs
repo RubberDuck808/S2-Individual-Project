@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using DAL.Models;
+using Domain.Models;
 using BLL.DTOs.Booking;
 
 public class BookingProfile : Profile

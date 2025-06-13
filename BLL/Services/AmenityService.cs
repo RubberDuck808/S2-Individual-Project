@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using BLL.DTOs.Shared;
 using DAL.Interfaces;
-using DAL.Models;
+using Domain.Models;
 
 namespace BLL.Services;
 public class AmenityService : IAmenityService

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using UI.ViewModels;
 using System.Security.Claims;
 using BLL.Exceptions;
-using DAL.Models;
+using Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 

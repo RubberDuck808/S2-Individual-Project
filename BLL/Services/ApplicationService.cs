@@ -3,7 +3,7 @@ using BLL.DTOs.Application;
 using BLL.Exceptions;
 using BLL.Interfaces;
 using DAL.Interfaces;
-using DAL.Models;
+using Domain.Models;
 
 namespace BLL.Services
 {

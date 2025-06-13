@@ -2,7 +2,7 @@
 using BLL.DTOs.Student;
 using Microsoft.AspNetCore.Identity;
 using DAL.Interfaces;
-using DAL.Models;
+using Domain.Models;
 using BLL.DTOs.Landlord;
 
 public class AccountService : IAccountService

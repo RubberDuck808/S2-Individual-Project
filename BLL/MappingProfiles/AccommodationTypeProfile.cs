@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using BLL.DTOs.Accommodation;
-using DAL.Models;
+using Domain.Models;
 
 public class AccommodationTypeProfile : Profile
 {

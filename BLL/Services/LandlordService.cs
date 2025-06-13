@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using BLL.DTOs.Landlord;
 using BLL.Exceptions;
 using BLL.Interfaces;
-using DAL.Models;
+using Domain.Models;
 using DAL.Interfaces;
 using BLL.DTOs.Student;
 

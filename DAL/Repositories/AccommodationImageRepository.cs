@@ -1,5 +1,5 @@
 ﻿using Microsoft.Data.SqlClient;
-using DAL.Models;
+using Domain.Models;
 using DAL.Interfaces;
 
 public class AccommodationImageRepository : IAccommodationImageRepository

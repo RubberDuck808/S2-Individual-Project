@@ -1,6 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using DAL.Interfaces;
-using DAL.Models;
+using Domain.Models;
 
 namespace DAL.Repositories
 {

@@ -1,5 +1,5 @@
 ﻿using BLL.DTOs.Accommodation;
-using DAL.Models;
+using Domain.Models;
 
 namespace BLL.Interfaces
 {

@@ -1,7 +1,7 @@
 using BLL.DTOs.Accommodation;
 using BLL.Interfaces;
 using BLL.Services;
-using DAL.Models;
+using Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;

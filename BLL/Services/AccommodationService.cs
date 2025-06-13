@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using BLL.DTOs.Accommodation;
-using DAL.Models;
+using Domain.Models;
 using BLL.Exceptions;
 using DAL.Interfaces;
 using BLL.Interfaces;

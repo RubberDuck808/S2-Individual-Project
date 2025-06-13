@@ -3,7 +3,7 @@ using Microsoft.Extensions.FileProviders;
 using BLL.Interfaces;
 using BLL.Services;
 using BLL.MappingProfiles;
-using DAL.Models;
+using Domain.Models;
 using DAL.Interfaces;
 using DAL.Repositories;
 using Microsoft.AspNetCore.Builder;

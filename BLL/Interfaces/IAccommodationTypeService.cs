@@ -1,5 +1,7 @@
 ﻿using BLL.DTOs.Accommodation;
 
+
+
 public interface IAccommodationTypeService
 {
     Task<List<AccommodationTypeDto>> GetAllAsync();

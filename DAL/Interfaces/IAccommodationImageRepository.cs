@@ -1,4 +1,4 @@
-﻿using DAL.Models;
+﻿using Domain.Models;
 
 public interface IAccommodationImageRepository
 {

@@ -3,7 +3,7 @@ using BLL.DTOs.Accommodation;
 using BLL.Exceptions;
 using BLL.Interfaces;
 using DAL.Interfaces;
-using DAL.Models;
+using Domain.Models;
 
 public class AccommodationTypeService : IAccommodationTypeService
 {

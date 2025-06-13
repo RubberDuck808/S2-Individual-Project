@@ -1,5 +1,5 @@
 ﻿using DAL.Interfaces;
-using DAL.Models;
+using Domain.Models;
 using Microsoft.Data.SqlClient;
 
 public class StatusRepository : IStatusRepository

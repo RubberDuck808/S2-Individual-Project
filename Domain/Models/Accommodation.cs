@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Security.Cryptography.X509Certificates;
 
-namespace DAL.Models
+namespace Domain.Models
 {
     public class Accommodation
     {

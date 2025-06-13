@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using DAL.Models;
+using Domain.Models;
 using BLL.DTOs.Student;
 
 namespace BLL.MappingProfiles

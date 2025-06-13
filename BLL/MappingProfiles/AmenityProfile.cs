@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using BLL.DTOs.Shared;
-using DAL.Models;
+using Domain.Models;
 
 namespace BLL.MappingProfiles
 {

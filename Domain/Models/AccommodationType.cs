@@ -1,17 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace DAL.Models
+namespace Domain.Models
 {
 
-    public class Amenity
+    public class AccommodationType
     {
-        public int AmenityId { get; set; }
 
+        public int AccommodationTypeId { get; set; }
 
         public string Name { get; set; } = string.Empty;
-
-        public string IconName { get; set; } = string.Empty;
 
     }
 }
