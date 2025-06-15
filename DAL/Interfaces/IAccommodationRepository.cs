@@ -21,7 +21,7 @@ namespace DAL.Interfaces
         Task AddImagesAsync(IEnumerable<AccommodationImage> images);
         Task<int> AddAsync(Accommodation accommodation);
         Task UpdateAsync(Accommodation accommodation);
-        Task DeleteAsync(int id);
+        Task<int> DeleteAsync(int id);
         Task<bool> ExistsAsync(int id);
 
         Task<IEnumerable<(Accommodation accommodation, int applicationCount)>> GetWithApplicationCountsByLandlordIdAsync(int landlordId);

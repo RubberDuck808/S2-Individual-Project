@@ -2,28 +2,43 @@
 using BLL.DTOs.Shared;
 using DAL.Interfaces;
 using Domain.Models;
+using Microsoft.Extensions.Logging;
 
-namespace BLL.Services;
-public class AmenityService : IAmenityService
+namespace BLL.Services
 {
-    private readonly IAmenityRepository _repo;
-    private readonly IMapper _mapper;
-
-    public AmenityService(IAmenityRepository repo, IMapper mapper)
+    public class AmenityService : IAmenityService
     {
-        _repo = repo;
-        _mapper = mapper;
-    }
+        private readonly IAmenityRepository _repo;
+        private readonly IMapper _mapper;
+        private readonly ILogger<AmenityService> _logger;
 
-    public async Task<List<AmenityDto>> GetAllAsync()
-    {
-        var amenities = await _repo.GetAllAsync();
-        return _mapper.Map<List<AmenityDto>>(amenities);
-    }
+        public AmenityService(IAmenityRepository repo, IMapper mapper, ILogger<AmenityService> logger)
+        {
+            _repo = repo;
+            _mapper = mapper;
+            _logger = logger;
+        }
 
-    public async Task<List<int>> GetIdsByAccommodationIdAsync(int accommodationId)
-    {
-        var amenities = await _repo.GetByAccommodationIdAsync(accommodationId);
-        return amenities.Select(a => a.AmenityId).ToList();
+        public async Task<List<AmenityDto>> GetAllAsync()
+        {
+            _logger.LogInformation("Fetching all amenities");
+
+            var amenities = await _repo.GetAllAsync();
+            _logger.LogInformation("Retrieved {Count} amenities", amenities.Count);
+
+            return _mapper.Map<List<AmenityDto>>(amenities);
+        }
+
+        public async Task<List<int>> GetIdsByAccommodationIdAsync(int accommodationId)
+        {
+            _logger.LogInformation("Fetching amenity IDs for accommodation ID: {AccommodationId}", accommodationId);
+
+            var amenities = await _repo.GetByAccommodationIdAsync(accommodationId);
+            var ids = amenities.Select(a => a.AmenityId).ToList();
+
+            _logger.LogInformation("Retrieved {Count} amenity IDs for accommodation ID: {AccommodationId}", ids.Count, accommodationId);
+
+            return ids;
+        }
     }
 }

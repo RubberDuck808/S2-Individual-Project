@@ -5,6 +5,7 @@ using Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Logging; // Add this for ILogger
 using System.Security.Claims;
 using UI.ViewModels;
 
@@ -19,6 +20,7 @@ namespace UI.Pages.Dashboard.Landlord
         private readonly IUniversityService _universityService;
         private readonly ILandlordService _landlordService;
         private readonly IWebHostEnvironment _environment;
+        private readonly ILogger<CreateListingModel> _logger;
 
         [BindProperty]
         public AccommodationViewModel Input { get; set; } = new();
@@ -29,7 +31,8 @@ namespace UI.Pages.Dashboard.Landlord
             IAccommodationTypeService typeService,
             IUniversityService universityService,
             ILandlordService landlordService,
-            IWebHostEnvironment environment)
+            IWebHostEnvironment environment,
+            ILogger<CreateListingModel> logger)
         {
             _accommodationService = accommodationService;
             _amenityService = amenityService;
@@ -37,10 +40,12 @@ namespace UI.Pages.Dashboard.Landlord
             _universityService = universityService;
             _landlordService = landlordService;
             _environment = environment;
+            _logger = logger;
         }
 
         public async Task<IActionResult> OnGetAsync()
         {
+            _logger.LogDebug("Landlord accessed Create Listing page.");
             await LoadFormOptionsAsync();
             return Page();
         }
@@ -49,6 +54,7 @@ namespace UI.Pages.Dashboard.Landlord
         {
             if (!ModelState.IsValid)
             {
+                _logger.LogWarning("Invalid listing data submitted: {@Input}", Input);
                 await LoadFormOptionsAsync();
                 return Page();
             }
@@ -57,6 +63,7 @@ namespace UI.Pages.Dashboard.Landlord
             var landlord = await _landlordService.GetByUserIdAsync(userId);
             if (landlord == null)
             {
+                _logger.LogWarning("Landlord not found for user ID: {UserId}", userId);
                 return Forbid();
             }
 
@@ -78,41 +85,55 @@ namespace UI.Pages.Dashboard.Landlord
                 Images = Input.Images
             };
 
-            var accId = await _accommodationService.CreateAccommodationWithAmenitiesAsync(dto, Input.SelectedAmenityIds);
-
-            if (Input.Images != null && Input.Images.Any())
+            try
             {
-                var uploadPath = Path.Combine(_environment.WebRootPath, "uploads");
-                Directory.CreateDirectory(uploadPath);
+                _logger.LogInformation("Creating accommodation listing for landlord ID: {LandlordId}", landlord.LandlordId);
+                var accId = await _accommodationService.CreateAccommodationWithAmenitiesAsync(dto, Input.SelectedAmenityIds);
 
-                var imageEntities = new List<AccommodationImage>();
-
-                foreach (var image in Input.Images)
+                if (Input.Images != null && Input.Images.Any())
                 {
-                    var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(image.FileName)}";
-                    var filePath = Path.Combine(uploadPath, fileName);
+                    var uploadPath = Path.Combine(_environment.WebRootPath, "uploads");
+                    Directory.CreateDirectory(uploadPath);
 
-                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    var imageEntities = new List<AccommodationImage>();
+
+                    foreach (var image in Input.Images)
                     {
-                        await image.CopyToAsync(stream);
+                        var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(image.FileName)}";
+                        var filePath = Path.Combine(uploadPath, fileName);
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await image.CopyToAsync(stream);
+                        }
+
+                        imageEntities.Add(new AccommodationImage
+                        {
+                            AccommodationId = accId,
+                            ImageUrl = $"/uploads/{fileName}",
+                            UploadedAt = DateTime.UtcNow
+                        });
                     }
 
-                    imageEntities.Add(new AccommodationImage
-                    {
-                        AccommodationId = accId,
-                        ImageUrl = $"/uploads/{fileName}",
-                        UploadedAt = DateTime.UtcNow
-                    });
+                    await _accommodationService.AddImagesAsync(imageEntities);
+                    _logger.LogInformation("Uploaded {Count} image(s) for accommodation ID: {AccommodationId}", imageEntities.Count, accId);
                 }
 
-                await _accommodationService.AddImagesAsync(imageEntities);
+                _logger.LogInformation("Accommodation listing created successfully. ID: {AccommodationId}", accId);
+                return RedirectToPage("/Dashboard/Index");
             }
-
-            return RedirectToPage("/Dashboard/Index");
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while creating accommodation listing for landlord ID: {LandlordId}", landlord.LandlordId);
+                ModelState.AddModelError(string.Empty, "An error occurred while creating the listing.");
+                await LoadFormOptionsAsync();
+                return Page();
+            }
         }
 
         private async Task LoadFormOptionsAsync()
         {
+            _logger.LogDebug("Loading form dropdown options for Create Listing page.");
             Input.AccommodationTypes = await _typeService.GetAllAsync();
             Input.Universities = await _universityService.GetAllAsync();
             Input.Amenities = await _amenityService.GetAllAsync();

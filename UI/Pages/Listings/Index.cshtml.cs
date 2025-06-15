@@ -3,6 +3,7 @@ using BLL.Interfaces;
 using BLL.DTOs.Accommodation;
 using BLL.DTOs.Shared;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace UI.Pages.Listings
 {
@@ -11,15 +12,18 @@ namespace UI.Pages.Listings
         private readonly IAccommodationService _accommodationService;
         private readonly IUniversityService _universityService;
         private readonly IAccommodationTypeService _typeService;
+        private readonly ILogger<IndexModel> _logger;
 
         public IndexModel(
             IAccommodationService accommodationService,
             IUniversityService universityService,
-            IAccommodationTypeService typeService)
+            IAccommodationTypeService typeService,
+            ILogger<IndexModel> logger)
         {
             _accommodationService = accommodationService;
             _universityService = universityService;
             _typeService = typeService;
+            _logger = logger;
         }
 
         public List<AccommodationDto> Accommodations { get; set; } = new();
@@ -37,6 +41,9 @@ namespace UI.Pages.Listings
 
         public async Task OnGetAsync()
         {
+            _logger.LogInformation("Listing page accessed. Search: {Search}, UniversityId: {UniversityId}, TypeId: {TypeId}",
+                Search, UniversityId, TypeId);
+
             Accommodations = (await _accommodationService.GetAllAsync()).ToList();
             Universities = (await _universityService.GetAllAsync()).ToList();
             AccommodationTypes = (await _typeService.GetAllAsync()).ToList();
@@ -58,6 +65,8 @@ namespace UI.Pages.Listings
             {
                 Accommodations = Accommodations.Where(a => a.AccommodationTypeId == TypeId.Value).ToList();
             }
+
+            _logger.LogInformation("Filtered results: {Count} accommodations found.", Accommodations.Count);
         }
     }
 }

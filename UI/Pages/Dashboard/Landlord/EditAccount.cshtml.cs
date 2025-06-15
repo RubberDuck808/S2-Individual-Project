@@ -67,40 +67,17 @@ namespace UI.Pages.Dashboard.Landlord
             return Page();
         }
 
-        //public async Task<IActionResult> OnPostEditBasicAsync()
-        //{
-        //    _logger.LogInformation("OnPostEditBasicAsync called with LandlordEditId {LandlordEditId}", LandlordEditId);
-
-        //    var landlord = await _landlordService.GetLandlordAsync(LandlordEditId);
-        //    if (landlord == null)
-        //    {
-        //        _logger.LogWarning("Landlord with ID {LandlordEditId} not found.", LandlordEditId);
-        //        return NotFound();
-        //    }
-
-        //    var dto = new LandlordUpdateDto
-        //    {
-        //        FirstName = LandlordEditFirstName,
-        //        MiddleName = LandlordEditMiddleName,
-        //        LastName = LandlordEditLastName,
-        //        Email = LandlordEditEmail,
-        //        PhoneNumber = LandlordEditPhone,
-        //        CompanyName = LandlordEditCompany,
-        //        TaxIdentificationNumber = LandlordEditTaxNumber
-        //    };
-
-        //    await _landlordService.UpdateLandlordProfileAsync(LandlordEditId, dto);
-        //    _logger.LogInformation("Updated landlord profile for landlordId {LandlordEditId}", LandlordEditId);
-
-        //    return RedirectToPage();
-        //}
-
-
 
         public async Task<IActionResult> OnPostEditBasicAsync()
         {
+            _logger.LogInformation("OnPostEditBasicAsync called for LandlordId: {LandlordId}", LandlordEditId);
+
             var landlord = await _landlordService.GetLandlordAsync(LandlordEditId);
-            if (landlord == null) return NotFound();
+            if (landlord == null)
+            {
+                _logger.LogWarning("Attempted to edit non-existent landlord with ID: {LandlordId}", LandlordEditId);
+                return NotFound();
+            }
 
             var dto = new LandlordUpdateDto
             {
@@ -113,9 +90,21 @@ namespace UI.Pages.Dashboard.Landlord
                 TaxIdentificationNumber = LandlordEditTaxNumber
             };
 
-            await _landlordService.UpdateLandlordProfileAsync(LandlordEditId, dto);
+            try
+            {
+                await _landlordService.UpdateLandlordProfileAsync(LandlordEditId, dto);
+                _logger.LogInformation("Successfully updated landlord profile for ID: {LandlordId}", LandlordEditId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while updating landlord profile for ID: {LandlordId}", LandlordEditId);
+                ModelState.AddModelError(string.Empty, "Failed to update landlord profile.");
+                return Page();
+            }
+
             return RedirectToPage();
         }
+
 
     }
 }

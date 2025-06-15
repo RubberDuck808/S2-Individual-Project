@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using BLL.Interfaces;
 using BLL.DTOs.Accommodation;
 using BLL.DTOs.Application;
+using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 
 namespace UI.Pages.Listings
@@ -12,15 +13,18 @@ namespace UI.Pages.Listings
         private readonly IAccommodationService _accommodationService;
         private readonly IApplicationService _applicationService;
         private readonly IStudentService _studentService;
+        private readonly ILogger<DetailModel> _logger;
 
         public DetailModel(
             IAccommodationService accommodationService,
             IApplicationService applicationService,
-            IStudentService studentService)
+            IStudentService studentService,
+            ILogger<DetailModel> logger)
         {
             _accommodationService = accommodationService;
             _applicationService = applicationService;
             _studentService = studentService;
+            _logger = logger;
         }
 
         public AccommodationDto? Accommodation { get; set; }
@@ -29,11 +33,20 @@ namespace UI.Pages.Listings
         {
             try
             {
+                _logger.LogInformation("Fetching accommodation details for ID: {Id}", id);
                 Accommodation = await _accommodationService.GetByIdAsync(id);
+
+                if (Accommodation == null)
+                {
+                    _logger.LogWarning("Accommodation not found for ID: {Id}", id);
+                    return RedirectToPage("/NotFound");
+                }
+
                 return Page();
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "Error loading accommodation details for ID: {Id}", id);
                 return RedirectToPage("/NotFound");
             }
         }
@@ -41,19 +54,29 @@ namespace UI.Pages.Listings
         public async Task<IActionResult> OnPostApplyAsync(int accommodationId)
         {
             if (!User.Identity.IsAuthenticated || !User.IsInRole("Student"))
+            {
+                _logger.LogWarning("Unauthorized access attempt to apply for accommodation ID: {Id}", accommodationId);
                 return Forbid();
+            }
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
+            {
+                _logger.LogWarning("No user ID found in claims for apply attempt to accommodation ID: {Id}", accommodationId);
                 return Unauthorized();
+            }
 
             var student = await _studentService.GetByUserIdAsync(userId);
             if (student == null)
+            {
+                _logger.LogWarning("Student profile not found for user ID: {UserId}", userId);
                 return NotFound("Student profile not found.");
+            }
 
             var existingApplications = await _applicationService.GetByStudentAsync(student.StudentId);
             if (existingApplications.Any(a => a.AccommodationId == accommodationId))
             {
+                _logger.LogInformation("Duplicate application attempt by student ID: {StudentId} for accommodation ID: {AccommodationId}", student.StudentId, accommodationId);
                 TempData["Message"] = "You already applied for this listing.";
                 return RedirectToPage();
             }
@@ -62,13 +85,22 @@ namespace UI.Pages.Listings
             {
                 StudentId = student.StudentId,
                 AccommodationId = accommodationId,
-                StatusId = 1, 
+                StatusId = 1,
                 ApplicationDate = DateTime.UtcNow
             };
 
-            await _applicationService.CreateAsync(dto);
+            try
+            {
+                await _applicationService.CreateAsync(dto);
+                _logger.LogInformation("Student ID: {StudentId} successfully applied to accommodation ID: {AccommodationId}", student.StudentId, accommodationId);
+                TempData["Message"] = "Application submitted successfully!";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error applying for accommodation ID: {AccommodationId} by student ID: {StudentId}", accommodationId, student.StudentId);
+                TempData["Message"] = "Something went wrong while submitting your application.";
+            }
 
-            TempData["Message"] = "Application submitted successfully!";
             return RedirectToPage();
         }
     }

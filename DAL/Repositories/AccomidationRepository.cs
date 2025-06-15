@@ -184,7 +184,7 @@ namespace DAL.Repositories
             await cmd.ExecuteNonQueryAsync();
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<int> DeleteAsync(int id)
         {
             using var conn = new SqlConnection(_connectionString);
             await conn.OpenAsync();
@@ -193,8 +193,10 @@ namespace DAL.Repositories
             using var cmd = new SqlCommand(query, conn);
             cmd.Parameters.AddWithValue("@Id", id);
 
-            await cmd.ExecuteNonQueryAsync();
+            return await cmd.ExecuteNonQueryAsync();
         }
+
+
 
         public async Task<bool> ExistsAsync(int id)
         {

@@ -195,13 +195,27 @@ namespace UI.Pages.Dashboard.Landlord
             var accommodationId = Input.AccommodationId;
 
             if (accommodationId <= 0)
+            {
+                _logger.LogWarning("Invalid accommodation ID received for deletion: {Id}", accommodationId);
                 return NotFound();
+            }
 
-            await _accommodationService.DeleteAsync(accommodationId);
-
-            TempData["SuccessMessage"] = "Listing deleted successfully.";
-            return RedirectToPage("/Listings/MyListings");
+            try
+            {
+                _logger.LogInformation("Attempting to delete accommodation ID {Id}", accommodationId);
+                await _accommodationService.DeleteAsync(accommodationId);
+                TempData["SuccessMessage"] = "Listing deleted successfully.";
+                _logger.LogInformation("Accommodation ID {Id} deleted successfully", accommodationId);
+                return RedirectToPage("/Listings/MyListings");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting accommodation ID {Id}", accommodationId);
+                TempData["ErrorMessage"] = "An error occurred while deleting the listing.";
+                return RedirectToPage("/Listings/MyListings");
+            }
         }
+
 
     }
 }
