@@ -264,9 +264,9 @@ namespace DAL.Repositories
         {
             using var connection = new SqlConnection(_connectionString);
             var command = new SqlCommand(@"
-        UPDATE Application
-        SET StatusId = 3 -- Assuming 3 = Rejected
-        WHERE AccommodationId = @accId AND ApplicationId != @selectedId", connection);
+            UPDATE Application
+            SET StatusId = 3 -- Assuming 3 = Rejected
+            WHERE AccommodationId = @accId AND ApplicationId != @selectedId", connection);
 
             command.Parameters.AddWithValue("@accId", accommodationId);
             command.Parameters.AddWithValue("@selectedId", selectedAppId);
@@ -275,6 +275,81 @@ namespace DAL.Repositories
             await command.ExecuteNonQueryAsync();
         }
 
+        public async Task<IEnumerable<Accommodation>> GetWithApplicationsByStudentIdAsync(int studentId)
+        {
+            var results = new List<Accommodation>();
+
+            using var conn = new SqlConnection(_connectionString);
+            await conn.OpenAsync();
+
+            var query = @"
+            SELECT a.*
+            FROM Accommodation a
+            INNER JOIN Application app ON a.AccommodationId = app.AccommodationId
+            WHERE app.StudentId = @StudentId";
+
+            using var cmd = new SqlCommand(query, conn);
+            cmd.Parameters.AddWithValue("@StudentId", studentId);
+
+            using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                
+            }
+
+            return results;
+        }
+
+
+        public async Task<Dictionary<int, int>> GetApplicationCountsByLandlordIdAsync(int landlordId)
+        {
+            var result = new Dictionary<int, int>();
+
+            using var conn = new SqlConnection(_connectionString);
+            await conn.OpenAsync();
+
+            var query = @"
+            SELECT a.AccommodationId, COUNT(app.ApplicationId) AS ApplicationCount
+            FROM Accommodation a
+            LEFT JOIN Application app ON a.AccommodationId = app.AccommodationId
+            WHERE a.LandlordId = @LandlordId
+            GROUP BY a.AccommodationId";
+
+            using var cmd = new SqlCommand(query, conn);
+            cmd.Parameters.AddWithValue("@LandlordId", landlordId);
+
+            using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                var accommodationId = reader.GetInt32(0);
+                var count = reader.GetInt32(1);
+                result[accommodationId] = count;
+            }
+
+            return result;
+        }
+
+
+
+        public async Task<List<(int ApplicationId, int AccommodationId)>> GetApplicationsWithAccommodationIdsByStudentAsync(int studentId)
+        {
+            var results = new List<(int, int)>();
+
+            using var conn = new SqlConnection(_connectionString);
+            await conn.OpenAsync();
+
+            var query = @"SELECT ApplicationId, AccommodationId FROM Application WHERE StudentId = @StudentId";
+            using var cmd = new SqlCommand(query, conn);
+            cmd.Parameters.AddWithValue("@StudentId", studentId);
+
+            using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                results.Add((reader.GetInt32(0), reader.GetInt32(1)));
+            }
+
+            return results;
+        }
 
     }
 }

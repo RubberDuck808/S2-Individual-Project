@@ -11,6 +11,8 @@ namespace BLL.Interfaces
     {
         Task<List<AccommodationImage>> GetByAccommodationIdAsync(int accommodationId);
         Task AddImagesAsync(IEnumerable<AccommodationImage> images);
+        Task<List<string>> GetUrlsByAccommodationIdAsync(int accommodationId);
+        Task DeleteByAccommodationIdAsync(int accommodationId);
     }
 
 }

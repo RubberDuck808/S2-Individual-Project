@@ -45,5 +45,14 @@ namespace BLL.Services
             _logger.LogInformation("University with ID {Id} retrieved successfully", id);
             return _mapper.Map<UniversityDto>(university);
         }
+
+        public async Task<string> GetNameByIdAsync(int id)
+        {
+            _logger.LogInformation("Fetching university name with ID: {Id}", id);
+
+            var university = await _universityRepo.GetByIdAsync(id);
+            return university?.Name ?? "";
+        }
+
     }
 }

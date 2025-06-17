@@ -1,5 +1,7 @@
 using BLL.DTOs.Accommodation;
+using BLL.DTOs.Application;
 using BLL.Interfaces;
+using BLL.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -12,16 +14,19 @@ namespace UI.Pages.Dashboard.Student
     public class MyBookingsModel : PageModel
     {
         private readonly IAccommodationService _accommodationService;
+        private readonly IStudentService _studentService;
         private readonly IBookingService _bookingService;
         private readonly ILogger<MyBookingsModel> _logger;
 
         public MyBookingsModel(
             IAccommodationService accommodationService,
             IBookingService bookingService,
+            IStudentService studentService,
             ILogger<MyBookingsModel> logger)
         {
             _accommodationService = accommodationService;
             _bookingService = bookingService;
+            _studentService = studentService;
             _logger = logger;
         }
 
@@ -29,26 +34,37 @@ namespace UI.Pages.Dashboard.Student
 
         public async Task OnGetAsync()
         {
-            var studentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (string.IsNullOrEmpty(studentUserId))
+            if (string.IsNullOrEmpty(userId))
             {
-                _logger.LogWarning("Student user ID claim missing on booking page access.");
+                _logger.LogWarning("No user ID found in claims.");
                 return;
             }
 
             try
             {
-                _logger.LogInformation("Fetching bookings for student user ID: {UserId}", studentUserId);
-                Accommodations = (await _accommodationService.GetBookingsByStudentUserIdAsync(studentUserId)).ToList();
-                _logger.LogInformation("{Count} bookings retrieved for user ID: {UserId}", Accommodations.Count, studentUserId);
+                var student = await _studentService.GetByUserIdAsync(userId);
+                if (student == null)
+                {
+                    _logger.LogWarning("No student found for user ID: {UserId}", userId);
+                    return;
+                }
+
+                _logger.LogInformation("Fetching bookings for student ID: {StudentId}", student.StudentId);
+
+
+                Accommodations = (await _accommodationService.GetBookingsByStudentUserIdAsync(userId)).ToList();
+
+                _logger.LogInformation("{Count} bookings found for student ID: {StudentId}", Accommodations.Count, student.StudentId);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to load bookings for user ID: {UserId}", studentUserId);
-                ModelState.AddModelError(string.Empty, "Unable to load your bookings at the moment.");
+                _logger.LogError(ex, "Error while loading bookings for user ID: {UserId}", userId);
+                ModelState.AddModelError(string.Empty, "Failed to load your bookings.");
             }
         }
+
 
         public async Task<IActionResult> OnPostAcceptAsync(int id)
         {

@@ -20,6 +20,13 @@ namespace DAL.Interfaces
         Task MarkAsSelectedAsync(int selectedAppId);
         Task RejectOthersAsync(int accommodationId, int selectedAppId);
 
+        Task<Dictionary<int, int>> GetApplicationCountsByLandlordIdAsync(int landlordId);
+
+        Task<List<(int ApplicationId, int AccommodationId)>> GetApplicationsWithAccommodationIdsByStudentAsync(int studentId);
+
+
+
+
 
     }
 }

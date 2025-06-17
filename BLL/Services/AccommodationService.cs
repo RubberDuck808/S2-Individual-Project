@@ -1,338 +1,179 @@
 ﻿using AutoMapper;
 using BLL.DTOs.Accommodation;
-using Domain.Models;
+using BLL.DTOs.Application;
 using BLL.Exceptions;
-using DAL.Interfaces;
 using BLL.Interfaces;
+using DAL.Interfaces;
+using Domain.Models;
 using Microsoft.Extensions.Logging;
 
 namespace BLL.Services
 {
     public class AccommodationService : IAccommodationService
     {
-        private readonly IAmenityRepository _amenityRepo;
-        private readonly IAccommodationImageRepository _imageRepo;
-        private readonly IUniversityRepository _universityRepo;
-        private readonly IAccommodationTypeRepository _typeRepo;
         private readonly IAccommodationRepository _accommodationRepo;
-        private readonly IMapper _mapper;
+        private readonly IApplicationService _applicationService;
+        private readonly IAmenityService _amenityService;
+        private readonly IBookingService _bookingService;
         private readonly ILandlordRepository _landlordRepo;
         private readonly IStudentRepository _studentRepo;
-        private readonly IApplicationRepository _applicationRepo;
+        private readonly IAccommodationTypeService _typeService;
+        private readonly IMapper _mapper;
+        private readonly IAccommodationImageService _imageService;
+        private readonly IAccommodationAssemblerService _assembler;
+        private readonly IUniversityService _universityService;
         private readonly ILogger<AccommodationService> _logger;
 
         public AccommodationService(
             IAccommodationRepository accommodationRepo,
-            IMapper mapper,
-            IAmenityRepository amenityRepo,
-            IAccommodationImageRepository imageRepo,
-            IUniversityRepository universityRepo,
-            IAccommodationTypeRepository typeRepo,
             ILandlordRepository landlordRepo,
-            IStudentRepository studentRepo,
-            IApplicationRepository applicationRepo,
-            ILogger<AccommodationService> logger)
+            IAccommodationImageService imageService,
+            IUniversityService universityService,
+            IBookingService bookingService,
+            IMapper mapper,
+            IApplicationService applicationService,
+            IAccommodationAssemblerService assembler,
+            IAmenityService amenityService,
+            IAccommodationTypeService typeService,
+            ILogger<AccommodationService> logger,
+            IStudentRepository studentRepo)
         {
             _accommodationRepo = accommodationRepo;
-            _mapper = mapper;
-            _amenityRepo = amenityRepo;
-            _imageRepo = imageRepo;
-            _universityRepo = universityRepo;
-            _typeRepo = typeRepo;
             _landlordRepo = landlordRepo;
+            _bookingService = bookingService;
+            _imageService = imageService;
             _studentRepo = studentRepo;
-            _applicationRepo = applicationRepo;
+            _typeService = typeService;
+            _universityService = universityService;
+            _mapper = mapper;
+            _applicationService = applicationService;
+            _assembler = assembler;
+            _amenityService = amenityService;
             _logger = logger;
         }
 
         public async Task<AccommodationDto> GetByIdAsync(int id)
         {
-            _logger.LogInformation("Fetching accommodation with ID: {Id}", id);
-
             var entity = await _accommodationRepo.GetByIdAsync(id);
             if (entity == null)
-            {
-                _logger.LogWarning("Accommodation with ID {Id} not found", id);
                 throw new NotFoundException($"Accommodation {id} not found");
-            }
-
-            var amenities = await _amenityRepo.GetByAccommodationIdAsync(id);
-            var images = await _imageRepo.GetByAccommodationIdAsync(id);
-            var university = await _universityRepo.GetByIdAsync(entity.UniversityId);
-            var type = await _typeRepo.GetByIdAsync(entity.AccommodationTypeId);
-
-            _logger.LogInformation("Accommodation {Id} loaded with amenities and images", id);
-
-            return new AccommodationDto
-            {
-                AccommodationId = entity.AccommodationId,
-                Title = entity.Title,
-                Description = entity.Description,
-                Address = entity.Address,
-                PostCode = entity.PostCode,
-                City = entity.City,
-                Country = entity.Country,
-                MonthlyRent = entity.MonthlyRent,
-                IsAvailable = entity.IsAvailable,
-                MaxOccupants = entity.MaxOccupants,
-                Size = (int)entity.Size,
-                AvailableFrom = entity.AvailableFrom,
-                AmenityNames = amenities.Select(a => a.Name).ToList(),
-                ImageUrls = images.Select(i => i.ImageUrl).ToList(),
-                UniversityName = university?.Name ?? "",
-                AccommodationType = type?.Name ?? "",
-                LandlordName = ""
-            };
+            return await _assembler.ToDtoAsync(entity);
         }
-
-        public async Task<int> CreateAsync(AccommodationCreateDto dto)
-        {
-            _logger.LogInformation("Creating new accommodation titled: {Title}", dto.Title);
-
-            var entity = _mapper.Map<Accommodation>(dto);
-            int insertedId = await _accommodationRepo.AddAsync(entity);
-
-            if (insertedId <= 0)
-            {
-                _logger.LogError("Accommodation creation failed. Insert returned invalid ID: {Id}", insertedId);
-                throw new Exception("Accommodation insert failed — no valid ID returned.");
-            }
-
-            _logger.LogInformation("Accommodation created with ID: {Id}", insertedId);
-            return insertedId;
-        }
-
 
         public async Task UpdateAsync(AccommodationUpdateDto dto)
         {
-            _logger.LogInformation("Updating accommodation ID: {Id}", dto.AccommodationId);
-
-            var accommodation = await _accommodationRepo.GetByIdAsync(dto.AccommodationId);
-            if (accommodation == null)
-            {
-                _logger.LogWarning("Accommodation with ID {Id} not found for update", dto.AccommodationId);
+            var existing = await _accommodationRepo.GetByIdAsync(dto.AccommodationId);
+            if (existing == null)
                 throw new NotFoundException($"Accommodation {dto.AccommodationId} not found");
-            }
 
-            _mapper.Map(dto, accommodation);
-            await _accommodationRepo.UpdateAsync(accommodation);
-
-            _logger.LogInformation("Accommodation ID {Id} updated successfully", dto.AccommodationId);
+            _mapper.Map(dto, existing);
+            await _accommodationRepo.UpdateAsync(existing);
         }
 
         public async Task DeleteAsync(int id)
         {
-            _logger.LogInformation("Deleting accommodation with ID: {Id}", id);
-
-            int affected = await _accommodationRepo.DeleteAsync(id);
-
-            if (affected == 0)
-            {
-                _logger.LogWarning("Accommodation with ID {Id} not found for deletion", id);
-                throw new NotFoundException($"Accommodation with ID {id} not found.");
-            }
-
-            _logger.LogInformation("Accommodation with ID {Id} deleted successfully", id);
+            var result = await _accommodationRepo.DeleteAsync(id);
+            if (result == 0)
+                throw new NotFoundException($"Accommodation {id} not found");
         }
 
-
-        public async Task AddAmenitiesAsync(int accommodationId, IEnumerable<int> amenityIds)
+        public async Task<int> CreateAsync(AccommodationCreateDto dto, IEnumerable<int> amenityIds)
         {
-            _logger.LogInformation("Adding amenities to accommodation ID: {Id}", accommodationId);
-            await _accommodationRepo.AddAmenitiesAsync(accommodationId, amenityIds);
-        }
-
-        public async Task AddImagesAsync(IEnumerable<AccommodationImage> images)
-        {
-            _logger.LogInformation("Adding {Count} images to accommodation", images.Count());
-            await _accommodationRepo.AddImagesAsync(images);
-        }
-
-        public async Task<int> CreateAccommodationWithAmenitiesAsync(AccommodationCreateDto dto, IEnumerable<int> amenityIds)
-        {
-            _logger.LogInformation("Creating accommodation with amenities: {AmenityCount}", amenityIds.Count());
-
             var entity = _mapper.Map<Accommodation>(dto);
-            int accommodationId = await _accommodationRepo.AddAsync(entity);
-
-            if (accommodationId <= 0)
-            {
-                _logger.LogError("Failed to create accommodation. Invalid ID returned.");
-                throw new Exception("Accommodation insert failed or returned invalid ID.");
-            }
-
-            await _accommodationRepo.AddAmenitiesAsync(accommodationId, amenityIds);
-
-            _logger.LogInformation("Accommodation with ID {Id} created and amenities added", accommodationId);
-            return accommodationId;
+            var id = await _accommodationRepo.AddAsync(entity);
+            await _amenityService.AddAsync(id, amenityIds);
+            return id;
         }
 
         public async Task<int> UpdateWithAmenitiesAsync(AccommodationUpdateDto dto, IEnumerable<int> amenityIds)
         {
-            _logger.LogInformation("Updating accommodation with ID {Id} and amenities", dto.AccommodationId);
-
             var entity = _mapper.Map<Accommodation>(dto);
             await _accommodationRepo.UpdateAsync(entity);
-
-            await _accommodationRepo.UpdateAmenitiesAsync(dto.AccommodationId, amenityIds);
-
-            _logger.LogInformation("Accommodation ID {Id} and its amenities updated", dto.AccommodationId);
+            await _amenityService.UpdateAsync(dto.AccommodationId, amenityIds);
             return dto.AccommodationId;
         }
 
         public async Task<IEnumerable<AccommodationDto>> GetAllAsync()
         {
-            _logger.LogInformation("Fetching all available accommodations");
-
-            var entities = await _accommodationRepo.GetAvailableAccommodationsAsync();
-            var dtos = new List<AccommodationDto>();
-
-            foreach (var entity in entities)
-            {
-                var amenities = await _amenityRepo.GetByAccommodationIdAsync(entity.AccommodationId);
-                var images = await _imageRepo.GetByAccommodationIdAsync(entity.AccommodationId);
-                var university = await _universityRepo.GetByIdAsync(entity.UniversityId);
-                var type = await _typeRepo.GetByIdAsync(entity.AccommodationTypeId);
-
-                dtos.Add(new AccommodationDto
-                {
-                    AccommodationId = entity.AccommodationId,
-                    Title = entity.Title,
-                    Description = entity.Description,
-                    Address = entity.Address,
-                    PostCode = entity.PostCode,
-                    City = entity.City,
-                    Country = entity.Country,
-                    MonthlyRent = entity.MonthlyRent,
-                    IsAvailable = entity.IsAvailable,
-                    MaxOccupants = entity.MaxOccupants,
-                    Size = (int)entity.Size,
-                    AvailableFrom = entity.AvailableFrom,
-                    AmenityNames = amenities.Select(a => a.Name).ToList(),
-                    ImageUrls = images.Select(i => i.ImageUrl).ToList(),
-                    UniversityName = university?.Name ?? string.Empty,
-                    AccommodationType = type?.Name ?? string.Empty,
-                    LandlordName = ""
-                });
-            }
-
-            _logger.LogInformation("Fetched {Count} accommodations", dtos.Count);
-            return dtos;
+            var accommodations = await _accommodationRepo.GetAvailableAccommodationsAsync();
+            var tasks = accommodations.Select(_assembler.ToDtoAsync);
+            return await Task.WhenAll(tasks);
         }
 
         public async Task<IEnumerable<AccommodationDto>> GetIndexAsync()
         {
-            _logger.LogInformation("Fetching featured accommodations for index");
-
-            var entities = await _accommodationRepo.GetFeaturedAccommodationsAsync();
-            var dtos = new List<AccommodationDto>();
-
-            foreach (var entity in entities)
-            {
-                var amenities = await _amenityRepo.GetByAccommodationIdAsync(entity.AccommodationId);
-                var images = await _imageRepo.GetByAccommodationIdAsync(entity.AccommodationId);
-                var university = await _universityRepo.GetByIdAsync(entity.UniversityId);
-                var type = await _typeRepo.GetByIdAsync(entity.AccommodationTypeId);
-
-                dtos.Add(new AccommodationDto
-                {
-                    AccommodationId = entity.AccommodationId,
-                    Title = entity.Title,
-                    Description = entity.Description,
-                    Address = entity.Address,
-                    PostCode = entity.PostCode,
-                    City = entity.City,
-                    Country = entity.Country,
-                    MonthlyRent = entity.MonthlyRent,
-                    IsAvailable = entity.IsAvailable,
-                    MaxOccupants = entity.MaxOccupants,
-                    Size = (int)entity.Size,
-                    AvailableFrom = entity.AvailableFrom,
-                    AmenityNames = amenities.Select(a => a.Name).ToList(),
-                    ImageUrls = images.Select(i => i.ImageUrl).ToList(),
-                    UniversityName = university?.Name ?? string.Empty,
-                    AccommodationType = type?.Name ?? string.Empty,
-                    LandlordName = ""
-                });
-            }
-
-            return dtos;
+            var accommodations = await _accommodationRepo.GetFeaturedAccommodationsAsync();
+            var tasks = accommodations.Select(_assembler.ToDtoAsync);
+            return await Task.WhenAll(tasks);
         }
 
         public async Task<IEnumerable<LandlordAccommodationDto>> GetByLandlordUserIdAsync(string landlordUserId)
         {
-            _logger.LogInformation("Fetching listings for landlord user ID: {UserId}", landlordUserId);
-
             var landlord = await _landlordRepo.GetByUserIdAsync(landlordUserId);
-            var listings = await _accommodationRepo.GetWithApplicationCountsByLandlordIdAsync(landlord.LandlordId);
-            var result = new List<LandlordAccommodationDto>();
+            if (landlord == null)
+                throw new NotFoundException($"No landlord found for user ID {landlordUserId}");
 
-            foreach ((var accommodation, var count) in listings)
+            var accommodations = await _accommodationRepo.GetAccommodationsByLandlordAsync(landlord.LandlordId);
+
+            var applicationCounts = await _applicationService.GetApplicationCountsByLandlordIdAsync(landlord.LandlordId);
+
+            var countDict = applicationCounts.ToDictionary(x => x.AccommodationId, x => x.Count);
+
+            var results = new List<LandlordAccommodationDto>();
+
+            foreach (var acc in accommodations)
             {
-                var amenities = await _amenityRepo.GetByAccommodationIdAsync(accommodation.AccommodationId);
-                var images = await _imageRepo.GetByAccommodationIdAsync(accommodation.AccommodationId);
-                var university = await _universityRepo.GetByIdAsync(accommodation.UniversityId);
-                var type = await _typeRepo.GetByIdAsync(accommodation.AccommodationTypeId);
+                var dto = _mapper.Map<LandlordAccommodationDto>(acc);
 
-                result.Add(new LandlordAccommodationDto
-                {
-                    AccommodationId = accommodation.AccommodationId,
-                    Title = accommodation.Title,
-                    Description = accommodation.Description,
-                    Address = accommodation.Address,
-                    PostCode = accommodation.PostCode,
-                    City = accommodation.City,
-                    Country = accommodation.Country,
-                    MonthlyRent = accommodation.MonthlyRent,
-                    IsAvailable = accommodation.IsAvailable,
-                    MaxOccupants = accommodation.MaxOccupants,
-                    Size = (int)accommodation.Size,
-                    AvailableFrom = accommodation.AvailableFrom,
-                    ApplicationCount = count,
-                    AmenityNames = amenities.Select(a => a.Name).ToList(),
-                    ImageUrls = images.Select(i => i.ImageUrl).ToList(),
-                    UniversityName = university?.Name ?? string.Empty,
-                    AccommodationType = type?.Name ?? string.Empty
-                });
+                dto.AmenityNames = await _amenityService.GetNamesByAccommodationIdAsync(acc.AccommodationId);
+                dto.ImageUrls = await _imageService.GetUrlsByAccommodationIdAsync(acc.AccommodationId);
+                dto.UniversityName = await _universityService.GetNameByIdAsync(acc.UniversityId);
+                dto.AccommodationType = await _typeService.GetNameByIdAsync(acc.AccommodationTypeId);
+
+                dto.ApplicationCount = countDict.TryGetValue(acc.AccommodationId, out var count) ? count : 0;
+
+                results.Add(dto);
             }
 
-            return result;
+            return results;
         }
 
-        public async Task<IEnumerable<AppliedAccommodationDto>> GetByStudentUserIdAsync(string studentUserId)
-        {
-            _logger.LogInformation("Fetching applied accommodations for student user ID: {UserId}", studentUserId);
 
+
+
+        public async Task<IEnumerable<AppliedAccommodationDto>> GetApplicationByStudentUserIdAsync(string studentUserId)
+        {
             var student = await _studentRepo.GetByUserIdAsync(studentUserId);
-            var listings = await _accommodationRepo.GetWithApplicationsByStudentIdAsync(student.StudentId);
+            var appTuples = await _applicationService.GetApplicationsWithAccommodationIdsByStudentAsync(student.StudentId);
             var result = new List<AppliedAccommodationDto>();
 
-            foreach (var accommodation in listings)
+            foreach (var (applicationId, accommodationId) in appTuples)
             {
-                var amenities = await _amenityRepo.GetByAccommodationIdAsync(accommodation.AccommodationId);
-                var images = await _imageRepo.GetByAccommodationIdAsync(accommodation.AccommodationId);
-                var university = await _universityRepo.GetByIdAsync(accommodation.UniversityId);
-                var type = await _typeRepo.GetByIdAsync(accommodation.AccommodationTypeId);
-                var status = await _applicationRepo.GetStatusNameByStudentAndAccommodationIdAsync(student.StudentId, accommodation.AccommodationId);
+                var accommodation = await _accommodationRepo.GetByIdAsync(accommodationId);
+                if (accommodation == null) continue;
+
+                var dto = await _assembler.ToDtoAsync(accommodation);
+                var status = await _applicationService.GetStatusNameByStudentAndAccommodationIdAsync(student.StudentId, accommodationId);
 
                 result.Add(new AppliedAccommodationDto
                 {
-                    AccommodationId = accommodation.AccommodationId,
-                    Title = accommodation.Title,
-                    Description = accommodation.Description,
-                    Address = accommodation.Address,
-                    PostCode = accommodation.PostCode,
-                    City = accommodation.City,
-                    Country = accommodation.Country,
-                    MonthlyRent = accommodation.MonthlyRent,
-                    IsAvailable = accommodation.IsAvailable,
-                    MaxOccupants = accommodation.MaxOccupants,
-                    Size = (int)accommodation.Size,
-                    AvailableFrom = accommodation.AvailableFrom,
-                    AmenityNames = amenities.Select(a => a.Name).ToList(),
-                    ImageUrls = images.Select(i => i.ImageUrl).ToList(),
-                    UniversityName = university?.Name ?? string.Empty,
-                    AccommodationType = type?.Name ?? string.Empty,
+                    ApplicationId = applicationId, 
+                    AccommodationId = dto.AccommodationId,
+                    Title = dto.Title,
+                    Address = dto.Address,
+                    PostCode = dto.PostCode,
+                    City = dto.City,
+                    Country = dto.Country,
+                    Description = dto.Description,
+                    MonthlyRent = dto.MonthlyRent,
+                    MaxOccupants = dto.MaxOccupants,
+                    Size = dto.Size,
+                    AmenityNames = dto.AmenityNames,
+                    ImageUrls = dto.ImageUrls,
+                    AvailableFrom = dto.AvailableFrom,
+                    AccommodationType = dto.AccommodationType,
+                    UniversityName = dto.UniversityName,
+                    IsAvailable = dto.IsAvailable,
                     ApplicationStatus = status
                 });
             }
@@ -342,43 +183,45 @@ namespace BLL.Services
 
         public async Task<IEnumerable<AccommodationBookingDto>> GetBookingsByStudentUserIdAsync(string studentUserId)
         {
-            _logger.LogInformation("Fetching bookings for student user ID: {UserId}", studentUserId);
-
             var student = await _studentRepo.GetByUserIdAsync(studentUserId);
-            var bookings = await _accommodationRepo.GetWithBookingsByStudentIdAsync(student.StudentId);
-            var result = new List<AccommodationBookingDto>();
+            if (student == null)
+                return Enumerable.Empty<AccommodationBookingDto>();
 
-            foreach (var (accommodation, booking, statusName) in bookings)
+            var bookings = await _bookingService.GetByStudentAsync(student.StudentId);
+            var results = new List<AccommodationBookingDto>();
+
+            foreach (var booking in bookings)
             {
-                var amenities = await _amenityRepo.GetByAccommodationIdAsync(accommodation.AccommodationId);
-                var images = await _imageRepo.GetByAccommodationIdAsync(accommodation.AccommodationId);
-                var university = await _universityRepo.GetByIdAsync(accommodation.UniversityId);
-                var type = await _typeRepo.GetByIdAsync(accommodation.AccommodationTypeId);
+                var accommodation = await _accommodationRepo.GetByIdAsync(booking.AccommodationId);
+                if (accommodation == null) continue;
 
-                result.Add(new AccommodationBookingDto
+                var dto = await _assembler.ToDtoAsync(accommodation); 
+                var statusName = await _bookingService.GetStatusNameAsync(booking.StatusId);
+
+                results.Add(new AccommodationBookingDto
                 {
                     BookingId = booking.BookingId,
-                    AccommodationId = accommodation.AccommodationId,
-                    Title = accommodation.Title,
-                    Description = accommodation.Description,
-                    Address = accommodation.Address,
-                    PostCode = accommodation.PostCode,
-                    City = accommodation.City,
-                    Country = accommodation.Country,
-                    MonthlyRent = accommodation.MonthlyRent,
-                    IsAvailable = accommodation.IsAvailable,
-                    MaxOccupants = accommodation.MaxOccupants,
-                    Size = (int)accommodation.Size,
-                    AvailableFrom = accommodation.AvailableFrom,
-                    AmenityNames = amenities.Select(a => a.Name).ToList(),
-                    ImageUrls = images.Select(i => i.ImageUrl).ToList(),
-                    UniversityName = university?.Name ?? string.Empty,
-                    AccommodationType = type?.Name ?? string.Empty,
-                    BookingStatus = statusName ?? "Unknown"
+                    AccommodationId = dto.AccommodationId,
+                    Title = dto.Title,
+                    Description = dto.Description,
+                    Address = dto.Address,
+                    PostCode = dto.PostCode,
+                    City = dto.City,
+                    Country = dto.Country,
+                    MonthlyRent = dto.MonthlyRent,
+                    IsAvailable = dto.IsAvailable,
+                    MaxOccupants = dto.MaxOccupants,
+                    Size = dto.Size,
+                    AvailableFrom = dto.AvailableFrom,
+                    AccommodationType = dto.AccommodationType,
+                    UniversityName = dto.UniversityName,
+                    AmenityNames = dto.AmenityNames,
+                    ImageUrls = dto.ImageUrls,
+                    BookingStatus = statusName
                 });
             }
 
-            return result;
+            return results;
         }
     }
 }

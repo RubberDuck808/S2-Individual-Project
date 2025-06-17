@@ -1,6 +1,4 @@
 ﻿using Domain.Models;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace DAL.Interfaces
 {
@@ -12,7 +10,6 @@ namespace DAL.Interfaces
         Task UpdateAsync(Landlord landlord);
         Task DeleteAsync(int id);
 
-        // Specialized Queries
         Task<Landlord> GetByIdWithPropertiesAsync(int id);
         Task<IEnumerable<Landlord>> GetByUniversityAsync(int universityId);
         Task<IEnumerable<Landlord>> GetActiveLandlordsAsync();

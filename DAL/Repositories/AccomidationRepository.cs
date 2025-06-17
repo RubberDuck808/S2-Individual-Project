@@ -67,33 +67,6 @@ namespace DAL.Repositories
             return results;
         }
 
-        public async Task<IEnumerable<Accommodation>> GetWithApplicationsByStudentIdAsync(int studentId)
-        {
-            var results = new List<Accommodation>();
-
-            using var conn = new SqlConnection(_connectionString);
-            await conn.OpenAsync();
-
-            var query = @"
-            SELECT a.*
-            FROM Accommodation a
-            INNER JOIN Application app ON a.AccommodationId = app.AccommodationId
-            WHERE app.StudentId = @StudentId";
-
-            using var cmd = new SqlCommand(query, conn);
-            cmd.Parameters.AddWithValue("@StudentId", studentId);
-
-            using var reader = await cmd.ExecuteReaderAsync();
-            while (await reader.ReadAsync())
-            {
-                var accommodation = ReadAccommodation(reader);
-                results.Add(accommodation);
-            }
-
-            return results;
-        }
-
-
 
         public async Task<IEnumerable<Accommodation>> GetAllAsync()
         {
@@ -195,9 +168,6 @@ namespace DAL.Repositories
 
             return await cmd.ExecuteNonQueryAsync();
         }
-
-
-
         public async Task<bool> ExistsAsync(int id)
         {
             using var conn = new SqlConnection(_connectionString);
@@ -289,42 +259,6 @@ namespace DAL.Repositories
             return accommodations;
         }
 
-        public async Task UpdateAmenitiesAsync(int accommodationId, IEnumerable<int> amenityIds)
-        {
-            using var conn = new SqlConnection(_connectionString);
-            await conn.OpenAsync();
-
-            using var transaction = conn.BeginTransaction();
-
-            try
-            {
-                // 1. Delete all current amenities for this accommodation
-                var deleteCmd = new SqlCommand("DELETE FROM AccommodationAmenity WHERE AccommodationId = @AccommodationId", conn, transaction);
-                deleteCmd.Parameters.AddWithValue("@AccommodationId", accommodationId);
-                await deleteCmd.ExecuteNonQueryAsync();
-
-                // 2. Re-insert new ones
-                foreach (var amenityId in amenityIds)
-                {
-                    var insertCmd = new SqlCommand(
-                        "INSERT INTO AccommodationAmenity (AccommodationId, AmenityId) VALUES (@AccommodationId, @AmenityId)",
-                        conn, transaction);
-                    insertCmd.Parameters.AddWithValue("@AccommodationId", accommodationId);
-                    insertCmd.Parameters.AddWithValue("@AmenityId", amenityId);
-                    await insertCmd.ExecuteNonQueryAsync();
-                }
-
-                await transaction.CommitAsync();
-            }
-            catch
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
-        }
-
-
-
 
         private Accommodation ReadAccommodation(SqlDataReader reader)
         {
@@ -347,107 +281,5 @@ namespace DAL.Repositories
                 AvailableFrom = reader.GetDateTime(reader.GetOrdinal("AvailableFrom")) 
             };
         }
-
-
-        public async Task AddAmenitiesAsync(int accommodationId, IEnumerable<int> amenityIds)
-        {
-            using var conn = new SqlConnection(_connectionString);
-            await conn.OpenAsync();
-
-            foreach (var amenityId in amenityIds)
-            {
-                var cmd = new SqlCommand(
-                    "INSERT INTO AccommodationAmenity (AccommodationId, AmenityId) VALUES (@AccommodationId, @AmenityId)",
-                    conn);
-                cmd.Parameters.AddWithValue("@AccommodationId", accommodationId);
-                cmd.Parameters.AddWithValue("@AmenityId", amenityId);
-                await cmd.ExecuteNonQueryAsync();
-            }
-        }
-
-
-        public async Task AddImagesAsync(IEnumerable<AccommodationImage> images)
-        {
-            using var conn = new SqlConnection(_connectionString);
-            await conn.OpenAsync();
-
-            foreach (var image in images)
-            {
-                var cmd = new SqlCommand(@"
-            INSERT INTO AccommodationImage (AccommodationId, ImageUrl, Description, UploadedAt)
-            VALUES (@AccommodationId, @ImageUrl, @Description, @UploadedAt)", conn);
-
-                cmd.Parameters.AddWithValue("@AccommodationId", image.AccommodationId);
-                cmd.Parameters.AddWithValue("@ImageUrl", image.ImageUrl);
-                cmd.Parameters.AddWithValue("@Description", image.Description ?? (object)DBNull.Value);
-                cmd.Parameters.AddWithValue("@UploadedAt", image.UploadedAt);
-
-                await cmd.ExecuteNonQueryAsync();
-            }
-        }
-
-
-        public async Task<IEnumerable<(Accommodation, Booking, string?)>> GetWithBookingsByStudentIdAsync(int studentId)
-        {
-            var results = new List<(Accommodation, Booking, string?)>();
-
-            using var conn = new SqlConnection(_connectionString);
-            await conn.OpenAsync();
-
-            var query = @"
-        SELECT 
-            a.*, 
-            b.BookingId, b.StudentId, b.AccommodationId, b.StartDate, b.EndDate, b.TotalAmount, b.StatusId, b.ApplicationId,
-            s.Name AS StatusName
-        FROM Booking b
-        INNER JOIN Accommodation a ON b.AccommodationId = a.AccommodationId
-        INNER JOIN Status s ON b.StatusId = s.StatusId
-        WHERE b.StudentId = @StudentId";
-
-            using var cmd = new SqlCommand(query, conn);
-            cmd.Parameters.AddWithValue("@StudentId", studentId);
-
-            using var reader = await cmd.ExecuteReaderAsync();
-            while (await reader.ReadAsync())
-            {
-                var accommodation = new Accommodation
-                {
-                    AccommodationId = (int)reader["AccommodationId"],
-                    Title = reader["Title"].ToString() ?? "",
-                    Description = reader["Description"].ToString() ?? "",
-                    Address = reader["Address"].ToString() ?? "",
-                    PostCode = reader["PostCode"].ToString() ?? "",
-                    City = reader["City"].ToString() ?? "",
-                    Country = reader["Country"].ToString() ?? "",
-                    MonthlyRent = (decimal)reader["MonthlyRent"],
-                    IsAvailable = (bool)reader["IsAvailable"],
-                    MaxOccupants = (int)reader["MaxOccupants"],
-                    Size = Convert.ToInt32(reader["Size"]),
-                    AvailableFrom = (DateTime)reader["AvailableFrom"],
-                    UniversityId = (int)reader["UniversityId"],
-                    AccommodationTypeId = (int)reader["AccommodationTypeId"],
-                    LandlordId = (int)reader["LandlordId"]
-                };
-
-                var booking = new Booking
-                {
-                    BookingId = (int)reader["BookingId"],
-                    StudentId = (int)reader["StudentId"],
-                    AccommodationId = (int)reader["AccommodationId"],
-                    StartDate = (DateTime)reader["StartDate"],
-                    EndDate = (DateTime)reader["EndDate"],
-                    TotalAmount = (decimal)reader["TotalAmount"],
-                    StatusId = (int)reader["StatusId"],
-                    ApplicationId = (int)reader["ApplicationId"]
-                };
-
-                var statusName = reader["StatusName"]?.ToString();
-
-                results.Add((accommodation, booking, statusName));
-            }
-
-            return results;
-        }
-
     }
 }

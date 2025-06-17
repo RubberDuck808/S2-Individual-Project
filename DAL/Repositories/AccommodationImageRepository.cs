@@ -53,4 +53,17 @@ public class AccommodationImageRepository : IAccommodationImageRepository
         }
     }
 
+    public async Task DeleteByAccommodationIdAsync(int accommodationId)
+    {
+        using var conn = new SqlConnection(_connectionString);
+        await conn.OpenAsync();
+
+        var query = "DELETE FROM AccommodationImage WHERE AccommodationId = @AccommodationId";
+        using var cmd = new SqlCommand(query, conn);
+        cmd.Parameters.AddWithValue("@AccommodationId", accommodationId);
+
+        await cmd.ExecuteNonQueryAsync();
+    }
+
+
 }

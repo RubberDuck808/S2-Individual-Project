@@ -18,6 +18,7 @@ namespace UI.Pages.Dashboard.Landlord
         private readonly ILogger<EditListingModel> _logger;
         private readonly IAccommodationService _accommodationService;
         private readonly IAmenityService _amenityService;
+        private readonly IAccommodationImageService _imageService;
         private readonly IAccommodationTypeService _typeService;
         private readonly IUniversityService _universityService;
         private readonly ILandlordService _landlordService;
@@ -32,6 +33,7 @@ namespace UI.Pages.Dashboard.Landlord
         public EditListingModel(
 
             ILogger<EditListingModel> logger,
+            IAccommodationImageService imageService,
             IAccommodationService accommodationService,
             IAmenityService amenityService,
             IAccommodationTypeService typeService,
@@ -40,6 +42,7 @@ namespace UI.Pages.Dashboard.Landlord
             IWebHostEnvironment environment)
         {
             _logger = logger;
+            _imageService = imageService;
             _accommodationService = accommodationService;
             _amenityService = amenityService;
             _typeService = typeService;
@@ -167,11 +170,11 @@ namespace UI.Pages.Dashboard.Landlord
                         });
                     }
 
-                    await _accommodationService.AddImagesAsync(imageEntities);
+                    await _imageService.AddImagesAsync(imageEntities);
                 }
 
                 Message = "Listing updated successfully!";
-                return RedirectToPage("/Listings/MyListings");
+                return RedirectToPage("/dashboard/landlord/mylistings");
             }
             catch (Exception ex)
             {
@@ -206,13 +209,13 @@ namespace UI.Pages.Dashboard.Landlord
                 await _accommodationService.DeleteAsync(accommodationId);
                 TempData["SuccessMessage"] = "Listing deleted successfully.";
                 _logger.LogInformation("Accommodation ID {Id} deleted successfully", accommodationId);
-                return RedirectToPage("/Listings/MyListings");
+                return RedirectToPage("/dashboard/landlord/mylistings");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deleting accommodation ID {Id}", accommodationId);
                 TempData["ErrorMessage"] = "An error occurred while deleting the listing.";
-                return RedirectToPage("/Listings/MyListings");
+                return RedirectToPage("dashboard/landlord/mylistings");
             }
         }
 

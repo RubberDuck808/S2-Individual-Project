@@ -120,5 +120,25 @@ namespace BLL.Services
 
             _logger.LogInformation("Applicant selected and others rejected for accommodation ID: {AccommodationId}", accommodationId);
         }
+
+        public async Task<IEnumerable<(int AccommodationId, int Count)>> GetApplicationCountsByLandlordIdAsync(int landlordId)
+        {
+            var dict = await _applicationRepo.GetApplicationCountsByLandlordIdAsync(landlordId);
+            return dict.Select(entry => (AccommodationId: entry.Key, Count: entry.Value));
+        }
+
+        public async Task<List<(int ApplicationId, int AccommodationId)>> GetApplicationsWithAccommodationIdsByStudentAsync(int studentId)
+        {
+            _logger.LogInformation("Fetching application IDs and accommodation IDs for student ID: {StudentId}", studentId);
+            return await _applicationRepo.GetApplicationsWithAccommodationIdsByStudentAsync(studentId);
+        }
+
+        public async Task<string?> GetStatusNameByStudentAndAccommodationIdAsync(int studentId, int accommodationId)
+        {
+            _logger.LogInformation("Fetching status name for student ID {StudentId} and accommodation ID {AccommodationId}", studentId, accommodationId);
+            return await _applicationRepo.GetStatusNameByStudentAndAccommodationIdAsync(studentId, accommodationId);
+        }
+
+
     }
 }

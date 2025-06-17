@@ -134,5 +134,12 @@ namespace BLL.Services
 
             _logger.LogInformation("Booking ID {BookingId} status updated to '{StatusName}'", bookingId, statusName);
         }
+
+        public async Task<string?> GetStatusNameAsync(int statusId)
+        {
+            _logger.LogInformation("Fetching status name for status ID: {StatusId}", statusId);
+            return await _statusRepo.GetNameByIdAsync(statusId);
+        }
+
     }
 }

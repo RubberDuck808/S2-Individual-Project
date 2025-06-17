@@ -8,6 +8,8 @@ namespace DAL.Interfaces
     {
         Task<List<Amenity>> GetAllAsync();
         Task<List<Amenity>> GetByAccommodationIdAsync(int accommodationId);
+        Task AddAsync(int accommodationId, IEnumerable<int> amenityIds);
+        Task UpdateAsync(int accommodationId, IEnumerable<int> amenityIds);
     }
 }
 

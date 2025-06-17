@@ -40,5 +40,30 @@ namespace BLL.Services
 
             return ids;
         }
+
+        public async Task<List<string>> GetNamesByAccommodationIdAsync(int accommodationId)
+        {
+            _logger.LogInformation("Fetching amenity names for accommodation ID: {AccommodationId}", accommodationId);
+
+            var amenities = await _repo.GetByAccommodationIdAsync(accommodationId);
+            var names = amenities.Select(a => a.Name).ToList();
+
+            _logger.LogInformation("Retrieved {Count} amenity names for accommodation ID: {AccommodationId}", names.Count, accommodationId);
+
+            return names;
+        }
+
+        public async Task AddAsync(int accommodationId, IEnumerable<int> amenityIds)
+        {
+            await _repo.AddAsync(accommodationId, amenityIds);
+        }
+
+        public async Task UpdateAsync(int accommodationId, IEnumerable<int> amenityIds)
+        {
+            await _repo.UpdateAsync(accommodationId, amenityIds);
+        }
+
+
+
     }
 }

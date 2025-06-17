@@ -8,5 +8,7 @@ namespace BLL.Interfaces
     {
         Task<List<UniversityDto>> GetAllAsync();
         Task<UniversityDto> GetByIdAsync(int id);
+
+        Task<string> GetNameByIdAsync(int id);
     }
 }

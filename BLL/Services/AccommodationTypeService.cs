@@ -46,4 +46,13 @@ public class AccommodationTypeService : IAccommodationTypeService
         _logger.LogInformation("Accommodation type {Id} found: {Name}", id, type.Name);
         return _mapper.Map<AccommodationTypeDto>(type);
     }
+
+    public async Task<string> GetNameByIdAsync(int id)
+    {
+        _logger.LogInformation("Fetching accommodation type name with ID: {Id}", id);
+
+        var type = await _repo.GetByIdAsync(id);
+        return type?.Name ?? "";
+    }
+
 }

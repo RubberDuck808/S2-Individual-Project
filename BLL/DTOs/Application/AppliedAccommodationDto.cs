@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BLL.DTOs.Accommodation
+namespace BLL.DTOs.Application
 {
     public class AppliedAccommodationDto
     {
@@ -36,5 +36,6 @@ namespace BLL.DTOs.Accommodation
         public List<string> ImageUrls { get; set; } = new();
 
         public string ApplicationStatus { get; set; } = "Pending";
+        public int ApplicationId { get; set; }
     }
 }

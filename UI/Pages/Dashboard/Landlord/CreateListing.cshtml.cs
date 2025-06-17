@@ -1,11 +1,11 @@
-using BLL.DTOs.Accommodation;
+﻿using BLL.DTOs.Accommodation;
 using BLL.DTOs.Shared;
 using BLL.Interfaces;
 using Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging; // Add this for ILogger
+using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 using UI.ViewModels;
 
@@ -19,6 +19,7 @@ namespace UI.Pages.Dashboard.Landlord
         private readonly IAccommodationTypeService _typeService;
         private readonly IUniversityService _universityService;
         private readonly ILandlordService _landlordService;
+        private readonly IAccommodationImageService _imageService; // ✅ NEW
         private readonly IWebHostEnvironment _environment;
         private readonly ILogger<CreateListingModel> _logger;
 
@@ -31,6 +32,7 @@ namespace UI.Pages.Dashboard.Landlord
             IAccommodationTypeService typeService,
             IUniversityService universityService,
             ILandlordService landlordService,
+            IAccommodationImageService imageService,
             IWebHostEnvironment environment,
             ILogger<CreateListingModel> logger)
         {
@@ -39,6 +41,7 @@ namespace UI.Pages.Dashboard.Landlord
             _typeService = typeService;
             _universityService = universityService;
             _landlordService = landlordService;
+            _imageService = imageService; 
             _environment = environment;
             _logger = logger;
         }
@@ -88,7 +91,7 @@ namespace UI.Pages.Dashboard.Landlord
             try
             {
                 _logger.LogInformation("Creating accommodation listing for landlord ID: {LandlordId}", landlord.LandlordId);
-                var accId = await _accommodationService.CreateAccommodationWithAmenitiesAsync(dto, Input.SelectedAmenityIds);
+                var accId = await _accommodationService.CreateAsync(dto, Input.SelectedAmenityIds);
 
                 if (Input.Images != null && Input.Images.Any())
                 {
@@ -115,7 +118,8 @@ namespace UI.Pages.Dashboard.Landlord
                         });
                     }
 
-                    await _accommodationService.AddImagesAsync(imageEntities);
+                    
+                    await _imageService.AddImagesAsync(imageEntities);
                     _logger.LogInformation("Uploaded {Count} image(s) for accommodation ID: {AccommodationId}", imageEntities.Count, accId);
                 }
 

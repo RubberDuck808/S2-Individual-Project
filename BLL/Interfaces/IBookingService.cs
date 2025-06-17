@@ -11,5 +11,8 @@ namespace BLL.Interfaces
         Task<int> CreateAsync(int studentId, int accommodationId, int applicationId);
         Task UpdateStatusAsync(int bookingId, string statusName);
 
+        Task<string?> GetStatusNameAsync(int statusId);
+
+
     }
 }

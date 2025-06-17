@@ -5,9 +5,9 @@ namespace BLL.DTOs.Student
     public class StudentDto
     {
         public int StudentId { get; set; }
-        public string UserId { get; set; } = string.Empty;
+        public string UserId { get; set; }
 
-        public string PhoneNumber { get; set; } = string.Empty;
+        public string PhoneNumber { get; set; } 
         public string? EmergencyContact { get; set; }
         public string? EmergencyPhone { get; set; }
 

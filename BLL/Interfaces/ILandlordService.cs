@@ -1,5 +1,4 @@
 ﻿using BLL.DTOs.Landlord;
-using BLL.DTOs.Student;
 
 namespace BLL.Interfaces
 {

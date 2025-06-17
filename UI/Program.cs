@@ -40,6 +40,9 @@ builder.Services.AddScoped<IAccommodationTypeService, AccommodationTypeService>(
 builder.Services.AddScoped<IAmenityService, AmenityService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IStatusService, StatusService>();
+builder.Services.AddScoped<IAccommodationImageService, AccommodationImageService>();
+builder.Services.AddScoped<IAccommodationAssemblerService, AccommodationAssemblerService>();
+
 
 
 // Repositories

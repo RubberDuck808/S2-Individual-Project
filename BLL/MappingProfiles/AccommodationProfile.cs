@@ -16,6 +16,12 @@ namespace BLL.MappingProfiles
             CreateMap<AccommodationCreateDto, Accommodation>();
             CreateMap<AccommodationUpdateDto, Accommodation>();
             CreateMap<Accommodation, AccommodationDto>();
+            CreateMap<Accommodation, LandlordAccommodationDto>()
+            .ForMember(dest => dest.ApplicationCount, opt => opt.Ignore())
+            .ForMember(dest => dest.UniversityName, opt => opt.Ignore())
+            .ForMember(dest => dest.AmenityNames, opt => opt.Ignore())
+            .ForMember(dest => dest.ImageUrls, opt => opt.Ignore())
+            .ForMember(dest => dest.AccommodationType, opt => opt.Ignore());
         }
     }
 }
