@@ -68,6 +68,19 @@ namespace UI.Pages.Dashboard.Student
 
         public async Task<IActionResult> OnPostAcceptAsync(int id)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            var student = await _studentService.GetByUserIdAsync(userId);
+            if (student == null) return Forbid();
+
+            var booking = await _bookingService.GetByIdAsync(id);
+            if (booking == null || booking.StudentId != student.StudentId)
+            {
+                _logger.LogWarning("Unauthorized accept attempt. Student ID: {StudentId} Booking ID: {BookingId}", student.StudentId, id);
+                return Forbid();
+            }
+
             try
             {
                 _logger.LogInformation("Student accepted booking ID: {BookingId}", id);
@@ -83,8 +96,22 @@ namespace UI.Pages.Dashboard.Student
             return RedirectToPage();
         }
 
+
         public async Task<IActionResult> OnPostRejectAsync(int id)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            var student = await _studentService.GetByUserIdAsync(userId);
+            if (student == null) return Forbid();
+
+            var booking = await _bookingService.GetByIdAsync(id);
+            if (booking == null || booking.StudentId != student.StudentId)
+            {
+                _logger.LogWarning("Unauthorized reject attempt. Student ID: {StudentId} Booking ID: {BookingId}", student.StudentId, id);
+                return Forbid();
+            }
+
             try
             {
                 _logger.LogInformation("Student rejected booking ID: {BookingId}", id);
@@ -99,5 +126,6 @@ namespace UI.Pages.Dashboard.Student
 
             return RedirectToPage();
         }
+
     }
 }

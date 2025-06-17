@@ -111,7 +111,7 @@ namespace BLL.Services
             return booking.BookingId;
         }
 
-        public async Task UpdateStatusAsync(int bookingId, string statusName)
+        public async Task UpdateStatusAsync(int bookingId, string statusName, int? studentId = null)
         {
             _logger.LogInformation("Updating status of booking ID {BookingId} to '{StatusName}'", bookingId, statusName);
 
@@ -120,6 +120,12 @@ namespace BLL.Services
             {
                 _logger.LogWarning("Booking with ID {Id} not found for status update", bookingId);
                 throw new NotFoundException($"Booking {bookingId} not found");
+            }
+
+            if (studentId.HasValue && booking.StudentId != studentId.Value)
+            {
+                _logger.LogWarning("Student {StudentId} attempted to update booking {BookingId} that doesn't belong to them.", studentId, bookingId);
+                throw new ForbiddenException("You are not authorized to modify this booking.");
             }
 
             var statusId = await _statusRepo.GetIdByNameAsync(statusName);
@@ -134,6 +140,7 @@ namespace BLL.Services
 
             _logger.LogInformation("Booking ID {BookingId} status updated to '{StatusName}'", bookingId, statusName);
         }
+
 
         public async Task<string?> GetStatusNameAsync(int statusId)
         {

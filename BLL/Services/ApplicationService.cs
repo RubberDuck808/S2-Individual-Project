@@ -58,14 +58,39 @@ namespace BLL.Services
 
         public async Task<int> CreateAsync(ApplicationCreateDto dto)
         {
-            _logger.LogInformation("Creating new application for student ID {StudentId} and accommodation ID {AccommodationId}", dto.StudentId, dto.AccommodationId);
+            if (await _applicationRepo.ExistsAsync(dto.StudentId, dto.AccommodationId))
+                throw new ValidationException("You have already applied to this accommodation.");
 
-            var entity = _mapper.Map<Application>(dto);
-            var applicationId = await _applicationRepo.CreateAsync(entity);
+            //var accommodation = await _accommodationService.GetEntityAsync(dto.AccommodationId);
+            //if (accommodation == null)
+            //    throw new NotFoundException($"Accommodation {dto.AccommodationId} not found.");
 
-            _logger.LogInformation("Application created with ID: {ApplicationId}", applicationId);
-            return applicationId;
+            //if (!accommodation.IsAvailable)
+            //    throw new ValidationException("This accommodation is no longer available for application.");
+
+
+
+            var application = new Application
+            {
+                StudentId = dto.StudentId,
+                AccommodationId = dto.AccommodationId,
+                StatusId = 1, // e.g. Pending
+                ApplicationDate = DateTime.UtcNow
+            };
+
+            return await _applicationRepo.CreateAsync(application);
         }
+
+        public async Task<bool> ExistsAsync(int studentId, int accommodationId)
+        {
+            _logger.LogInformation("Checking if application exists for student ID {StudentId} and accommodation ID {AccommodationId}", studentId, accommodationId);
+
+            var exists = await _applicationRepo.ExistsAsync(studentId, accommodationId);
+
+            _logger.LogInformation("Application exists: {Exists}", exists);
+            return exists;
+        }
+
 
         public async Task UpdateStatusAsync(ApplicationUpdateDto dto)
         {
@@ -84,15 +109,7 @@ namespace BLL.Services
             _logger.LogInformation("Application ID {ApplicationId} status updated successfully", dto.ApplicationId);
         }
 
-        public async Task<bool> ExistsAsync(int studentId, int accommodationId)
-        {
-            _logger.LogInformation("Checking if application exists for student ID {StudentId} and accommodation ID {AccommodationId}", studentId, accommodationId);
 
-            var exists = await _applicationRepo.ExistsAsync(studentId, accommodationId);
-
-            _logger.LogInformation("Application exists: {Exists}", exists);
-            return exists;
-        }
 
         public async Task<List<ApplicationDto>> GetByAccommodationIdAsync(int accommodationId)
         {

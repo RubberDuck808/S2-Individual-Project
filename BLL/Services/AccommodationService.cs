@@ -223,5 +223,18 @@ namespace BLL.Services
 
             return results;
         }
+
+        public async Task<Accommodation> GetEntityAsync(int accommodationId)
+        {
+            var accommodation = await _accommodationRepo.GetByIdAsync(accommodationId);
+            if (accommodation == null)
+            {
+                _logger.LogWarning("Accommodation with ID {AccommodationId} not found", accommodationId);
+                throw new NotFoundException($"Accommodation {accommodationId} not found.");
+            }
+
+            return accommodation;
+        }
+
     }
 }

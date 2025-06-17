@@ -16,6 +16,8 @@ namespace BLL.Interfaces
         Task<IEnumerable<LandlordAccommodationDto>> GetByLandlordUserIdAsync(string landlordUserId);
         Task<IEnumerable<AppliedAccommodationDto>> GetApplicationByStudentUserIdAsync(string studentUserId);
         Task<IEnumerable<AccommodationBookingDto>> GetBookingsByStudentUserIdAsync(string studentUserId);
+        Task<Accommodation> GetEntityAsync(int accommodationId); // Returns the domain model
+
 
 
     }

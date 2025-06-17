@@ -63,18 +63,31 @@ else
                 </table>
             </div>
 
+
             <!-- Right: Apply/Contact Card -->
             <div class="col-lg-4">
                 <div class="card shadow-sm">
                     <div class="card-body">
                         <h5 class="card-title">Interested?</h5>
 
+                        @if (!string.IsNullOrEmpty(Model.Message))
+                        {
+                            <div class="alert alert-info">@Model.Message</div>
+                        }
+
                         @if (User.Identity.IsAuthenticated && User.IsInRole("Student"))
                         {
-                            <form method="post" asp-page-handler="Apply">
-                                <input type="hidden" name="AccommodationId" value="@Model.Accommodation.AccommodationId" />
-                                <button type="submit" class="btn btn-primary w-100">Apply Now</button>
-                            </form>
+                            @if (Model.AlreadyApplied)
+                            {
+                                <button class="btn btn-secondary w-100" disabled>You already applied</button>
+                            }
+                            else
+                            {
+                                <form method="post" asp-page-handler="Apply">
+                                    <input type="hidden" name="AccommodationId" value="@Model.Accommodation.AccommodationId" />
+                                    <button type="submit" class="btn btn-primary w-100">Apply Now</button>
+                                </form>
+                            }
                         }
                         else if (!User.Identity.IsAuthenticated)
                         {
@@ -87,6 +100,7 @@ else
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 }

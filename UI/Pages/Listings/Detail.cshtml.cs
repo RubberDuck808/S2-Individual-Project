@@ -29,6 +29,10 @@ namespace UI.Pages.Listings
 
         public AccommodationDto? Accommodation { get; set; }
 
+        public string? Message => TempData["Message"]?.ToString();
+
+        public bool AlreadyApplied { get; set; }
+
         public async Task<IActionResult> OnGetAsync(int id)
         {
             try
@@ -40,6 +44,17 @@ namespace UI.Pages.Listings
                 {
                     _logger.LogWarning("Accommodation not found for ID: {Id}", id);
                     return RedirectToPage("/NotFound");
+                }
+
+                if (User.Identity.IsAuthenticated && User.IsInRole("Student"))
+                {
+                    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                    var student = await _studentService.GetByUserIdAsync(userId);
+                    if (student != null)
+                    {
+                        var apps = await _applicationService.GetByStudentAsync(student.StudentId);
+                        AlreadyApplied = apps.Any(a => a.AccommodationId == id);
+                    }
                 }
 
                 return Page();
@@ -78,7 +93,7 @@ namespace UI.Pages.Listings
             {
                 _logger.LogInformation("Duplicate application attempt by student ID: {StudentId} for accommodation ID: {AccommodationId}", student.StudentId, accommodationId);
                 TempData["Message"] = "You already applied for this listing.";
-                return RedirectToPage();
+                return RedirectToPage(new { id = accommodationId });
             }
 
             var dto = new ApplicationCreateDto
@@ -101,7 +116,7 @@ namespace UI.Pages.Listings
                 TempData["Message"] = "Something went wrong while submitting your application.";
             }
 
-            return RedirectToPage();
+            return RedirectToPage(new { id = accommodationId });
         }
     }
 }
