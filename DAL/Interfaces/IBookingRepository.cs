@@ -12,6 +12,9 @@ namespace DAL.Interfaces
         Task DeleteAsync(int bookingId);
         //Task<IEnumerable<(Accommodation, Booking, string?)>> GetByStudentIdAsync(int studentId);
 
+        Task<Booking?> GetAcceptedBookingByAccommodationIdAsync(int accommodationId);
+
+
 
 
     }

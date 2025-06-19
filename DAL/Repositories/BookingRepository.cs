@@ -136,4 +136,27 @@ public class BookingRepository : IBookingRepository
         };
     }
 
+    public async Task<Booking?> GetAcceptedBookingByAccommodationIdAsync(int accommodationId)
+    {
+        using var conn = new SqlConnection(_connectionString);
+        await conn.OpenAsync();
+
+        var cmd = new SqlCommand(@"
+        SELECT TOP 1 * FROM Booking
+        WHERE AccommodationId = @AccommodationId AND StatusId = 2", conn);
+
+        cmd.Parameters.AddWithValue("@AccommodationId", accommodationId);
+
+        using var reader = await cmd.ExecuteReaderAsync();
+        if (await reader.ReadAsync())
+        {
+            return ReadBooking(reader);
+        }
+
+        return null;
+    }
+
+
+
+
 }

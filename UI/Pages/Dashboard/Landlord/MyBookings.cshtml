@@ -1,0 +1,49 @@
+﻿@page "/landlord/dashboard/mybookings"
+@model UI.Pages.Dashboard.Landlord.MyBookingsModel
+@{
+    Layout = "_LandlordLayout";
+}
+
+<section class="container my-5">
+    <h3 class="mb-4">Accepted Bookings</h3>
+
+    @if (!Model.Accommodations.Any())
+    {
+        <div class="alert alert-info">No accepted bookings found.</div>
+    }
+
+    @foreach (var item in Model.Accommodations)
+    {
+        <div class="listing-item d-flex flex-column flex-md-row border rounded shadow-sm mb-4 overflow-hidden position-relative">
+
+            <span class="position-absolute top-0 end-0 m-2 badge bg-success">Accepted</span>
+
+            <!-- Image -->
+            <div class="listing-img-wrapper flex-shrink-0">
+                @if (item.ImageUrls?.Count > 0)
+                {
+                    <img src="@item.ImageUrls.First()" class="img-fluid w-100 h-100 object-fit-cover" style="max-width: 300px; max-height: 200px;" />
+                }
+                else
+                {
+                    <img src="~/images/NoImage.png" class="img-fluid w-100 h-100 object-fit-cover" style="max-width: 300px; max-height: 200px;" />
+                }
+            </div>
+
+            <!-- Details -->
+            <div class="p-3 flex-grow-1">
+                <h5 class="fw-bold mb-1">@item.Title</h5>
+                <p class="mb-1 text-muted">@($"{item.Address}, {item.PostCode} {item.City}, {item.Country}")</p>
+                <p class="mb-1"><strong>€@item.MonthlyRent</strong> / month</p>
+
+                <div class="text-muted small">
+                    <i class="bi bi-arrows-fullscreen me-1"></i> @item.Size m²
+                    <i class="bi bi-people ms-3 me-1"></i> @item.MaxOccupants people
+                    <i class="bi bi-calendar-check ms-3 me-1"></i> Available: @item.AvailableFrom.ToString("dd MMM yyyy")
+                </div>
+
+                <a asp-page="/Listings/Detail" asp-route-id="@item.AccommodationId" class="btn btn-outline-primary btn-sm mt-3">View Listing</a>
+            </div>
+        </div>
+    }
+</section>

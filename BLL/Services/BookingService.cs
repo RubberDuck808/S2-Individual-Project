@@ -151,5 +151,12 @@ namespace BLL.Services
             return await _statusRepo.GetNameByIdAsync(statusId);
         }
 
+        
+        public async Task<Booking?> GetAcceptedBookingByAccommodationIdAsync(int accommodationId)
+        {
+            return await _bookingRepo.GetAcceptedBookingByAccommodationIdAsync(accommodationId);
+        }
+
+
     }
 }

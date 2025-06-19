@@ -43,6 +43,8 @@ namespace BLL.Services
         }
 
 
+
+        // this is for caltulating distance between two coordinates in kilometers
         public double CalculateDistanceKm(double lat1, double lon1, double lat2, double lon2)
         {
             const double R = 6371;

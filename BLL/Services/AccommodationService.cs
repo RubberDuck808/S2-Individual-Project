@@ -15,8 +15,8 @@ namespace BLL.Services
         private readonly IApplicationService _applicationService;
         private readonly IAmenityService _amenityService;
         private readonly IBookingService _bookingService;
-        private readonly ILandlordRepository _landlordRepo;
-        private readonly IStudentRepository _studentRepo;
+        private readonly ILandlordService _landlordService;
+        private readonly IStudentService _studentService;
         private readonly IAccommodationTypeService _typeService;
         private readonly IMapper _mapper;
         private readonly IAccommodationImageService _imageService;
@@ -27,7 +27,7 @@ namespace BLL.Services
 
         public AccommodationService(
             IAccommodationRepository accommodationRepo,
-            ILandlordRepository landlordRepo,
+            ILandlordService landlordService,
             IAccommodationImageService imageService,
             IUniversityService universityService,
             IBookingService bookingService,
@@ -38,13 +38,13 @@ namespace BLL.Services
             IAccommodationTypeService typeService,
             IGeoLocationService geoService,
             ILogger<AccommodationService> logger,
-            IStudentRepository studentRepo)
+            IStudentService studentService)
         {
             _accommodationRepo = accommodationRepo;
-            _landlordRepo = landlordRepo;
+            _landlordService = landlordService;
             _bookingService = bookingService;
             _imageService = imageService;
-            _studentRepo = studentRepo;
+            _studentService = studentService;
             _typeService = typeService;
             _universityService = universityService;
             _mapper = mapper;
@@ -124,7 +124,7 @@ namespace BLL.Services
 
         public async Task<IEnumerable<LandlordAccommodationDto>> GetByLandlordUserIdAsync(string landlordUserId)
         {
-            var landlord = await _landlordRepo.GetByUserIdAsync(landlordUserId);
+            var landlord = await _landlordService.GetByUserIdAsync(landlordUserId);
             if (landlord == null)
                 throw new NotFoundException($"No landlord found for user ID {landlordUserId}");
 
@@ -158,7 +158,7 @@ namespace BLL.Services
 
         public async Task<IEnumerable<AppliedAccommodationDto>> GetApplicationByStudentUserIdAsync(string studentUserId)
         {
-            var student = await _studentRepo.GetByUserIdAsync(studentUserId);
+            var student = await _studentService.GetByUserIdAsync(studentUserId);
             var appTuples = await _applicationService.GetApplicationsWithAccommodationIdsByStudentAsync(student.StudentId);
             var result = new List<AppliedAccommodationDto>();
 
@@ -198,7 +198,7 @@ namespace BLL.Services
 
         public async Task<IEnumerable<AccommodationBookingDto>> GetBookingsByStudentUserIdAsync(string studentUserId)
         {
-            var student = await _studentRepo.GetByUserIdAsync(studentUserId);
+            var student = await _studentService.GetByUserIdAsync(studentUserId);
             if (student == null)
                 return Enumerable.Empty<AccommodationBookingDto>();
 
@@ -251,6 +251,52 @@ namespace BLL.Services
 
             return accommodation;
         }
+
+
+        public async Task<IEnumerable<AccommodationBookingDto>> GetAcceptedBookingsByLandlordUserIdAsync(string landlordUserId)
+        {
+            var landlord = await _landlordService.GetByUserIdAsync(landlordUserId);
+            if (landlord == null)
+                return Enumerable.Empty<AccommodationBookingDto>();
+
+            var accommodations = await _accommodationRepo.GetAccommodationsByLandlordAsync(landlord.LandlordId);
+            var result = new List<AccommodationBookingDto>();
+
+            foreach (var accommodation in accommodations)
+            {
+                var acceptedBooking = await _bookingService.GetAcceptedBookingByAccommodationIdAsync(accommodation.AccommodationId);
+                if (acceptedBooking == null)
+                    continue;
+
+                var dto = await _assembler.ToDtoAsync(accommodation);
+
+                result.Add(new AccommodationBookingDto
+                {
+                    BookingId = acceptedBooking.BookingId,
+                    AccommodationId = dto.AccommodationId,
+                    Title = dto.Title,
+                    Description = dto.Description,
+                    Address = dto.Address,
+                    PostCode = dto.PostCode,
+                    City = dto.City,
+                    Country = dto.Country,
+                    MonthlyRent = dto.MonthlyRent,
+                    IsAvailable = dto.IsAvailable,
+                    MaxOccupants = dto.MaxOccupants,
+                    Size = dto.Size,
+                    AvailableFrom = dto.AvailableFrom,
+                    AccommodationType = dto.AccommodationType,
+                    UniversityName = dto.UniversityName,
+                    AmenityNames = dto.AmenityNames,
+                    ImageUrls = dto.ImageUrls,
+                    BookingStatus = "Accepted"
+                });
+            }
+
+            return result;
+        }
+
+
 
     }
 }

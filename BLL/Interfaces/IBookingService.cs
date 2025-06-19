@@ -1,4 +1,5 @@
 ﻿using BLL.DTOs.Booking;
+using Domain.Models;
 
 namespace BLL.Interfaces
 {
@@ -12,6 +13,9 @@ namespace BLL.Interfaces
         Task UpdateStatusAsync(int bookingId, string statusName, int? studentId = null);
 
         Task<string?> GetStatusNameAsync(int statusId);
+
+        Task<Booking?> GetAcceptedBookingByAccommodationIdAsync(int accommodationId);
+
 
 
     }
