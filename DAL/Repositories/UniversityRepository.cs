@@ -41,7 +41,8 @@ namespace DAL.Repositories
             using var conn = new SqlConnection(_connectionString);
             await conn.OpenAsync();
 
-            var cmd = new SqlCommand("SELECT * FROM University", conn);
+            var cmd = new SqlCommand("SELECT UniversityId, Name, City, Latitude, Longitude, Location FROM University", conn);
+
             using var reader = await cmd.ExecuteReaderAsync();
             while (await reader.ReadAsync())
             {
@@ -49,13 +50,16 @@ namespace DAL.Repositories
                 {
                     UniversityId = reader.GetInt32(reader.GetOrdinal("UniversityId")),
                     Name = reader.GetString(reader.GetOrdinal("Name")),
-                    Location = reader.GetString(reader.GetOrdinal("Location"))
+                    City = reader.GetString(reader.GetOrdinal("City")),
+                    Latitude = reader.IsDBNull(reader.GetOrdinal("Latitude")) ? null : reader.GetDouble(reader.GetOrdinal("Latitude")),
+                    Longitude = reader.IsDBNull(reader.GetOrdinal("Longitude")) ? null : reader.GetDouble(reader.GetOrdinal("Longitude")),
+                    Location = reader.IsDBNull(reader.GetOrdinal("Location")) ? null : reader.GetString(reader.GetOrdinal("Location"))
                 });
-
             }
 
             return universities;
         }
+
 
         public async Task<University?> GetByIdAsync(int id)
         {

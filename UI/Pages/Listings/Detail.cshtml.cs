@@ -14,36 +14,59 @@ namespace UI.Pages.Listings
         private readonly IApplicationService _applicationService;
         private readonly IStudentService _studentService;
         private readonly ILogger<DetailModel> _logger;
+        private readonly IGeoLocationService _geoLocationService;
+        private readonly IConfiguration _config;
 
         public DetailModel(
             IAccommodationService accommodationService,
             IApplicationService applicationService,
             IStudentService studentService,
-            ILogger<DetailModel> logger)
+            IGeoLocationService geoLocationService,
+            ILogger<DetailModel> logger,
+            IConfiguration config)
         {
             _accommodationService = accommodationService;
             _applicationService = applicationService;
             _studentService = studentService;
+            _geoLocationService = geoLocationService;
             _logger = logger;
+            _config = config;
         }
+
+
 
         public AccommodationDto? Accommodation { get; set; }
 
         public string? Message => TempData["Message"]?.ToString();
 
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
+
+
         public bool AlreadyApplied { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int id)
         {
+            ViewData["GoogleMapsApiKey"] = _config["GoogleMaps:ApiKey"];
+
             try
             {
                 _logger.LogInformation("Fetching accommodation details for ID: {Id}", id);
                 Accommodation = await _accommodationService.GetByIdAsync(id);
 
+                // Check for null first
                 if (Accommodation == null)
                 {
                     _logger.LogWarning("Accommodation not found for ID: {Id}", id);
                     return RedirectToPage("/NotFound");
+                }
+
+                // Only geocode if the accommodation exists
+                var coords = await _geoLocationService.GetCoordinatesFromAccommodationAsync(Accommodation);
+                if (coords != null)
+                {
+                    Latitude = coords.Value.lat;
+                    Longitude = coords.Value.lng;
                 }
 
                 if (User.Identity.IsAuthenticated && User.IsInRole("Student"))
@@ -65,6 +88,7 @@ namespace UI.Pages.Listings
                 return RedirectToPage("/NotFound");
             }
         }
+
 
         public async Task<IActionResult> OnPostApplyAsync(int accommodationId)
         {

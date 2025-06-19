@@ -27,6 +27,7 @@ namespace BLL.Services
             _logger = logger;
         }
 
+
         public async Task<AccommodationDto> ToDtoAsync(Accommodation entity)
         {
             _logger.LogInformation("Assembling DTO for accommodation ID: {Id}", entity.AccommodationId);
@@ -50,12 +51,17 @@ namespace BLL.Services
                 MaxOccupants = entity.MaxOccupants,
                 Size = (int)entity.Size,
                 AvailableFrom = entity.AvailableFrom,
+                Latitude = entity.Latitude,           
+                Longitude = entity.Longitude,         
                 AmenityNames = amenities,
                 ImageUrls = images,
                 UniversityName = universityName,
                 AccommodationType = typeName,
-                LandlordName = "" 
+                LandlordName = "",
+                UniversityId = entity.UniversityId,
+                AccommodationTypeId = entity.AccommodationTypeId
             };
         }
+
     }
 }

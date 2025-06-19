@@ -99,10 +99,10 @@ namespace DAL.Repositories
 
             var query = @"
             INSERT INTO Accommodation 
-            (Title, Description, Address, PostCode, City, Country, MonthlyRent, Size, MaxOccupants, IsAvailable, LandlordId, AccommodationTypeId, UniversityId)
+            (Title, Description, Address, PostCode, City, Country, MonthlyRent, Size, MaxOccupants, IsAvailable, LandlordId, AccommodationTypeId, UniversityId, Latitude, Longitude)
             OUTPUT INSERTED.AccommodationId
             VALUES 
-            (@Title, @Description, @Address, @PostCode, @City, @Country, @MonthlyRent, @Size, @MaxOccupants, @IsAvailable, @LandlordId, @AccommodationTypeId, @UniversityId)";
+            (@Title, @Description, @Address, @PostCode, @City, @Country, @MonthlyRent, @Size, @MaxOccupants, @IsAvailable, @LandlordId, @AccommodationTypeId, @UniversityId, @Latitude, @Longitude)";
 
 
             using var cmd = new SqlCommand(query, conn);
@@ -119,6 +119,9 @@ namespace DAL.Repositories
             cmd.Parameters.AddWithValue("@LandlordId", accommodation.LandlordId);
             cmd.Parameters.AddWithValue("@AccommodationTypeId", accommodation.AccommodationTypeId);
             cmd.Parameters.AddWithValue("@UniversityId", accommodation.UniversityId);
+            cmd.Parameters.AddWithValue("@Latitude", (object?)accommodation.Latitude ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Longitude", (object?)accommodation.Longitude ?? DBNull.Value);
+
 
             var result = await cmd.ExecuteScalarAsync();
             return Convert.ToInt32(result);
@@ -132,11 +135,23 @@ namespace DAL.Repositories
             await conn.OpenAsync();
 
             var query = @"
-                UPDATE Accommodation
-                SET Title = @Title, Description = @Description,Address = @Address, PostCode = @PostCode, City = @City, Country = @Country, MonthlyRent = @MonthlyRent, Size = @Size,
-                    MaxOccupants = @MaxOccupants, IsAvailable = @IsAvailable,
-                    AccommodationTypeId = @AccommodationTypeId, UniversityId = @UniversityId
-                WHERE AccommodationId = @AccommodationId";
+        UPDATE Accommodation SET
+            Title = @Title,
+            Description = @Description,
+            Address = @Address,
+            PostCode = @PostCode,
+            City = @City,
+            Country = @Country,
+            MonthlyRent = @MonthlyRent,
+            Size = @Size,
+            MaxOccupants = @MaxOccupants,
+            IsAvailable = @IsAvailable,
+            LandlordId = @LandlordId,
+            AccommodationTypeId = @AccommodationTypeId,
+            UniversityId = @UniversityId,
+            Latitude = @Latitude,
+            Longitude = @Longitude
+        WHERE AccommodationId = @AccommodationId";
 
             using var cmd = new SqlCommand(query, conn);
             cmd.Parameters.AddWithValue("@Title", accommodation.Title);
@@ -149,13 +164,16 @@ namespace DAL.Repositories
             cmd.Parameters.AddWithValue("@Size", accommodation.Size);
             cmd.Parameters.AddWithValue("@MaxOccupants", accommodation.MaxOccupants);
             cmd.Parameters.AddWithValue("@IsAvailable", accommodation.IsAvailable);
+            cmd.Parameters.AddWithValue("@LandlordId", accommodation.LandlordId);
             cmd.Parameters.AddWithValue("@AccommodationTypeId", accommodation.AccommodationTypeId);
             cmd.Parameters.AddWithValue("@UniversityId", accommodation.UniversityId);
+            cmd.Parameters.AddWithValue("@Latitude", (object?)accommodation.Latitude ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Longitude", (object?)accommodation.Longitude ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@AccommodationId", accommodation.AccommodationId);
-
 
             await cmd.ExecuteNonQueryAsync();
         }
+
 
         public async Task<int> DeleteAsync(int id)
         {
@@ -278,7 +296,11 @@ namespace DAL.Repositories
                 LandlordId = reader.GetInt32(reader.GetOrdinal("LandlordId")),
                 AccommodationTypeId = reader.GetInt32(reader.GetOrdinal("AccommodationTypeId")),
                 UniversityId = reader.GetInt32(reader.GetOrdinal("UniversityId")),
-                AvailableFrom = reader.GetDateTime(reader.GetOrdinal("AvailableFrom")) 
+                AvailableFrom = reader.GetDateTime(reader.GetOrdinal("AvailableFrom")),
+                Latitude = reader.IsDBNull(reader.GetOrdinal("Latitude")) ? null : reader.GetDouble(reader.GetOrdinal("Latitude")),
+                Longitude = reader.IsDBNull(reader.GetOrdinal("Longitude")) ? null : reader.GetDouble(reader.GetOrdinal("Longitude")),
+
+
             };
         }
     }

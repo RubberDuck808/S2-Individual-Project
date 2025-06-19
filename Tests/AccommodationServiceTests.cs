@@ -37,6 +37,7 @@ namespace Tests
                 mockAssembler.Object,
                 Mock.Of<IAmenityService>(),
                 Mock.Of<IAccommodationTypeService>(),
+                Mock.Of<IGeoLocationService>(),
                 Mock.Of<ILogger<AccommodationService>>(),
                 Mock.Of<IStudentRepository>());
 

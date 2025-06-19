@@ -22,6 +22,7 @@ namespace UI.Pages.Dashboard.Landlord
         private readonly IAccommodationTypeService _typeService;
         private readonly IUniversityService _universityService;
         private readonly ILandlordService _landlordService;
+        private readonly IGeoLocationService _geoLocationService;
         private readonly IWebHostEnvironment _environment;
 
         [BindProperty]
@@ -31,7 +32,6 @@ namespace UI.Pages.Dashboard.Landlord
         public string Message { get; set; }
 
         public EditListingModel(
-
             ILogger<EditListingModel> logger,
             IAccommodationImageService imageService,
             IAccommodationService accommodationService,
@@ -39,6 +39,7 @@ namespace UI.Pages.Dashboard.Landlord
             IAccommodationTypeService typeService,
             IUniversityService universityService,
             ILandlordService landlordService,
+            IGeoLocationService geoLocationService,
             IWebHostEnvironment environment)
         {
             _logger = logger;
@@ -48,6 +49,7 @@ namespace UI.Pages.Dashboard.Landlord
             _typeService = typeService;
             _universityService = universityService;
             _landlordService = landlordService;
+            _geoLocationService = geoLocationService;
             _environment = environment;
         }
 
@@ -59,14 +61,8 @@ namespace UI.Pages.Dashboard.Landlord
                 if (accommodation == null)
                     return NotFound();
 
-                // Verify the current user owns this listing
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var landlord = await _landlordService.GetByUserIdAsync(userId);
-
-                //if (landlord == null || !await _accommodationService.IsOwnedByLandlord(id, landlord.LandlordId))
-                //{
-                //    return Forbid();
-                //}
 
                 Input = new AccommodationViewModel
                 {
@@ -89,8 +85,6 @@ namespace UI.Pages.Dashboard.Landlord
                 };
 
                 _logger.LogInformation("Edit GET requested for listing ID {Id}", id);
-
-
                 return Page();
             }
             catch (NotFoundException)
@@ -101,6 +95,32 @@ namespace UI.Pages.Dashboard.Landlord
 
         public async Task<IActionResult> OnPostAsync()
         {
+            var fullAddress = $"{Input.Address}, {Input.PostCode} {Input.City}, {Input.Country}";
+            var coordinates = await _geoLocationService.GetCoordinatesFromAddressAsync(fullAddress);
+
+            if (coordinates == null)
+            {
+                _logger.LogWarning("Address validation failed during edit: {Address}", fullAddress);
+                ModelState.AddModelError("Input.Address", "We couldn't verify this address. Please check the street name.");
+                ModelState.AddModelError("Input.PostCode", "We couldn't verify this postcode. Please check the value.");
+                await LoadFormOptionsAsync();
+                return Page();
+            }
+
+            var allUniversities = await _universityService.GetAllAsync();
+            var closestUniversity = allUniversities
+                .Where(u => u.Latitude.HasValue && u.Longitude.HasValue)
+                .OrderBy(u => _geoLocationService.CalculateDistanceKm(coordinates.Value.lat, coordinates.Value.lng, u.Latitude.Value, u.Longitude.Value))
+                .FirstOrDefault();
+
+            if (closestUniversity == null)
+            {
+                _logger.LogWarning("No matching university found during edit based on coordinates [{Lat}, {Lng}]", coordinates.Value.lat, coordinates.Value.lng);
+                ModelState.AddModelError(string.Empty, "We couldn't match this location to any university.");
+                await LoadFormOptionsAsync();
+                return Page();
+            }
+
             if (!ModelState.IsValid)
             {
                 await LoadFormOptionsAsync();
@@ -111,14 +131,8 @@ namespace UI.Pages.Dashboard.Landlord
             {
                 _logger.LogInformation("Submitting edit for accommodation ID {Id}", Input.AccommodationId);
 
-                // Verify ownership
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var landlord = await _landlordService.GetByUserIdAsync(userId);
-
-                //if (landlord == null || !await _accommodationService.IsOwnedByLandlord(Input.AccommodationId, landlord.LandlordId))
-                //{
-                //    return Forbid();
-                //}
 
                 var dto = new AccommodationUpdateDto
                 {
@@ -127,24 +141,23 @@ namespace UI.Pages.Dashboard.Landlord
                     Description = Input.Description,
                     Address = Input.Address,
                     PostCode = Input.PostCode,
-                    City = "Eindhoven",
-                    Country = "Netherlands",
+                    City = Input.City,
+                    Country = Input.Country,
                     MonthlyRent = Input.MonthlyRent,
                     Size = Input.Size,
                     MaxOccupants = Input.MaxOccupants,
                     AccommodationTypeId = Input.AccommodationTypeId,
-                    UniversityId = Input.UniversityId,
+                    UniversityId = closestUniversity.UniversityId,
+                    Latitude = coordinates.Value.lat,
+                    Longitude = coordinates.Value.lng,
                     IsAvailable = true,
-                    AvailableFrom = DateTime.UtcNow
+                    AvailableFrom = DateTime.UtcNow,
+                    LandlordId = landlord.LandlordId
+
                 };
 
-
-
-                // Update accommodation and amenities
                 await _accommodationService.UpdateWithAmenitiesAsync(dto, Input.SelectedAmenityIds);
-                _logger.LogInformation("Accommodation ID {Id} updated successfully", Input.AccommodationId);
 
-                // Handle image uploads if any
                 if (Input.Images != null && Input.Images.Any())
                 {
                     var uploadPath = Path.Combine(_environment.WebRootPath, "uploads");
@@ -173,6 +186,7 @@ namespace UI.Pages.Dashboard.Landlord
                     await _imageService.AddImagesAsync(imageEntities);
                 }
 
+                _logger.LogInformation("Accommodation ID {Id} updated successfully", Input.AccommodationId);
                 Message = "Listing updated successfully!";
                 return RedirectToPage("/dashboard/landlord/mylistings");
             }
@@ -183,14 +197,6 @@ namespace UI.Pages.Dashboard.Landlord
                 await LoadFormOptionsAsync();
                 return Page();
             }
-
-        }
-
-        private async Task LoadFormOptionsAsync()
-        {
-            Input.AccommodationTypes = await _typeService.GetAllAsync();
-            Input.Universities = await _universityService.GetAllAsync();
-            Input.Amenities = await _amenityService.GetAllAsync();
         }
 
         public async Task<IActionResult> OnPostDeleteAsync()
@@ -215,10 +221,15 @@ namespace UI.Pages.Dashboard.Landlord
             {
                 _logger.LogError(ex, "Error deleting accommodation ID {Id}", accommodationId);
                 TempData["ErrorMessage"] = "An error occurred while deleting the listing.";
-                return RedirectToPage("dashboard/landlord/mylistings");
+                return RedirectToPage("/dashboard/landlord/mylistings");
             }
         }
 
-
+        private async Task LoadFormOptionsAsync()
+        {
+            Input.AccommodationTypes = await _typeService.GetAllAsync();
+            Input.Universities = await _universityService.GetAllAsync();
+            Input.Amenities = await _amenityService.GetAllAsync();
+        }
     }
 }

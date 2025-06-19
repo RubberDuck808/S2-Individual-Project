@@ -101,6 +101,37 @@ else
                 </div>
             </div>
 
+            @if (Model.Latitude != null && Model.Longitude != null)
+            {
+                <h5>Location</h5>
+                <div id="map" class="rounded shadow-sm mb-4" style="height: 400px;"></div>
+            }
+
         </div>
     </div>
 }
+
+@section Scripts {
+    <script src="https://maps.googleapis.com/maps/api/js?key=@ViewData["GoogleMapsApiKey"]"></script>
+    <script>
+        function initMap() {
+            const lat = @Model.Latitude?.ToString("F6", System.Globalization.CultureInfo.InvariantCulture);
+            const lng = @Model.Longitude?.ToString("F6", System.Globalization.CultureInfo.InvariantCulture);
+
+            const location = { lat: parseFloat(lat), lng: parseFloat(lng) };
+
+            const map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 15,
+                center: location
+            });
+
+            new google.maps.Marker({
+                position: location,
+                map: map
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", initMap);
+    </script>
+}
+

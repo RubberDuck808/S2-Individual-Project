@@ -32,6 +32,7 @@
         <span asp-validation-for="Input.PostCode" class="text-danger"></span>
     </div>
 
+
     <div class="form-group mb-3">
         <label asp-for="Input.City" class="form-label"></label>
         <div class="form-control text-dark bg-light">Eindhoven</div>
@@ -70,13 +71,7 @@
         <span asp-validation-for="Input.AccommodationTypeId" class="text-danger"></span>
     </div>
 
-    <div class="form-group mb-3">
-        <label asp-for="Input.UniversityId" class="form-label"></label>
-        <select asp-for="Input.UniversityId" class="form-control" asp-items="@(new SelectList(Model.Input.Universities, "UniversityId", "Name"))">
-            <option value="">-- Select University --</option>
-        </select>
-        <span asp-validation-for="Input.UniversityId" class="text-danger"></span>
-    </div>
+   
 
     <div class="form-group mb-4">
         <label class="form-label">Amenities</label>

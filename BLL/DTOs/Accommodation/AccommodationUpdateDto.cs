@@ -7,48 +7,35 @@ namespace BLL.DTOs.Accommodation
 {
     public class AccommodationUpdateDto
     {
-        [Required]
         public int AccommodationId { get; set; }
-
-        [Required]
-        [StringLength(100)]
         public string Title { get; set; } = string.Empty;
 
-        [Required]
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
         public string Description { get; set; } = string.Empty;
-
-        [Required]
         public string Address { get; set; } = string.Empty;
-        [Required]
-        public string PostCode { get; set; } = string.Empty;
-        [Required]
-        public string City { get; set; } = string.Empty;
+        public string PostCode { get; set; }
+        public string City { get; set; }
+        public string Country { get; set; }
 
-        [Required]
-        public string Country { get; set; } = string.Empty;
-        [Range(100, 10000)]
         public decimal MonthlyRent { get; set; }
-
-        [Required]
-        public decimal Size { get; set; }  // matches `DAL.Models.Accommodation.Size`
-        [Required]
-        public DateTime AvailableFrom { get; set; }
-        [Required]
         public bool IsAvailable { get; set; }
 
-        [Range(1, 10)]
-        public int MaxOccupants { get; set; } = 1;
+        public int MaxOccupants { get; set; }
+        public decimal Size { get; set; }
+        public DateTime AvailableFrom { get; set; }
 
-        [Required]
+
+
+        // Related info 
+        public string AccommodationType { get; set; } = string.Empty;
         public int UniversityId { get; set; }
-
-        [Required]
         public int AccommodationTypeId { get; set; }
+        public string UniversityName { get; set; } = string.Empty;
+        public string LandlordName { get; set; } = string.Empty;
 
-        // Optional: collected from the form as checkboxes
-        public List<int> AmenityIds { get; set; } = new();
-
-        // Uploaded image files from form
-        public List<IFormFile>? Images { get; set; }
+        public List<string> AmenityNames { get; set; } = new();
+        public List<string> ImageUrls { get; set; } = new();
+        public int LandlordId { get; set; }
     }
 }

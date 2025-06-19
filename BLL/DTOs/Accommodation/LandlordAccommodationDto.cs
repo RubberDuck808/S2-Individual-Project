@@ -13,7 +13,7 @@ namespace BLL.DTOs.Accommodation
         public bool IsAvailable { get; set; }
         public string Country { get; set; }
         public decimal MonthlyRent { get; set; }
-        public int Size { get; set; }
+        public decimal Size { get; set; }
         public int MaxOccupants { get; set; }
         public DateTime AvailableFrom { get; set; }
 

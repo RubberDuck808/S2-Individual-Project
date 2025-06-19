@@ -22,6 +22,7 @@ namespace BLL.Services
         private readonly IAccommodationImageService _imageService;
         private readonly IAccommodationAssemblerService _assembler;
         private readonly IUniversityService _universityService;
+        private readonly IGeoLocationService _geoService;
         private readonly ILogger<AccommodationService> _logger;
 
         public AccommodationService(
@@ -35,6 +36,7 @@ namespace BLL.Services
             IAccommodationAssemblerService assembler,
             IAmenityService amenityService,
             IAccommodationTypeService typeService,
+            IGeoLocationService geoService,
             ILogger<AccommodationService> logger,
             IStudentRepository studentRepo)
         {
@@ -49,6 +51,7 @@ namespace BLL.Services
             _applicationService = applicationService;
             _assembler = assembler;
             _amenityService = amenityService;
+            _geoService = geoService;
             _logger = logger;
         }
 
@@ -81,11 +84,21 @@ namespace BLL.Services
 
         public async Task<int> CreateAsync(AccommodationCreateDto dto, IEnumerable<int> amenityIds)
         {
+            var fullAddress = $"{dto.Address}, {dto.PostCode}, {dto.City}, {dto.Country}";
+            var coords = await _geoService.GetCoordinatesFromAddressAsync(fullAddress);
+
             var entity = _mapper.Map<Accommodation>(dto);
+            if (coords == null)
+            {
+                throw new BadRequestException("We couldn't find your address on the map. Please double-check the input.");
+            }
+
             var id = await _accommodationRepo.AddAsync(entity);
             await _amenityService.AddAsync(id, amenityIds);
+
             return id;
         }
+
 
         public async Task<int> UpdateWithAmenitiesAsync(AccommodationUpdateDto dto, IEnumerable<int> amenityIds)
         {

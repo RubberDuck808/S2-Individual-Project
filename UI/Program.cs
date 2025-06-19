@@ -11,8 +11,10 @@ using Microsoft.Data.SqlClient;
 using AutoMapper;
 using System.IO;
 using Microsoft.Extensions.DependencyInjection;
+using APIWrapper;
 
 var builder = WebApplication.CreateBuilder(args);
+
 
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(LandlordProfile).Assembly);
@@ -42,6 +44,10 @@ builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IStatusService, StatusService>();
 builder.Services.AddScoped<IAccommodationImageService, AccommodationImageService>();
 builder.Services.AddScoped<IAccommodationAssemblerService, AccommodationAssemblerService>();
+builder.Services.AddScoped<IGeoLocationService, GeoLocationService>();
+builder.Services.AddScoped<IPasswordHasher<object>, PasswordHasher<object>>();
+
+
 
 
 
@@ -57,6 +63,9 @@ builder.Services.AddScoped<IStudentRepository>(_ => new StudentRepository(connec
 builder.Services.AddScoped<IApplicationRepository>(_ => new ApplicationRepository(connectionString));
 builder.Services.AddScoped<IBookingRepository>(_ => new BookingRepository(connectionString));
 builder.Services.AddScoped<IStatusRepository>(_ => new StatusRepository(connectionString));
+
+builder.Services.AddHttpClient<GoogleMapsApiWrapper>();
+
 
 builder.Services.AddRazorPages();
 

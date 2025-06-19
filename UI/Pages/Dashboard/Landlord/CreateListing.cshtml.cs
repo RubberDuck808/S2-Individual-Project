@@ -1,5 +1,6 @@
 ﻿using BLL.DTOs.Accommodation;
 using BLL.DTOs.Shared;
+using BLL.Exceptions;
 using BLL.Interfaces;
 using Domain.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -19,7 +20,8 @@ namespace UI.Pages.Dashboard.Landlord
         private readonly IAccommodationTypeService _typeService;
         private readonly IUniversityService _universityService;
         private readonly ILandlordService _landlordService;
-        private readonly IAccommodationImageService _imageService; // ✅ NEW
+        private readonly IAccommodationImageService _imageService;
+        private readonly IGeoLocationService _geoLocationService;
         private readonly IWebHostEnvironment _environment;
         private readonly ILogger<CreateListingModel> _logger;
 
@@ -34,6 +36,7 @@ namespace UI.Pages.Dashboard.Landlord
             ILandlordService landlordService,
             IAccommodationImageService imageService,
             IWebHostEnvironment environment,
+            IGeoLocationService geoLocationService,
             ILogger<CreateListingModel> logger)
         {
             _accommodationService = accommodationService;
@@ -41,23 +44,55 @@ namespace UI.Pages.Dashboard.Landlord
             _typeService = typeService;
             _universityService = universityService;
             _landlordService = landlordService;
-            _imageService = imageService; 
+            _imageService = imageService;
             _environment = environment;
+            _geoLocationService = geoLocationService;
             _logger = logger;
         }
 
         public async Task<IActionResult> OnGetAsync()
         {
-            _logger.LogDebug("Landlord accessed Create Listing page.");
             await LoadFormOptionsAsync();
             return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
+            var fullAddress = $"{Input.Address}, {Input.PostCode} {Input.City}, {Input.Country}";
+            var coordinates = await _geoLocationService.GetCoordinatesFromAddressAsync(fullAddress);
+
+            if (coordinates == null)
+            {
+                _logger.LogWarning("Address validation failed: {Address}", fullAddress);
+                ModelState.AddModelError("Input.Address", "We couldn't verify this address. Please check the street name.");
+                ModelState.AddModelError("Input.PostCode", "We couldn't verify this postcode. Please check the value.");
+                await LoadFormOptionsAsync();
+                return Page();
+            }
+
+            var allUniversities = await _universityService.GetAllAsync();
+            var closestUniversity = allUniversities
+                .Where(u => u.Latitude.HasValue && u.Longitude.HasValue)
+                .OrderBy(u => _geoLocationService.CalculateDistanceKm(coordinates.Value.lat, coordinates.Value.lng, u.Latitude.Value, u.Longitude.Value))
+                .FirstOrDefault();
+
+            if (closestUniversity == null)
+            {
+                _logger.LogWarning("Could not assign university based on coordinates.");
+                ModelState.AddModelError(string.Empty, "We couldn't match this location to any university.");
+                await LoadFormOptionsAsync();
+                return Page();
+            }
+
+            _logger.LogInformation("Auto-assigned university '{UniversityName}' (ID: {UniversityId}) based on coordinates [{Latitude}, {Longitude}]",
+                closestUniversity.Name,
+                closestUniversity.UniversityId,
+                coordinates.Value.lat,
+                coordinates.Value.lng);
+
+
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Invalid listing data submitted: {@Input}", Input);
                 await LoadFormOptionsAsync();
                 return Page();
             }
@@ -83,14 +118,15 @@ namespace UI.Pages.Dashboard.Landlord
                 MaxOccupants = Input.MaxOccupants,
                 LandlordId = landlord.LandlordId,
                 AccommodationTypeId = Input.AccommodationTypeId,
-                UniversityId = Input.UniversityId,
                 AmenityIds = Input.SelectedAmenityIds,
-                Images = Input.Images
+                Images = Input.Images,
+                Latitude = coordinates.Value.lat,
+                Longitude = coordinates.Value.lng,
+                UniversityId = closestUniversity.UniversityId
             };
 
             try
             {
-                _logger.LogInformation("Creating accommodation listing for landlord ID: {LandlordId}", landlord.LandlordId);
                 var accId = await _accommodationService.CreateAsync(dto, Input.SelectedAmenityIds);
 
                 if (Input.Images != null && Input.Images.Any())
@@ -118,9 +154,7 @@ namespace UI.Pages.Dashboard.Landlord
                         });
                     }
 
-                    
                     await _imageService.AddImagesAsync(imageEntities);
-                    _logger.LogInformation("Uploaded {Count} image(s) for accommodation ID: {AccommodationId}", imageEntities.Count, accId);
                 }
 
                 _logger.LogInformation("Accommodation listing created successfully. ID: {AccommodationId}", accId);
@@ -137,7 +171,6 @@ namespace UI.Pages.Dashboard.Landlord
 
         private async Task LoadFormOptionsAsync()
         {
-            _logger.LogDebug("Loading form dropdown options for Create Listing page.");
             Input.AccommodationTypes = await _typeService.GetAllAsync();
             Input.Universities = await _universityService.GetAllAsync();
             Input.Amenities = await _amenityService.GetAllAsync();

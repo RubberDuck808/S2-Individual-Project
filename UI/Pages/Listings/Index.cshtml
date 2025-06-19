@@ -5,39 +5,47 @@
 }
 
 <section class="container my-5">
-
     <form method="get" class="row g-3 mb-4">
-    <div class="col-md-4">
-        <input type="text" name="Search" class="form-control" placeholder="Search..." value="@Model.Search" />
-    </div>
+        <div class="col-md-4">
+            <input type="text" name="Search" class="form-control" placeholder="Search..." value="@Model.Search" />
+        </div>
 
-    <div class="col-md-3">
-        <select name="UniversityId" class="form-select">
-            <option value="">All Universities</option>
+        <div class="col-md-3">
+            <select name="UniversityId" class="form-select">
+                <option value="">All Universities</option>
                 @foreach (var uni in Model.Universities)
                 {
                     <option value="@uni.UniversityId" selected="@(Model.UniversityId == uni.UniversityId ? "selected" : null)">
                         @uni.Name
                     </option>
                 }
-        </select>
-    </div>
+            </select>
+        </div>
 
-    <div class="col-md-3">
-        <select name="TypeId" class="form-select">
-            <option value="">All Types</option>
+        <div class="col-md-2">
+            <select name="Radius" class="form-select">
+                <option value="">Any Distance</option>
+                <option value="5" selected="@(Model.Radius == 5 ? "selected" : null)">Within 5 km</option>
+                <option value="10" selected="@(Model.Radius == 10 ? "selected" : null)">Within 10 km</option>
+                <option value="20" selected="@(Model.Radius == 20 ? "selected" : null)">Within 20 km</option>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <select name="TypeId" class="form-select">
+                <option value="">All Types</option>
                 @foreach (var type in Model.AccommodationTypes)
                 {
                     <option value="@type.AccommodationTypeId" selected="@(Model.TypeId == type.AccommodationTypeId ? "selected" : null)">
                         @type.Name
                     </option>
                 }
-        </select>
-    </div>
+            </select>
+        </div>
 
-    <div class="col-md-2">
-        <button type="submit" class="btn btn-primary w-100">Filter</button>
-    </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Filter</button>
+        </div>
     </form>
 
     <h3 class="mb-4">@Model.Accommodations.Count accommodation(s) found</h3>
@@ -91,6 +99,3 @@
         </div>
     }
 </section>
-
-
-
