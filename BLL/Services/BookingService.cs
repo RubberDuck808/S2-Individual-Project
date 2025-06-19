@@ -45,7 +45,7 @@ namespace BLL.Services
             if (booking == null)
             {
                 _logger.LogWarning("Booking with ID {Id} not found", id);
-                throw new NotFoundException($"Booking {id} not found");
+                throw new NotFoundException(string.Format(ErrorMessages.BookingNotFound, id));
             }
 
             _logger.LogInformation("Booking with ID {Id} found", id);
@@ -60,7 +60,7 @@ namespace BLL.Services
             if (booking == null)
             {
                 _logger.LogWarning("Booking with ID {Id} not found for update", dto.BookingId);
-                throw new NotFoundException($"Booking {dto.BookingId} not found");
+                throw new NotFoundException(string.Format(ErrorMessages.BookingNotFound, dto.BookingId));
             }
 
             if (dto.StartDate.HasValue) booking.StartDate = dto.StartDate.Value;
@@ -80,7 +80,7 @@ namespace BLL.Services
             if (booking == null)
             {
                 _logger.LogWarning("Booking with ID {Id} not found for cancellation", bookingId);
-                throw new NotFoundException($"Booking {bookingId} not found");
+                throw new NotFoundException(string.Format(ErrorMessages.BookingNotFound, bookingId));
             }
 
             booking.StatusId = 3; // Cancelled
@@ -101,8 +101,8 @@ namespace BLL.Services
                 ApplicationId = applicationId,
                 StartDate = DateTime.UtcNow,
                 EndDate = DateTime.UtcNow.AddMonths(6),
-                TotalAmount = 0, // Optional: calculate from rent
-                StatusId = 1 // Active
+                TotalAmount = 0, 
+                StatusId = 1 
             };
 
             await _bookingRepo.AddAsync(booking);
@@ -119,20 +119,23 @@ namespace BLL.Services
             if (booking == null)
             {
                 _logger.LogWarning("Booking with ID {Id} not found for status update", bookingId);
-                throw new NotFoundException($"Booking {bookingId} not found");
+                throw new NotFoundException(string.Format(ErrorMessages.BookingNotFound, bookingId));
+
             }
 
             if (studentId.HasValue && booking.StudentId != studentId.Value)
             {
                 _logger.LogWarning("Student {StudentId} attempted to update booking {BookingId} that doesn't belong to them.", studentId, bookingId);
-                throw new ForbiddenException("You are not authorized to modify this booking.");
+                throw new ForbiddenException(ErrorMessages.UnauthorizedBookingModification);
+
             }
 
             var statusId = await _statusRepo.GetIdByNameAsync(statusName);
             if (statusId == null)
             {
                 _logger.LogWarning("Status '{StatusName}' not found in status repository", statusName);
-                throw new NotFoundException($"Status '{statusName}' not found");
+                throw new NotFoundException(string.Format(ErrorMessages.StatusNotFound, statusName));
+
             }
 
             booking.StatusId = statusId.Value;

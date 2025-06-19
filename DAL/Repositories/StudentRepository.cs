@@ -69,11 +69,11 @@ namespace DAL.Repositories
             await conn.OpenAsync();
 
             var query = @"
-        INSERT INTO Student 
-        (UserId, UniversityId, Email, FirstName, MiddleName, LastName, DateOfBirth, PhoneNumber, EmergencyContact, EmergencyPhone, ProfileImageUrl, IsVerified, CreatedAt, UpdatedAt)
-        OUTPUT INSERTED.StudentId
-        VALUES 
-        (@UserId, @UniversityId, @Email, @FirstName, @MiddleName, @LastName, @DateOfBirth, @PhoneNumber, @EmergencyContact, @EmergencyPhone, @ProfileImageUrl, @IsVerified, @CreatedAt, @UpdatedAt)";
+            INSERT INTO Student 
+            (UserId, UniversityId, Email, FirstName, MiddleName, LastName, DateOfBirth, PhoneNumber, EmergencyContact, EmergencyPhone, ProfileImageUrl, IsVerified, CreatedAt, UpdatedAt)
+            OUTPUT INSERTED.StudentId
+            VALUES 
+            (@UserId, @UniversityId, @Email, @FirstName, @MiddleName, @LastName, @DateOfBirth, @PhoneNumber, @EmergencyContact, @EmergencyPhone, @ProfileImageUrl, @IsVerified, @CreatedAt, @UpdatedAt)";
 
             using var cmd = new SqlCommand(query, conn);
 

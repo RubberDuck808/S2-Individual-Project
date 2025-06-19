@@ -40,7 +40,8 @@ public class AccommodationTypeService : IAccommodationTypeService
         if (type == null)
         {
             _logger.LogWarning("Accommodation type with ID {Id} not found", id);
-            throw new NotFoundException($"Accommodation type {id} not found");
+            throw new NotFoundException(string.Format(ErrorMessages.AccommodationNotFound, id));
+
         }
 
         _logger.LogInformation("Accommodation type {Id} found: {Name}", id, type.Name);

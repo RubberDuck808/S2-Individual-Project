@@ -54,5 +54,14 @@ namespace BLL.Services
             return university?.Name ?? "";
         }
 
+        public async Task<int> GetUniversityIdByDomainAsync(string domain)
+        {
+            var universityId = await _universityRepo.GetUniversityIdByEmailDomainAsync(domain);
+            if (universityId == null)
+                throw new Exception($"Unknown university domain: {domain}");
+
+            return universityId.Value;
+        }
+
     }
 }

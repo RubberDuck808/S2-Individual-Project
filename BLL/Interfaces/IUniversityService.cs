@@ -10,5 +10,7 @@ namespace BLL.Interfaces
         Task<UniversityDto> GetByIdAsync(int id);
 
         Task<string> GetNameByIdAsync(int id);
+
+        Task<int> GetUniversityIdByDomainAsync(string domain);
     }
 }

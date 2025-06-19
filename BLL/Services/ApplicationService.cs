@@ -49,7 +49,7 @@ namespace BLL.Services
             if (app == null)
             {
                 _logger.LogWarning("Application with ID {Id} not found", id);
-                throw new NotFoundException($"Application {id} not found");
+                throw new NotFoundException(string.Format(ErrorMessages.AccommodationNotFound, id));
             }
 
             _logger.LogInformation("Application with ID {Id} found", id);
@@ -100,7 +100,8 @@ namespace BLL.Services
             if (app == null)
             {
                 _logger.LogWarning("Application with ID {Id} not found for update", dto.ApplicationId);
-                throw new NotFoundException($"Application {dto.ApplicationId} not found");
+                throw new NotFoundException(string.Format(ErrorMessages.ApplicationNotFound, dto.ApplicationId));
+
             }
 
             app.StatusId = dto.StatusId;

@@ -8,13 +8,14 @@ using AutoMapper;
 using BLL.DTOs.Booking;
 using BLL.Exceptions;
 
-namespace Tests.Services
+namespace Tests
 {
     public class BookingServiceTests
     {
         [Fact]
         public async Task GetByIdAsync_ReturnsBooking_WhenExists()
         {
+
 
             var booking = new Booking
             {
@@ -100,7 +101,7 @@ namespace Tests.Services
             mockRepo.Setup(r => r.GetByIdAsync(9)).ReturnsAsync(booking);
 
             var mockMapper = new Mock<IMapper>();
-            var mockStatusRepo = new Mock<IStatusRepository>(); 
+            var mockStatusRepo = new Mock<IStatusRepository>();
             var mockLogger = new Mock<ILogger<BookingService>>();
 
             var service = new BookingService(
@@ -116,8 +117,5 @@ namespace Tests.Services
             await Assert.ThrowsAsync<ForbiddenException>(() =>
                 service.UpdateStatusAsync(9, "Accepted", mismatchingStudentId));
         }
-
-
-
     }
 }

@@ -8,5 +8,7 @@ namespace BLL.Interfaces
         Task<int> CreateAsync(StudentRegistrationDto dto);
         Task UpdateAsync(int studentId, StudentUpdateDto dto);
         Task<StudentDto?> GetByUserIdAsync(string userId);
+
+        Task CreateStudentAsync(string userId, StudentRegistrationDto dto);
     }
 }

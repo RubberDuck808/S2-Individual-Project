@@ -56,7 +56,7 @@ namespace BLL.Services
         {
             var entity = await _accommodationRepo.GetByIdAsync(id);
             if (entity == null)
-                throw new NotFoundException($"Accommodation {id} not found");
+                throw new NotFoundException(string.Format(ErrorMessages.AccommodationNotFound, id));
             return await _assembler.ToDtoAsync(entity);
         }
 
@@ -64,7 +64,8 @@ namespace BLL.Services
         {
             var existing = await _accommodationRepo.GetByIdAsync(dto.AccommodationId);
             if (existing == null)
-                throw new NotFoundException($"Accommodation {dto.AccommodationId} not found");
+                throw new NotFoundException(string.Format(ErrorMessages.AccommodationNotFound, dto.AccommodationId));
+
 
             _mapper.Map(dto, existing);
             await _accommodationRepo.UpdateAsync(existing);
@@ -74,7 +75,8 @@ namespace BLL.Services
         {
             var result = await _accommodationRepo.DeleteAsync(id);
             if (result == 0)
-                throw new NotFoundException($"Accommodation {id} not found");
+                throw new NotFoundException(string.Format(ErrorMessages.AccommodationNotFound, id));
+
         }
 
         public async Task<int> CreateAsync(AccommodationCreateDto dto, IEnumerable<int> amenityIds)
@@ -230,7 +232,8 @@ namespace BLL.Services
             if (accommodation == null)
             {
                 _logger.LogWarning("Accommodation with ID {AccommodationId} not found", accommodationId);
-                throw new NotFoundException($"Accommodation {accommodationId} not found.");
+                throw new NotFoundException(string.Format(ErrorMessages.AccommodationNotFound, accommodationId));
+
             }
 
             return accommodation;

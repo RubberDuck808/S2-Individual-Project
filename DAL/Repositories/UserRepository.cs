@@ -49,7 +49,6 @@ namespace DAL.Repositories
             using var conn = new SqlConnection(_connectionString);
             await conn.OpenAsync();
 
-            // Get roleId
             var getRoleCmd = new SqlCommand(
                 "SELECT Id FROM AspNetRoles WHERE NormalizedName = @RoleName", conn);
             getRoleCmd.Parameters.AddWithValue("@RoleName", roleName.ToUpper());
@@ -60,7 +59,6 @@ namespace DAL.Repositories
 
             var roleId = (string)roleIdObj;
 
-            // Insert into AspNetUserRoles
             var assignCmd = new SqlCommand(
                 "INSERT INTO AspNetUserRoles (UserId, RoleId) VALUES (@UserId, @RoleId)", conn);
             assignCmd.Parameters.AddWithValue("@UserId", userId);

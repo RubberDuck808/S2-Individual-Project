@@ -112,5 +112,28 @@ namespace BLL.Services
                 throw;
             }
         }
+        public async Task CreateStudentAsync(string userId, StudentRegistrationDto dto)
+        {
+            var student = new Student
+            {
+
+                UserId = userId,
+                UniversityId = dto.UniversityId,
+                Email = dto.Email,
+                FirstName = dto.FirstName,
+                MiddleName = dto.MiddleName ?? "",
+                LastName = dto.LastName,
+                DateOfBirth = dto.DateOfBirth,
+                PhoneNumber = dto.PhoneNumber,
+                EmergencyContact = dto.EmergencyContact ?? "",
+                EmergencyPhone = dto.EmergencyPhone ?? "",
+                ProfileImageUrl = dto.ProfileImageUrl,
+                IsVerified = false,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            await _studentRepo.AddAsync(student);
+        }
     }
 }

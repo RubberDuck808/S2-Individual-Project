@@ -53,14 +53,29 @@ namespace BLL.Services
             }
         }
 
-        public async Task<int> CreateAsync(LandlordRegistrationDto dto)
+        public async Task<int> CreateLandlordAsync(string userId, LandlordRegistrationDto dto)
         {
             _logger.LogInformation("Creating new landlord with email: {Email}", dto.Email);
-            var entity = _mapper.Map<Landlord>(dto);
-            await _landlordRepo.AddAsync(entity);
-            _logger.LogInformation("Landlord created with ID: {Id}", entity.LandlordId);
-            return entity.LandlordId;
+
+            try
+            {
+                var entity = _mapper.Map<Landlord>(dto);
+                entity.UserId = userId;
+
+                await _landlordRepo.AddAsync(entity);
+
+                _logger.LogInformation("Landlord created with ID: {Id}", entity.LandlordId);
+                return entity.LandlordId;
+            }
+
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error while creating landlord with email: {Email}", dto.Email);
+                throw;
+            }
         }
+
+
 
         public async Task VerifyLandlordAsync(int landlordId)
         {
@@ -71,14 +86,14 @@ namespace BLL.Services
                 if (landlord == null)
                 {
                     _logger.LogWarning("Landlord with ID {Id} not found for verification", landlordId);
-                    throw new NotFoundException($"Landlord with ID {landlordId} not found");
+                    throw new NotFoundException(string.Format(ErrorMessages.LandlordNotFound, landlordId));
                 }
 
                 if (!string.IsNullOrEmpty(landlord.CompanyName) &&
                     string.IsNullOrEmpty(landlord.TaxIdentificationNumber))
                 {
                     _logger.LogWarning("Corporate landlord missing tax ID: {Id}", landlordId);
-                    throw new BusinessRuleException("Corporate landlords must provide tax ID");
+                    throw new BusinessRuleException(ErrorMessages.CorporateLandlordMissingTaxId);
                 }
 
                 landlord.IsVerified = true;
@@ -125,7 +140,8 @@ namespace BLL.Services
             if (landlord == null)
             {
                 _logger.LogWarning("Landlord with ID {Id} not found for profile update", landlordId);
-                throw new NotFoundException($"Landlord with ID {landlordId} not found");
+                throw new NotFoundException(string.Format(ErrorMessages.LandlordNotFound, landlordId));
+
             }
 
             if (!string.IsNullOrWhiteSpace(updateDto.FirstName))
@@ -172,7 +188,8 @@ namespace BLL.Services
                 if (landlord == null)
                 {
                     _logger.LogWarning("Landlord with ID {Id} not found for verification update", landlordId);
-                    throw new NotFoundException($"Landlord with ID {landlordId} not found");
+                    throw new NotFoundException(string.Format(ErrorMessages.LandlordNotFound, landlordId));
+
                 }
 
                 landlord.IsVerified = dto.IsVerified;
@@ -197,7 +214,8 @@ namespace BLL.Services
             if (landlord == null)
             {
                 _logger.LogWarning("Landlord with ID {Id} not found for public profile", id);
-                throw new NotFoundException("Landlord not found");
+                throw new NotFoundException(string.Format(ErrorMessages.LandlordNotFound, id));
+
             }
 
             _logger.LogInformation("Public profile for landlord ID {Id} retrieved", id);
@@ -212,7 +230,8 @@ namespace BLL.Services
             if (landlord == null)
             {
                 _logger.LogWarning("Landlord with ID {Id} not found for admin view", id);
-                throw new NotFoundException("Landlord not found");
+                throw new NotFoundException(string.Format(ErrorMessages.LandlordNotFound, id));
+
             }
 
             _logger.LogInformation("Admin view for landlord ID {Id} retrieved", id);

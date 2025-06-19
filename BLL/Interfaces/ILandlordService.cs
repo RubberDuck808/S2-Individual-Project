@@ -6,7 +6,7 @@ namespace BLL.Interfaces
     {
         Task<LandlordDto> GetLandlordAsync(int id);
         Task UpdateVerificationStatusAsync(int landlordId, LandlordVerificationDto dto);
-        Task<int> CreateAsync(LandlordRegistrationDto dto);
+        Task<int> CreateLandlordAsync(string userId, LandlordRegistrationDto dto);
 
         Task<IEnumerable<LandlordDto>> GetLandlordsByUniversityAsync(int universityId);
         Task<IEnumerable<LandlordDto>> GetAllVerifiedLandlordsAsync();

@@ -17,6 +17,7 @@ namespace BLL.MappingProfiles
 
             // Admin/full view
             CreateMap<Landlord, LandlordAdminDto>();
+            CreateMap<LandlordRegistrationDto, Landlord>();
             CreateMap<LandlordUpdateDto, Landlord>();
 
         }

@@ -5,74 +5,57 @@ using DAL.Interfaces;
 using Domain.Models;
 using BLL.DTOs.Landlord;
 using Microsoft.Extensions.Logging;
+using BLL.Services;
 
 public class AccountService : IAccountService
 {
-    private readonly PasswordHasher<object> _hasher = new();
     private readonly IUserRepository _userRepository;
-    private readonly IUniversityRepository _universityRepository;
-    private readonly IStudentRepository _studentRepository;
-    private readonly ILandlordRepository _landlordRepository;
+    private readonly IUniversityService _universityService;
+    private readonly IStudentService _studentService;
+    private readonly ILandlordService _landlordService;
+    private readonly IPasswordHasher<object> _hasher;
     private readonly ILogger<AccountService> _logger;
 
     public AccountService(
         IUserRepository userRepository,
-        IUniversityRepository universityRepository,
-        IStudentRepository studentRepository,
-        ILandlordRepository landlordRepository,
+        IUniversityService universityService,
+        IStudentService studentService,
+        ILandlordService landlordService,
+        IPasswordHasher<object> hasher,
         ILogger<AccountService> logger)
     {
         _userRepository = userRepository;
-        _universityRepository = universityRepository;
-        _studentRepository = studentRepository;
-        _landlordRepository = landlordRepository;
+        _universityService = universityService;
+        _studentService = studentService;
+        _landlordService = landlordService;
+        _hasher = hasher;
         _logger = logger;
     }
+
+
+
 
     public async Task RegisterStudentAsync(StudentRegistrationDto dto)
     {
         _logger.LogInformation("Registering student with email: {Email}", dto.Email);
 
         var domain = dto.Email.Split('@').Last();
-        var universityId = await _universityRepository.GetUniversityIdByEmailDomainAsync(domain);
+        var universityId = await _universityService.GetUniversityIdByDomainAsync(domain); // this is too check if the domain is in the db
 
-        if (universityId == null)
-        {
-            _logger.LogWarning("Invalid student email domain: {Domain}", domain);
-            throw new Exception("Invalid student email domain.");
-        }
-
-        dto.UniversityId = universityId.Value;
+        dto.UniversityId = universityId;
 
         var passwordHash = _hasher.HashPassword(null, dto.Password);
 
         var userId = await _userRepository.CreateUserAsync(dto.Email, passwordHash, dto.PhoneNumber, dto.FirstName, dto.LastName);
         _logger.LogInformation("User created with ID: {UserId}", userId);
 
-        var student = new Student
-        {
-            UserId = userId,
-            UniversityId = dto.UniversityId,
-            Email = dto.Email,
-            FirstName = dto.FirstName,
-            MiddleName = dto.MiddleName ?? "",
-            LastName = dto.LastName,
-            DateOfBirth = dto.DateOfBirth,
-            PhoneNumber = dto.PhoneNumber,
-            EmergencyContact = dto.EmergencyContact ?? "",
-            EmergencyPhone = dto.EmergencyPhone ?? "",
-            ProfileImageUrl = dto.ProfileImageUrl,
-            IsVerified = false,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
-        };
-
-        await _studentRepository.AddAsync(student);
+        await _studentService.CreateStudentAsync(userId, dto);
         _logger.LogInformation("Student record created for user ID: {UserId}", userId);
 
         await _userRepository.AssignRoleAsync(userId, "Student");
         _logger.LogInformation("Student role assigned to user ID: {UserId}", userId);
     }
+
 
     public async Task RegisterLandlordAsync(LandlordRegistrationDto dto)
     {
@@ -80,30 +63,18 @@ public class AccountService : IAccountService
 
         var passwordHash = _hasher.HashPassword(null, dto.Password);
 
-        var userId = await _userRepository.CreateUserAsync(dto.Email, passwordHash, dto.PhoneNumber, dto.FirstName, dto.LastName);
+        var userId = await _userRepository.CreateUserAsync(
+            dto.Email, passwordHash, dto.PhoneNumber, dto.FirstName, dto.LastName);
         _logger.LogInformation("User created with ID: {UserId}", userId);
 
-        var landlord = new Landlord
-        {
-            UserId = userId,
-            FirstName = dto.FirstName,
-            MiddleName = dto.MiddleName ?? string.Empty,
-            LastName = dto.LastName,
-            Email = dto.Email,
-            PhoneNumber = dto.PhoneNumber,
-            CompanyName = dto.CompanyName,
-            TaxIdentificationNumber = dto.TaxIdentificationNumber,
-            IsVerified = false,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
-        };
-
-        await _landlordRepository.AddAsync(landlord);
+        await _landlordService.CreateLandlordAsync(userId, dto);
         _logger.LogInformation("Landlord record created for user ID: {UserId}", userId);
 
         await _userRepository.AssignRoleAsync(userId, "Landlord");
         _logger.LogInformation("Landlord role assigned to user ID: {UserId}", userId);
     }
+
+
 
     public async Task<(bool Success, string? UserId, string? Role, string? Error)> LoginAsync(string email, string password)
     {
@@ -143,7 +114,7 @@ public class AccountService : IAccountService
     {
         _logger.LogInformation("Retrieving full name for user ID: {UserId}", userId);
 
-        var landlord = await _landlordRepository.GetByUserIdAsync(userId);
+        var landlord = await _landlordService.GetByUserIdAsync(userId);
         if (landlord != null)
         {
             var middle = string.IsNullOrEmpty(landlord.MiddleName) ? "" : $" {landlord.MiddleName}";
@@ -152,7 +123,7 @@ public class AccountService : IAccountService
             return name;
         }
 
-        var student = await _studentRepository.GetByUserIdAsync(userId);
+        var student = await _studentService.GetByUserIdAsync(userId);
         if (student != null)
         {
             var middle = string.IsNullOrEmpty(student.MiddleName) ? "" : $" {student.MiddleName}";
