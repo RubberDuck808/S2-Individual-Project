@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BLL.Exceptions
 {
-    public class BadRequestException : Exception
+    public class BadRequestException : ApplicationException
     {
         public BadRequestException(string message) : base(message) { }
     }

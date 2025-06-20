@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BLL.Exceptions
 {
-    public class ConflictException : Exception
+    public class ConflictException : ApplicationException
     {
         public ConflictException(string message) : base(message) { }
     }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BLL.Exceptions
 {
-    public class AuthorizationException : Exception
+    public class AuthorizationException : ApplicationException
     {
         public AuthorizationException(string message) : base(message) { }
     }

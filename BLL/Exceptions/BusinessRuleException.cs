@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BLL.Exceptions
 {
-    public class BusinessRuleException : Exception
+    public class BusinessRuleException : ApplicationException
     {
         public BusinessRuleException(string message) : base(message) { }
     }

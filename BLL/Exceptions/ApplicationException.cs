@@ -1,12 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BLL.Exceptions
 {
-    internal class Class1
+
+    public abstract class ApplicationException : Exception
     {
+
+        protected ApplicationException(string message) : base(message)
+        {
+        }
+
+        protected ApplicationException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace BLL.Exceptions
 {
-    public class ForbiddenException : Exception
+    public class ForbiddenException : ApplicationException
     {
         public ForbiddenException() : base("Access denied.") { }
 
