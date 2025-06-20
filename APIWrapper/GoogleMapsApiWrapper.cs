@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace APIWrapper
 {
-    public class GoogleMapsApiWrapper
+    public class GoogleMapsApiWrapper : IGoogleMapsApiWrapper
     {
         private readonly HttpClient _httpClient;
         private readonly string _apiKey;
@@ -26,10 +26,8 @@ namespace APIWrapper
 
             var content = await response.Content.ReadAsStringAsync();
             var result = JsonDocument.Parse(content);
-
             var root = result.RootElement;
 
-            
             if (!root.TryGetProperty("results", out var resultsArray) || resultsArray.GetArrayLength() == 0)
                 return null;
 
@@ -69,22 +67,14 @@ namespace APIWrapper
                     foreach (var type in types.EnumerateArray())
                     {
                         if (type.GetString() == "locality")
-                        {
                             city = component.GetProperty("long_name").GetString();
-                        }
                         else if (type.GetString() == "postal_code")
-                        {
                             postcode = component.GetProperty("long_name").GetString();
-                        }
                     }
                 }
             }
 
             return (city, postcode);
         }
-
-
     }
 }
-
-

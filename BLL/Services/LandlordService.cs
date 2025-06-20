@@ -55,6 +55,13 @@ namespace BLL.Services
 
         public async Task<int> CreateLandlordAsync(string userId, LandlordRegistrationDto dto)
         {
+            if (dto == null)
+            {
+                _logger.LogWarning("LandlordRegistrationDto cannot be null for CreateLandlordAsync.");
+                throw new ArgumentNullException(nameof(dto), "Landlord registration DTO cannot be null.");
+            }
+
+
             _logger.LogInformation("Creating new landlord with email: {Email}", dto.Email);
 
             try
@@ -67,15 +74,13 @@ namespace BLL.Services
                 _logger.LogInformation("Landlord created with ID: {Id}", entity.LandlordId);
                 return entity.LandlordId;
             }
-
             catch (Exception ex)
             {
+                
                 _logger.LogError(ex, "Unexpected error while creating landlord with email: {Email}", dto.Email);
                 throw;
             }
         }
-
-
 
         public async Task VerifyLandlordAsync(int landlordId)
         {
@@ -89,6 +94,12 @@ namespace BLL.Services
                     throw new NotFoundException(string.Format(ErrorMessages.LandlordNotFound, landlordId));
                 }
 
+                if (landlord.IsVerified) 
+                {
+                    _logger.LogInformation("Landlord ID {Id} is already verified. No action taken.", landlordId);
+                    return;
+                }
+
                 if (!string.IsNullOrEmpty(landlord.CompanyName) &&
                     string.IsNullOrEmpty(landlord.TaxIdentificationNumber))
                 {
@@ -98,6 +109,7 @@ namespace BLL.Services
 
                 landlord.IsVerified = true;
                 landlord.VerificationDate = DateTime.UtcNow;
+                landlord.UpdatedAt = DateTime.UtcNow; 
                 await _landlordRepo.UpdateAsync(landlord);
                 _logger.LogInformation("Landlord ID {Id} verified successfully", landlordId);
             }
@@ -106,6 +118,37 @@ namespace BLL.Services
                 _logger.LogError(ex, "Error verifying landlord with ID {Id}", landlordId);
                 throw;
             }
+        }
+
+
+
+        public async Task UpdateVerificationStatusAsync(int landlordId, LandlordVerificationDto dto)
+        {
+            if (dto == null)
+            {
+                _logger.LogWarning($"LandlordVerificationDto cannot be null for updating verification status for landlord {landlordId}.");
+                throw new ArgumentNullException(nameof(dto), "Landlord verification DTO cannot be null.");
+            }
+
+
+            _logger.LogInformation("Updating verification status for landlord ID: {Id}", landlordId);
+
+            var landlord = await _landlordRepo.GetByIdAsync(landlordId);
+            if (landlord == null)
+            {
+                _logger.LogWarning("Landlord with ID {Id} not found for verification status update", landlordId);
+                throw new NotFoundException(string.Format(ErrorMessages.LandlordNotFound, landlordId));
+            }
+
+ 
+            landlord.IsVerified = dto.IsVerified;
+            landlord.VerificationDate = dto.IsVerified ? dto.VerificationDate : null; 
+            landlord.UpdatedAt = dto.UpdatedAt; 
+
+           
+
+            await _landlordRepo.UpdateAsync(landlord);
+            _logger.LogInformation("Landlord ID {Id} verification status updated successfully", landlordId);
         }
 
         public async Task<IEnumerable<LandlordDto>> GetLandlordsByUniversityAsync(int universityId)
@@ -134,6 +177,14 @@ namespace BLL.Services
 
         public async Task UpdateLandlordProfileAsync(int landlordId, LandlordUpdateDto updateDto)
         {
+
+            if (updateDto == null)
+            {
+                _logger.LogWarning($"LandlordUpdateDto cannot be null for updating landlord {landlordId} profile.");
+                throw new ArgumentNullException(nameof(updateDto), "Landlord update DTO cannot be null.");
+            }
+
+
             _logger.LogInformation("Updating profile for landlord ID: {Id}", landlordId);
 
             var landlord = await _landlordRepo.GetByIdAsync(landlordId);
@@ -141,9 +192,9 @@ namespace BLL.Services
             {
                 _logger.LogWarning("Landlord with ID {Id} not found for profile update", landlordId);
                 throw new NotFoundException(string.Format(ErrorMessages.LandlordNotFound, landlordId));
-
             }
 
+            // Now it's safe to access properties on updateDto
             if (!string.IsNullOrWhiteSpace(updateDto.FirstName))
                 landlord.FirstName = updateDto.FirstName;
 
@@ -179,32 +230,7 @@ namespace BLL.Services
             return _mapper.Map<IEnumerable<LandlordDto>>(landlords);
         }
 
-        public async Task UpdateVerificationStatusAsync(int landlordId, LandlordVerificationDto dto)
-        {
-            _logger.LogInformation("Updating verification status for landlord ID: {Id}", landlordId);
-            try
-            {
-                var landlord = await _landlordRepo.GetByIdAsync(landlordId);
-                if (landlord == null)
-                {
-                    _logger.LogWarning("Landlord with ID {Id} not found for verification update", landlordId);
-                    throw new NotFoundException(string.Format(ErrorMessages.LandlordNotFound, landlordId));
-
-                }
-
-                landlord.IsVerified = dto.IsVerified;
-                landlord.VerificationDate = dto.VerificationDate;
-                landlord.UpdatedAt = dto.UpdatedAt;
-
-                await _landlordRepo.UpdateAsync(landlord);
-                _logger.LogInformation("Landlord ID {Id} verification updated", landlordId);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error updating verification for landlord ID {Id}", landlordId);
-                throw;
-            }
-        }
+        
 
         public async Task<LandlordBasicDto> GetPublicLandlordAsync(int id)
         {

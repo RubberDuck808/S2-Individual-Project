@@ -11,9 +11,10 @@ namespace BLL.Services
 {
     public class GeoLocationService : IGeoLocationService
     {
-        private readonly GoogleMapsApiWrapper _mapsApi;
+        private readonly IGoogleMapsApiWrapper _mapsApi;
 
-        public GeoLocationService(GoogleMapsApiWrapper mapsApi)
+
+        public GeoLocationService(IGoogleMapsApiWrapper mapsApi)
         {
             _mapsApi = mapsApi;
         }

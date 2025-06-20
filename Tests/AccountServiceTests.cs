@@ -5,11 +5,17 @@ using DAL.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Moq;
+using System;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace Tests
 {
     public class AccountServiceTests
     {
+
+        // 1. Tests the successful registration of a student.
+
         [Fact]
         public async Task RegisterStudentAsync_CreatesUser_CreatesStudent_AssignsRole()
         {
@@ -36,14 +42,13 @@ namespace Tests
                         .ReturnsAsync("user-id-123");
 
             var accountService = new AccountService(
-                mockUserRepo.Object,                      
-                mockUniversityService.Object,             
-                mockStudentService.Object,                
-                Mock.Of<ILandlordService>(),             
-                mockHasher.Object,                        
-                mockLogger.Object                        
+                mockUserRepo.Object,
+                mockUniversityService.Object,
+                mockStudentService.Object,
+                Mock.Of<ILandlordService>(),
+                mockHasher.Object,
+                mockLogger.Object
             );
-
 
             // Act
             await accountService.RegisterStudentAsync(dto);
@@ -56,9 +61,12 @@ namespace Tests
         }
 
 
+        // 2. Tests that student registration fails as expected when the email domain
+
         [Fact]
         public async Task RegisterStudentAsync_ThrowsException_WhenDomainNotFound()
         {
+            // Arrange
             var dto = new StudentRegistrationDto
             {
                 Email = "alice@unknown.com",
@@ -71,7 +79,7 @@ namespace Tests
 
             var mockUniversityService = new Mock<IUniversityService>();
             mockUniversityService.Setup(s => s.GetUniversityIdByDomainAsync("unknown.com"))
-                                 .ThrowsAsync(new Exception("No university found"));
+                                   .ThrowsAsync(new Exception("No university found"));
 
             var accountService = new AccountService(
                 Mock.Of<IUserRepository>(),
@@ -82,10 +90,12 @@ namespace Tests
                 Mock.Of<ILogger<AccountService>>()
             );
 
+            // Act & Assert
             var ex = await Assert.ThrowsAsync<Exception>(() => accountService.RegisterStudentAsync(dto));
             Assert.Equal("No university found", ex.Message);
         }
 
+        // 3. Tests the successful registration of a landlord.
 
         [Fact]
         public async Task RegisterLandlordAsync_CreatesUser_CreatesLandlord_AssignsRole()
@@ -107,15 +117,14 @@ namespace Tests
             var mockHasher = new Mock<IPasswordHasher<object>>();
             var mockLogger = new Mock<ILogger<AccountService>>();
 
-            // Setup mock behaviors
             mockHasher.Setup(h => h.HashPassword(null, dto.Password)).Returns("hashed-password");
             mockUserRepo.Setup(r => r.CreateUserAsync(dto.Email, "hashed-password", dto.PhoneNumber, dto.FirstName, dto.LastName))
                         .ReturnsAsync("user-id-456");
 
             var accountService = new AccountService(
                 mockUserRepo.Object,
-                Mock.Of<IUniversityService>(), // Not used in landlord registration
-                Mock.Of<IStudentService>(),    // Not used here either
+                Mock.Of<IUniversityService>(),
+                Mock.Of<IStudentService>(),
                 mockLandlordService.Object,
                 mockHasher.Object,
                 mockLogger.Object
@@ -130,9 +139,13 @@ namespace Tests
             mockUserRepo.Verify(r => r.AssignRoleAsync("user-id-456", "Landlord"), Times.Once);
         }
 
+
+        // 4 Tests that student registration throws an exception if the underlying user creation process fails.
+        
         [Fact]
         public async Task RegisterStudentAsync_Throws_WhenUserCreationFails()
         {
+            // Arrange
             var dto = new StudentRegistrationDto
             {
                 Email = "john@student.uni.nl",
@@ -161,10 +174,9 @@ namespace Tests
                 Mock.Of<ILogger<AccountService>>()
             );
 
+            // Act & Assert
             var ex = await Assert.ThrowsAsync<Exception>(() => accountService.RegisterStudentAsync(dto));
             Assert.Equal("DB unavailable", ex.Message);
         }
-
-
     }
 }
