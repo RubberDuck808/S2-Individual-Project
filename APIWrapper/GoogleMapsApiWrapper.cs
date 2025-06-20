@@ -13,8 +13,11 @@ namespace APIWrapper
         public GoogleMapsApiWrapper(HttpClient httpClient, IConfiguration config)
         {
             _httpClient = httpClient;
-            _apiKey = config["GoogleMaps:ApiKey"];
+            _apiKey = config["GOOGLE_API_KEY"]
+                   ?? Environment.GetEnvironmentVariable("GOOGLE_API_KEY")
+                   ?? throw new Exception("GOOGLE_API_KEY not found in config or environment variables.");
         }
+
 
         public async Task<(double lat, double lng)?> GetCoordinatesFromAddressAsync(string address)
         {

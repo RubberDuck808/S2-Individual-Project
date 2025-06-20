@@ -15,20 +15,25 @@ using APIWrapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddEnvironmentVariables(); 
+
 
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(LandlordProfile).Assembly);
 
-// Database connection string
 var connectionString = Environment.GetEnvironmentVariable("UNINEST_CONNECTION_STRING");
-
-Console.WriteLine("DEBUG: UNINEST_CONNECTION_STRING =");
-Console.WriteLine(connectionString ?? "[null]");
+var googleApiKey = Environment.GetEnvironmentVariable("GOOGLE_API_KEY");
 
 if (string.IsNullOrEmpty(connectionString))
-{
     throw new Exception("UNINEST_CONNECTION_STRING is not set in environment variables.");
-}
+
+if (string.IsNullOrEmpty(googleApiKey))
+    throw new Exception("GOOGLE_API_KEY is not set in environment variables.");
+
+
+
 
 // Services
 builder.Services.AddScoped<IAccountService, AccountService>();
@@ -45,6 +50,9 @@ builder.Services.AddScoped<IStatusService, StatusService>();
 builder.Services.AddScoped<IAccommodationImageService, AccommodationImageService>();
 builder.Services.AddScoped<IAccommodationAssemblerService, AccommodationAssemblerService>();
 builder.Services.AddScoped<IGeoLocationService, GeoLocationService>();
+builder.Services.AddHttpClient<GoogleMapsApiWrapper>();
+builder.Services.AddScoped<IGoogleMapsApiWrapper, GoogleMapsApiWrapper>(); // <-- must exist
+
 builder.Services.AddScoped<IPasswordHasher<object>, PasswordHasher<object>>();
 
 
