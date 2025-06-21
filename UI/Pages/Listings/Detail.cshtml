@@ -111,27 +111,30 @@ else
     </div>
 }
 
-@section Scripts {
-    <script src="https://maps.googleapis.com/maps/api/js?key=@ViewData["GoogleMapsApiKey"]"></script>
-    <script>
-        function initMap() {
-            const lat = @Model.Latitude?.ToString("F6", System.Globalization.CultureInfo.InvariantCulture);
-            const lng = @Model.Longitude?.ToString("F6", System.Globalization.CultureInfo.InvariantCulture);
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=@ViewData["GoogleMapsApiKey"]&callback=initMap"></script>
 
-            const location = { lat: parseFloat(lat), lng: parseFloat(lng) };
+<script>
+    function initMap() {
+        const lat = @Model.Latitude?.ToString("F6", System.Globalization.CultureInfo.InvariantCulture);
+        const lng = @Model.Longitude?.ToString("F6", System.Globalization.CultureInfo.InvariantCulture);
 
-            const map = new google.maps.Map(document.getElementById('map'), {
-                zoom: 15,
-                center: location
-            });
-
-            new google.maps.Marker({
-                position: location,
-                map: map
-            });
+        if (!lat || !lng) {
+            console.error("Missing coordinates");
+            return;
         }
 
-        document.addEventListener("DOMContentLoaded", initMap);
-    </script>
-}
+        const location = { lat: parseFloat(lat), lng: parseFloat(lng) };
+
+        const map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 15,
+            center: location
+        });
+
+        new google.maps.Marker({
+            position: location,
+            map: map
+        });
+    }
+</script>
+
 

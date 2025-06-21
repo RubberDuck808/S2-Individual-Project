@@ -47,7 +47,11 @@ namespace UI.Pages.Listings
 
         public async Task<IActionResult> OnGetAsync(int id)
         {
-            ViewData["GoogleMapsApiKey"] = _config["GoogleMaps:ApiKey"];
+            var googleApiKey = Environment.GetEnvironmentVariable("GOOGLE_API_KEY")
+    ?? _config["GoogleMaps:ApiKey"];
+
+            ViewData["GoogleMapsApiKey"] = googleApiKey;
+
 
             try
             {
