@@ -33,7 +33,7 @@ The system uses EF Core for data access, Identity for authentication, and AutoMa
 
 ---
 
-## 🧰 Technologies Used
+##  Technologies Used
 
 | Area              | Technology                         |
 |-------------------|-------------------------------------|
@@ -48,7 +48,7 @@ The system uses EF Core for data access, Identity for authentication, and AutoMa
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 UniNest/
 │
@@ -75,7 +75,7 @@ UniNest/
 
 ---
 
-## ✨ Core Features
+## Core Features
 
 - 🔒 User authentication with roles (Landlord, Student)
 - 🏠 CRUD for Accommodations, Landlords, Students
