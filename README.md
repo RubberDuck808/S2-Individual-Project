@@ -1,6 +1,3 @@
-## GitHub
-https://github.com/RubberDuck808/S2-Individual-Project
-
 # UniNest — Student Accommodation Platform
 
 UniNest connects students to verified landlords and listings near their university. Students browse accommodations, apply, and track bookings; landlords list and manage properties and review applicants; admins verify landlords and manage university data.
