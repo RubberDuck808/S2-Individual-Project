@@ -1,13 +1,13 @@
 ## GitHub
 https://github.com/RubberDuck808/S2-Individual-Project
 
-# 🏡 UniNest — Student Accommodation Platform
+# UniNest — Student Accommodation Platform
 
 **UniNest** is a student accommodation web platform built with ASP.NET Core Razor Pages, using a layered architecture (DAL, BLL, UI) and backed by a SQL Server database. The goal is to make it easier for students to find verified housing near universities — with features for landlords, booking, and application tracking.
 
 ---
 
-## 📚 Table of Contents
+## Table of Contents
 
 - [About the Project](#about-the-project)
 - [Technologies Used](#technologies-used)
